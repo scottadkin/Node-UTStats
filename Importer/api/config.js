@@ -14,6 +14,8 @@ const Config = {
     ],
 
     bDeleteFilesFromFTP: true,
+    bImportBTRecords: true,
+    bImportMaps: true,
 
     bIgnoreBots: false,
     bIgnoreDuplicates: false,
@@ -33,8 +35,8 @@ const Config = {
     aceSShotDir: "Shots/",
     bMoveAceLogs: true,
     aceImportDir: "Logs/ace/",
-    btPlusPlusIni: "System/BTPlusPlus.ini",
-    btGameIni: "System/BTGame.ini",
+    btPlusPlusIni: "BTPlusPlus.ini",
+    btGameIni: "BTGame.ini",
     mapsDir: "Maps/"
 };
 

@@ -56,13 +56,13 @@ class LogParser{
 
     }
     
-    async init(){
+    async init_old(){
 
         try{
 
             if(!this.bReimport){
 
-                this.getFileNames();
+                //this.getFileNames();
                 await this.main();
                 //return;
 
@@ -83,6 +83,8 @@ class LogParser{
     }
 
     reset(){
+
+        this.ftpConnections = [];
 
         this.gameInfo = [];
         this.serverInfo = [];
@@ -106,13 +108,8 @@ class LogParser{
 
     }
 
+    async getFiles(){
 
-    async main(){
-
-        
-
-        this.reset();
-        
         let d = 0;
 
         for(let i = 0; i < config.ftpServers.length; i++){
@@ -120,12 +117,36 @@ class LogParser{
             d = config.ftpServers[i];
 
             this.ftpConnections.push(new Importer(d.host, d.port, d.user, d.password));
+
+            await this.ftpConnections[i].import();
+
+            this.logs = this.logs.concat(this.ftpConnections[i].logs);
+            this.tmps = this.tmps.concat(this.ftpConnections[i].tmps);
+            console.log("check");
             //new Message("note", "Connecting to ftp "+config.ftpServers[i].host+":"+config.ftpServers[i].port);
+        }
+
+    }
+
+    async init(){
+
+        
+        try{
+
+            this.reset();
+
+            await this.getFiles();
+            await this.main();
+
+        }catch(err){
+
+            new Message("error", "There was a problem download files from ftp server.");
+            console.trace(err);
         }
        
     }
 
-    /*async main(){
+    async main(){
     
 
         try{
@@ -180,7 +201,7 @@ class LogParser{
            //process.exit(1);
         }
         
-    }*/
+    }
 
     importTmpFile(){
 
@@ -266,7 +287,7 @@ class LogParser{
     }
 
 
-    getFileNames(){
+    /*getFileNames(){
 
        
 
@@ -281,18 +302,18 @@ class LogParser{
         }else{
             new Message("error","Failed to read directory "+this.dir);
         }
-    }
+    }*/
 
 
     async importLog(){
 
         let current = 0;
 
-        current = fs.readFileSync(this.dir+this.logs[this.currentLog], "utf8",(err) =>{
+        current = fs.readFileSync("Logs/"+this.logs[this.currentLog].name, "utf8",(err) =>{
             if(err) reject(err);
         });
 
-        new Message("note","Starting import for "+this.dir+this.logs[this.currentLog]);
+        new Message("note","Starting import for "+"Logs/"+this.logs[this.currentLog].name);
 
         current = current.replace(/\0/g,'');
 
@@ -300,7 +321,7 @@ class LogParser{
             new Message("Warning", "This log is pretty big, it may take more than a few seconds to import, please don't stop this service if it looks frozen.");
         }
 
-        const log = new NLog(this.logs[this.currentLog]);
+        const log = new NLog(this.logs[this.currentLog].name);
 
         await log.bAlreadyImported();
 
@@ -323,7 +344,7 @@ class LogParser{
                     //console.log(this.logs[this.currentLog]);
 
                     const m = new Match(
-                        this.logs[this.currentLog],
+                        this.logs[this.currentLog].name,
                         this.gameInfo,
                         this.serverInfo,
                         this.mapData, 

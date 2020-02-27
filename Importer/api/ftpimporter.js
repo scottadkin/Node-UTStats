@@ -24,7 +24,7 @@ class FTPImporter{
         this.tmpFiles = [];
         this.aceShots = [];
 
-        this.createInstance();
+        //this.createInstance();
     }
 
     readShotsDir(){
@@ -115,18 +115,26 @@ class FTPImporter{
 
                 if(err) reject(err);
 
-                stream.once('close', () =>{
-                    //this.client.end();
-                    new Message("pass", "Downloaded "+dir + file.name +" successfully to "+targetDir + file.name);
+                if(stream != undefined){
+                    
+                    stream.once('close', () =>{
+                        //this.client.end();
+                        new Message("pass", "Downloaded "+dir + file.name);//; +" successfully to "+targetDir + file.name);
 
-                    if(config.bDeleteFilesFromFTP){
+                        if(config.bDeleteFilesFromFTP){
 
-                        //new Message("pass", "Deleted "+ dir + file.name + " from server "+this.host+":"+this.port);
-                    }
+                            //new Message("pass", "Deleted "+ dir + file.name + " from server "+this.host+":"+this.port);
+                        }
+                        resolve();
+                    });
+
+                    stream.pipe(fs.createWriteStream(targetDir + file.name));
+
+                }else{
+
+                    new Message("error", dir+file.name+" was not found.");
                     resolve();
-                });
-
-                stream.pipe(fs.createWriteStream(targetDir + file.name));
+                }
 
             });
 
@@ -136,63 +144,90 @@ class FTPImporter{
 
     async downloadFiles(){
 
-        new Message("note", "Starting download for match log files.");
 
-        for(let i = 0; i < this.logs.length; i++){
+        try{
 
-            await this.downloadFile(config.logDir, this.logs[i], config.logDir);
-        }
+            new Message("note", "Starting download for match log files.");
 
-        new Message("note", "Starting download for ACE kick logs.");
+            for(let i = 0; i < this.logs.length; i++){
 
-        for(let i = 0; i < this.aceLogs.length; i++){
+                await this.downloadFile(config.logDir, this.logs[i], config.logDir);
+            }
 
-            await this.downloadFile(config.logDir, this.aceLogs[i], config.logDir);
+            new Message("note", "Starting download for tmp files.");
 
-        }
+            for(let i = 0; i < this.tmpFiles.length; i++){
 
-        new Message("note", "Starting download for ACE kick screenshots.");
+                await this.downloadFile(config.logDir, this.tmpFiles[i], config.logDir);
+            }
 
-        for(let i = 0; i < this.aceShots.length; i++){
+            new Message("note", "Starting download for ACE kick logs.");
 
-            await this.downloadFile(config.aceSShotDir, this.aceShots[i], config.aceSShotDir);
+            for(let i = 0; i < this.aceLogs.length; i++){
+
+                await this.downloadFile(config.logDir, this.aceLogs[i], config.logDir);
+
+            }
+
+            new Message("note", "Starting download for ACE kick screenshots.");
+
+            
+            for(let i = 0; i < this.aceShots.length; i++){
+
+                await this.downloadFile(config.aceSShotDir, this.aceShots[i], config.aceSShotDir);
+            }
+
+
+            if(config.bImportBTRecords){
+
+                await this.downloadFile("System/", {"name": config.btPlusPlusIni }, "BT/"+config.btPlusPlusIni);
+                await this.downloadFile("System/", {"name": config.btGameIni }, "BT/"+config.btGameIni);
+            }
+
+        }catch(err){
+            console.trace(err);
+            //throw err;
         }
 
         this.client.end();
     }
 
-    createInstance(){
+    import(){
 
 
-        this.client = new ftp();
+        return new Promise((resolve, reject) =>{
 
-        this.client.on('ready', (err) =>{
+            this.client = new ftp();
 
-            if(err) { throw err; };
+            this.client.on('ready', (err) =>{
 
-            new Message("pass", "Connected to "+this.host+":"+this.port+" successfully!");
+                if(err) reject(err); 
 
-            this.readLogsDir();
+                new Message("pass", "Connected to "+this.host+":"+this.port+" successfully!");
 
-        });
+                this.readLogsDir();
+
+            });
 
 
-        this.client.on('end', (err) =>{
+            this.client.on('end', (err) =>{
 
-            if(err) throw err;
+                if(err) reject(err);
 
-            new Message("pass", "Finished downloading files from "+this.host+":"+this.port);
-            new Message("pass", "Disconnected from "+this.host+":"+this.port);
+                new Message("pass", "Finished downloading files from "+this.host+":"+this.port);
+                new Message("pass", "Disconnected from "+this.host+":"+this.port);
 
-        });
+                resolve();
 
-        this.client.connect({
-            "host": this.host,
-            "port": this.port,
-            "user": this.user,
-            "password": this.password
-        });
-        
+            });
+
+            this.client.connect({
+                "host": this.host,
+                "port": this.port,
+                "user": this.user,
+                "password": this.password
+            });
+        });       
     }
 
 }
