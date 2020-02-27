@@ -1,0 +1,912 @@
+
+<%
+
+
+console.table(playerTotalIds);
+
+const cTitles = [
+    "Kills",
+    "Frags",
+    "Deaths",
+    "Suicides",
+    "Team Kills",
+    "Efficiency",
+    //"Average Total Time Alive",
+    "Flag Captures",
+    "Flag Covers",
+    "Flag Grabs",
+    "Flag Returns",
+    "Flag Assists",
+    "Flag Kills",
+    "Holy Shits",
+    //"Brutalizing",
+    "Best Killing Spree",
+    "Best Multi Kill",
+    "Most Spawn Kills",
+    "Best Spawn Kill Spree",
+    "Play Time",
+    "Domination Point Captures",
+    "Assault Object Captures",
+    "Monster Kills (Monster Hunt)",
+    //"Matches Played"
+];
+
+
+const cNames = [
+    "kills",
+    "points",
+    "deaths",
+    "suicides",
+    "team_kills",
+    "eff",
+    //"ttl",
+    "flag_caps",
+    "flag_covers",
+    "flag_grabs",
+    "flag_returns",
+    "flag_assists",
+    "flag_kills",
+    "m7",
+    // "s7",
+    "best_spree",
+    "best_multi",
+    "spawn_kills",
+    "best_spawn_kill_spree",
+    "play_time",
+    "dom_caps",
+    "assault_caps",
+    "monster_kills",
+    //"total_matches"
+];
+
+
+let title = search; 
+
+if(title != ""){
+    title = " - "+cTitles[cNames.indexOf(search)];
+}
+%>
+<%-
+    include('../partials/header.ejs', {
+        "title": "Records "+title, 
+        "req": req,
+        "description": "View all the player records on this page, see who has the most kills, who has won the most games, who has captured the most flags, and much, much more"
+    });
+%>
+
+
+
+
+<%
+
+
+
+let bDisplayedData = false;
+
+
+function getMatchMapId(id){
+
+
+    let d = 0;
+
+
+    for(let i = 0; i < mapData.length; i++){
+
+        d = mapData[i];
+
+        if(d.id == id){
+
+            return parseInt(d.map);
+        }
+    }
+
+
+    return -1;
+}
+
+function getMapName(id){
+
+    let d = 0;
+
+    const mapId = getMatchMapId(id);
+
+    for(let i = 0; i < mapNames.length; i++){
+
+        d = mapNames[i];
+
+        if(d.id == mapId){
+            return d.name;
+        }
+    }
+
+    return "Unknown map";
+}
+
+
+function getPlayerTotalId(name){
+
+    let d = 0;
+
+    console.table(playerTotalIds);
+
+    for(let i = 0; i < playerTotalIds.length; i++){
+
+        d = playerTotalIds[i];
+
+        if(d.name == name){
+
+            return d.id;
+        }
+    }
+
+
+    return -1;
+}
+
+
+
+
+
+function getTypeOffset(type){
+
+    //..for(let i = 0; i <){
+
+    //}
+
+}
+
+function getTypeTitle(type){
+
+
+    for(let i = 0; i < cNames.length; i++){
+
+        if(cNames[i] == type){
+            return cTitles[i];
+        }
+    }
+
+
+    return "Unknown Title";
+}
+
+
+function getAllTimeData(type){
+
+    let d = 0;
+
+    if(type == "play_time"){
+
+        type = "total_time";
+    }
+
+    for(let i = 0; i < allTimeRecords.length; i++){
+
+        d = allTimeRecords[i];
+
+        if(d.type == type){
+
+            d.type = type;
+            return d;
+        }
+
+    }
+
+    return {"type": "", "data": []};
+}
+
+function getMatchData(type){
+
+    let d = 0;
+
+   // if(type == "play_time"){
+
+    //    type = "total_time";
+    //}
+
+   // console.log(matchRecords);
+
+    for(let i = 0; i < matchRecords.length; i++){
+
+        d = matchRecords[i];
+
+        //console.log("Looking for "+type+" found "+d.type);
+        if(d.type == type){
+           // console.log("FOUND IT");
+
+            //console.table(d);
+
+            return d;
+        }
+
+    }
+
+    return {"type": "", "data": []};
+}
+
+
+function displayMatchRecords(){
+
+    
+    let d = 0;
+    let p = 0;
+    let a = 0;
+    let all = 0;
+
+   
+
+    let type = "";
+    let title = "";
+    
+    
+    for(let i = 0; i < cNames.length; i++){
+
+
+
+        type = cNames[i];
+        title = cTitles[i];
+
+
+        if(matchRecords.length == 1 && i == 0){
+
+
+            type = matchRecords[0].type;
+            title = cTitles[cNames.indexOf(type)];
+
+            d = matchRecords[0];
+            all = allTimeRecords[0];
+
+        }else{
+
+            if(matchRecords[i] === undefined){
+                continue;
+            }
+            bDisplayedData = true;
+            //console.log("bDisplayedData = true;")
+        // d = matchRecords[i];
+
+            all = getAllTimeData(type);
+            d = getMatchData(type);
+
+        }
+
+
+        %>
+        <div class="default">
+            <div class="default-dual-sub-header">
+                <div>
+                    <%= title %> (Match)
+                </div>
+                <div>
+                    <%= title %> (All time)
+                </div>
+            </div>
+        <tr>
+            <th>Player</th>
+            <th>Match Link</th>
+            <th><%= title %></th>
+            <th>Player</th>
+            <th>Player Link</th>
+            <th><%= title %></th>
+            
+        </tr>
+        <%
+
+        //i//f(d.data == undefined || all.data == undefined){
+           //.//,, continue;
+       // }
+
+        for(let x = 0; x < d.data.length; x++){
+
+            p = d.data[x];
+            a = all.data[x];
+
+            if(p == undefined){
+                p = {"flag":"xx","name": ""}
+            }
+
+            if(a == undefined){
+                a = {"flag":"xx","name": ""}
+            }
+
+
+            %>
+            <div class="data-default match-record">
+                <a href="/player?id=<%= getPlayerTotalId(p.name) %>"><div><img src="files/flags/<%= p.flag %>.png" alt="flag"/><%= p.name %></div></a>
+                <a href="/match?id=<%= p.match_id %>"><div><%= getMapName(p.match_id) %></div></a>
+                <div>
+                <%
+
+                if(d.type == "ttl" || d.type == "play_time" || d.type == "total_time"){
+
+                    
+                    %>
+
+                        <span class="date-alt"><%= p[d.type] %></span>
+                    <%
+
+                }else if(d.type == "eff"){
+
+                    %>
+                        <%= p.value.toFixed(2) %>
+                    <%
+                }{
+
+                    %>
+                        <%= p.value %> 
+                    <%
+                } 
+                %>
+                </div>
+
+                <%
+                    if(a.name == ""){
+
+
+                    }else{
+
+                %>
+
+                <a href="/player?id=<%= a.id %>"><div><img src="files/flags/<%= a.flag %>.png" alt="flag"/><%= a.name %></div></a>
+                <a href="/player?id=<%= a.id %>"><div>Player Profile</div></a>
+                <div>
+                <%
+                if(d.type == "ttl" || d.type == "play_time" || d.type == "total_time"){
+
+                    %>
+                        <span class="date-alt"><%= a[d.type] %></span>
+                    <%
+
+                }else{
+                    
+                        //console.log("a[d.type]");
+                       // console.log(a[d.type]);
+                       /// console.log("a[d.type]");
+                        %>
+                        <%= a[d.type] %> 
+                    <%
+                } 
+                %>
+                </div>
+                <%
+
+                    }
+                %>
+            </div>
+            <%
+        }
+
+        if(search == ""){
+            %>
+                
+                <a href="/records?type=<%= d.type %>">
+                    <div class="view-all">
+                        View all records for <%= getTypeTitle(type) %>
+                    </div>
+                </a>
+            </div>
+            <%
+        }
+    }
+
+    if(matchRecords.length == 1){
+
+        %>
+            <%- 
+                include('../partials/pagination.ejs', {"results":results, "pages":pages, "page":page+1, "url":"/records?type="+search+"&page="});
+            %>
+        <%
+    }
+
+}
+
+
+
+//displayMatchRecords();
+
+
+function getOrdinal(x){
+
+    x = x + 1;
+
+    const remainder = x % 100;
+
+
+    if(remainder >= 10 && remainder < 20){
+        return x+"th";
+    }else{
+        const lastDigit = x % 10;
+
+        if(lastDigit == 1){
+            return x+"st";
+        }else if(lastDigit == 2){
+            return x+"nd";
+        }else if(lastDigit == 3){
+            return x+"rd";
+        }
+
+        return x+"th";
+    }
+  
+
+}
+
+
+function getPlayerTotalMatches(name){
+
+    let d = 0;
+
+    //console.log(playerTotalMatches);
+    //console.log("LOOKING FOR =============== "+name);
+    for(let i = 0; i < playerTotalMatches.length; i++){
+
+        d = playerTotalMatches[i];
+
+        if(d.name == name){
+            return d.matches;
+        }
+    }
+
+    return "Not Found...";
+}
+
+function displayRecords(){
+
+
+   // console.log("displayRecords");
+    //console.log(matchRecords);
+    //matchRecords // allTimetercodxsd
+
+    let currentAllTimeData = null;
+    let currentMatchData = null;
+    let amount = 0;
+    
+    let d = 0;
+
+    let image = null;
+
+
+    let altName = "";
+
+    let classData = "";
+  
+
+    for(let i = 0; i < cTitles.length; i++){
+
+
+
+        currentAllTimeData = getAllTimeData(cNames[i]);
+
+
+        currentMatchData = getMatchData(cNames[i]);
+        
+
+        if(currentAllTimeData.data.length > 0){
+            //console.table(currentAllTimeData);
+        }
+
+        if(currentAllTimeData.data.length == 0 && currentMatchData.data.length == 0){
+           // console.log("No data found");
+            continue;
+        }
+
+        bDisplayedData = true;
+        //console.log("bDisplayedData = true;");
+
+        %>
+
+
+            <div class="records-double">
+                <table class="default-table" style="min-width:70%;">
+                    <caption>
+                        All Time <%= cTitles[i] %> Records
+                    </caption>    
+                <tr>
+                    <th>Player</th>    
+                    <th>Matches</th>    
+                    <th><%= cTitles[i] %></th>    
+
+                </tr>
+                <%
+
+                if(currentAllTimeData.data.length > 0){
+                    
+                
+                    for(let x = 0; x < currentAllTimeData.data.length; x++){
+
+                        image = getOrdinal(x);
+
+                        if(currentAllTimeData.data[x] != undefined){
+
+                            d = currentAllTimeData.data[x];
+
+
+                            if(currentAllTimeData.type == "total_time" || currentAllTimeData.type == "play_time"){
+                                //classData = `class="date-alt"`;
+                                d["value"] = (d["value"] / (60 * 60)).toFixed(2)+" Hours";
+                            }else if(currentAllTimeData.type == "eff"){
+                                d.value = d.value.toFixed(2)+"&#37;";
+                            }
+                            %>
+                                <tr>
+                                    <td><a href="/player?id=<%= getPlayerTotalId(d.name) %>"><span class="ranking-place"><%= image %></span> <img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></a></td>
+                                    <td class="text-center"><a href="/match?id=<%= d.match_id %>"><b><%= getPlayerTotalMatches(d.name) %></b> Matches Played</a></td>
+                                    <td  class="text-center"><a href="/player?id=<%= d.id %>" ><%- d["value"] %></a></td>
+                                </tr>
+                            <%
+                        }
+
+                    }
+                }else{
+                   
+                }
+                    %>
+                <tr>
+                    <td colspan="3">
+                        <a href="/records?type=all&amp;cat=<%= cNames[i] %>&amp;page=1"><div class="records-button">View All Time Records</div></a>
+                    </td>    
+                </tr>
+                   
+            </table>
+
+
+
+            <table class="default-table" style="min-width:70%;">
+                
+                <caption>
+                        Match <%= cTitles[i] %> Records
+                </caption> 
+
+                
+                <tr>
+                    <th>Player</th>    
+                    <th>Match Link</th>    
+                    <th><%= cTitles[i] %></th>    
+                </tr>
+                <%
+                // if(currentMatchData != undefined){
+                    for(let x = 0; x < currentMatchData.data.length; x++){
+
+                        image = getOrdinal(x);
+
+                        //if(currentMatchData[x] != undefined){
+                            d = currentMatchData.data[x];
+
+                            //console.log(d);
+                            if(currentAllTimeData.type == "total_time"){
+                                classData = `class="date-alt"`;
+                            }else{
+                                classData = "";
+                            }
+
+                        // console.log(d);
+
+                        if(currentMatchData.type == "total_time" || currentMatchData.type == "play_time"){
+                            //classData = `class="date-alt"`;
+                            d[cNames[i]] = (d[cNames[i]] / (60 * 60)).toFixed(2)+" Hours";
+                        }else if(currentMatchData.type == "eff"){
+                            d[cNames[i]] = d[cNames[i]].toFixed(2)+"&#37;";
+                        }
+                            %>
+                                <tr>
+                                <td><a href="/match?id=<%= d.match_id %>"><span class="ranking-place"><%= image %></span> <img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></a></td>
+                                <td class="text-center"><a href="/match?id=<%= d.match_id %>"><%= getMapName(d.match_id) %></a></td>
+                                <td class="text-center"><a href="/match?id=<%= d.match_id %>" ><%- d[cNames[i]] %></a></td>
+                                </tr>
+                            <%
+                        //}
+
+                    }
+                // }
+                %>
+                <tr>
+                    <td colspan="3">
+                        <a href="/records?type=match&amp;cat=<%= cNames[i] %>&amp;page=1"><div class="records-button">View All Match Records</div></a>    
+                    </td>
+                </tr>
+            </table>
+            </div>
+        
+            
+       
+           
+  
+        <%
+    }
+
+
+}
+
+function getMatchDate(id){
+
+    //console.table(matchDates);
+    for(let i = 0; i < matchDates.length; i++){
+
+        if(matchDates[i].id == id){
+            return matchDates[i].date;
+        }
+    }
+
+    return -1;
+}
+
+
+//let recordsTitle = "LOL";
+
+
+function displaySingleRecords(){
+
+    let data = [];
+    let type = "Unknown";
+    let className = "";
+    let classData = "";
+
+    let bAllTime = false;
+
+    let recordsTitle = "Playtime (Career Total)";
+
+    //console.log(allTimeRecords[0]);
+
+    if(matchRecords != undefined){
+        if(matchRecords.length > 0){
+           // if(matchRecords[0].length != 0){
+                data = matchRecords[0].data;
+                type = matchRecords[0].type;
+                className = "match";
+                //recordsTitle = type;
+            //}
+        }
+    }
+
+    if(allTimeRecords != undefined){
+
+        if(allTimeRecords.length > 0){
+            //if(allTimeRecords[0].length != 0){
+
+               // console.log(allTimeRecords[0]);
+                data = allTimeRecords[0].data;
+                type = allTimeRecords[0].type;
+                className = "all";
+
+                bAllTime = true;
+               // recordsTitle = type;
+            //}
+        }
+    }
+
+    const titleIndex = cNames.indexOf(type);
+
+    if(titleIndex != -1){
+        let postFix = "";
+
+        if(className == "all"){
+            postFix = " (Career Total)";
+        }else if(className == "match"){
+            postFix = " (Single Match)";
+        }
+        recordsTitle = cTitles[titleIndex]+" Records "+postFix;
+    }else{
+        //recordsTitle = cTitles[titleIndex];
+    }
+
+    if(data.length > 0){
+        bDisplayedData = true;
+    }
+    %>
+
+    <div class="default">
+        <div class="default-header">
+            <%= recordsTitle %>
+        </div>
+
+        
+        <div class="default-form">
+            <form action="/records" method="GET">
+                <input type="hidden" name="type" value="<%= searchType %>">
+                <input type="hidden" name="cat" value="<%= cat %>">
+                <div class="form-row-admin">
+                    <div>Gametype</div>    
+                    <div>
+                        <select name="gametype" class="default-select" style="float:left;">
+                            <option value="0">All Gametypes</option>
+                            <%
+                                (() =>{
+
+                                    let d = 0;
+
+                                    for(let i = 0; i < gametypeNames.length; i++){
+
+                                        d = gametypeNames[i];
+
+                                        %>
+                                        <option <%- (d.id == currentGametype) ? "selected" : ""; %> value="<%= d.id %>"><%= d.name %></option>
+                                        <%
+                                    }
+
+
+                                })();
+                                
+                            %>
+                        </select>    
+                    </div>    
+                </div>
+                
+                <input type="submit" class="search-b" value="Search">
+            </form> 
+        </div>
+
+        
+
+
+        <table class="default-table">
+            <tr>
+                <th>Place</th>
+                <th>Player</th>
+                <th><%- (bAllTime) ? "Matches" : "Map" ; %></th>
+                <%
+                if(!bAllTime){
+                    %>
+                    <th>Played</th>
+                    <%
+                }
+                %>
+                <th><%= type %></th>
+            </tr>
+
+    <%
+
+    let d = 0;
+    let url = "";
+
+    //console.table(type);
+
+    if(type == "total_time" || type == "play_time"){
+        //classData = `class="date-alt"`;
+    }
+
+    for(let i = 0; i < data.length; i++){
+
+        d = data[i];
+
+        if(className == "match"){
+            url = "/match?id="+d.match_id;
+        }else{
+            url = "/player?id="+d.id;
+        }
+
+        
+
+        %>
+
+
+        
+            <tr>
+                <td><%= getOrdinal(i + ((page - 1) * perPage)) %></td> 
+                <td><a href="/player?id=<%= getPlayerTotalId(d.name) %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name  %></a></td> 
+                <%
+                if(className == "match"){
+                    %>
+                    <td><a href="/match?id=<%= d.match_id %>"><%= getMapName(d.match_id) %></a> </td>
+                    <%
+                }else{
+                    %>
+                    <td><b><%= getPlayerTotalMatches(d.name) %></b> Matches Played</td>
+                    <%
+                }
+
+                if(type == "total_time" || type == "play_time"){
+                    //classData = `class="date-alt"`;
+                    d.value = (d.value / (60 * 60)).toFixed(2)+" Hours";
+                }else if(type == "eff"){
+                    d.value = d.value.toFixed(2)+"&#37;";
+                }
+               
+                if(!bAllTime){
+                    
+                    %>
+                    <td><span class="date records-date" style="font-size:12px"><%= getMatchDate(d.match_id) %></span></td>
+                    <%
+                }
+                %>
+
+                
+
+                
+                <td class="text-center"> <%- d.value %></td>
+            </tr>
+        <%
+
+    }
+
+
+    if(data.length == 0){
+        %>
+        <tr>
+            <td colspan="100" class="text-center">
+                No data found.    
+            </td>
+        </tr>
+        <%
+    }
+    %>
+        </table>
+    <%
+}
+
+
+
+//if(!bDisplayedData){
+
+
+   // }else{
+
+
+    if(!bSingle){
+
+        %>
+
+        <div class="default">
+            <div class="default-header">
+                Player Records
+            </div>
+
+            <div class="default-form">
+            <form action="/records" method="GET">
+                <input type="hidden" name="type" value="<%= searchType %>">
+                <input type="hidden" name="cat" value="<%= cat %>">
+                <div class="form-row-admin">
+                    <div>Gametype(s)</div>    
+                    <div>
+                        <select name="gametype" class="default-select" style="float:left;">
+                            <option value="0">All Gametypes</option>
+                            <%
+                                (() =>{
+
+                                    let d = 0;
+
+                                    for(let i = 0; i < gametypeNames.length; i++){
+
+                                        d = gametypeNames[i];
+
+                                        %>
+                                        <option <%- (d.id == currentGametype) ? "selected" : ""; %> value="<%= d.id %>"><%= d.name %></option>
+                                        <%
+                                    }
+
+
+                                })();
+                                
+                            %>
+                        </select>    
+                    </div>    
+                </div>
+                
+                <input type="submit" class="search-b" value="Search">
+            </form> 
+        </div>
+
+        <%
+        displayRecords();
+    }else{
+        
+        displaySingleRecords();
+
+        %>
+        <div class="records-bottom-padding">&nbsp;</div>
+        <%-
+        include("../partials/pagination.ejs",{"url":"/records?type="+type+"&cat="+cat+"&gametype="+currentGametype+"&page=","page":page,"pages":pages,"results":results});
+        %>
+        <%
+
+    }
+//}
+%>
+
+
+
+
+
+</div>
+
+<%-
+    include('../partials/footer.ejs');
+%>

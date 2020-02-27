@@ -1,0 +1,142 @@
+
+<%-
+    include("../partials/header.ejs", {"title": "Bunnytrack records", "description": "View all the bunnytrack map leaderboards here."});
+
+%>
+
+<%
+
+function mmss(input){
+
+    let seconds = (input % 60).toFixed(2);
+
+    let minutes = Math.floor(input / 60);
+
+
+    if(seconds < 10){
+        seconds = "0"+seconds;
+    }
+
+    if(minutes < 10){
+
+        minutes = "0"+minutes;
+    }
+
+    return minutes+":"+seconds;
+}
+
+function getPlayer(id){
+
+    for(let i = 0; i < players.length; i++){
+
+        if(players[i].id == id){
+
+            return players[i];
+        }
+    }
+
+    return {"name":"Imported Record", "id": -1, "flag": ""};
+}
+
+
+function getMapName(id){
+
+    for(let i = 0; i < maps.length; i++){
+
+        if(maps[i].id == id){
+            return maps[i].name;
+        }
+    }
+
+    return "Map name not found.";
+}
+
+
+
+
+
+function display(){
+
+    if(data.length > 0){
+
+        let d = 0;
+        let p = 0;
+        
+        %>
+        <div class="default">
+            <div class="default-header">
+                Bunnytrack Records
+            </div>
+
+            <table class="default-table frag-table">
+
+            <tr>
+                <th>Map</th>
+                <th>Record Holder</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Improvement</th>
+            </tr>
+        
+        <%
+
+
+        let flag = "";
+
+        for(let i = 0; i < data.length; i++){
+
+            d = data[i];
+
+            p = getPlayer(d.player_id);
+
+            if(p.flag != ''){
+
+                flag = '<img src="files/flags/'+p.flag+'.png" alt="flag"/>';
+
+            }else{
+                flag = '';
+            }
+            %>
+
+                <tr>
+                    <td><a href="/map?id=<%= d.map_id %>"><%= getMapName(d.map_id) %></a></td>
+                    <td><a href="/player?id=<%= p.id %>"><%- flag %> <%= p.name %></a></td>
+                    <td class="date"><%= d.date %></td>
+                    <td class="team-purple"> <%= mmss(d.time) %></td>
+                    <td class="team-green"> <%= mmss(d.improvement) %></td>
+                </tr>
+
+            <%
+        }
+
+        %>
+            </table>
+        </div>
+        <%
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+display();
+
+%>
+
+
+
+
+
+<%-
+
+    include("../partials/footer.ejs");
+
+%>

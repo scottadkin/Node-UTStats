@@ -1,0 +1,69 @@
+
+<%
+
+
+if(results == 0){
+    return;
+}
+
+
+
+%>
+
+<div class="pagination">
+    <div class="pagination-header">
+        Page Navigation
+    </div>
+
+    <div class="pagination-info">
+        Displaying page <%= page %> of <%= pages %>.<br/>
+        <%= results %> results found
+    </div>
+
+    <div class="pages">
+    <%
+
+        let start = page - 3;
+        let end = page + 3;
+
+        if(start < 1){
+            start = 1;
+        }
+
+        if(end > pages){
+            end = pages;
+        }
+
+        let className = "";
+        for(let i = start; i <= end; i++){
+
+            //console.log(i);
+
+            if(start > 1 && i == start){
+                %>
+                    <a href="<%= url %>1"><div class="page">1</div></a>
+                <%
+            }
+
+            
+
+            if(i == page){
+                className = "page selected";
+            }else{
+                className = "page";
+            }
+            %>
+            <a href="<%= url %><%= i %>"><div class="<%= className %>"><%= i %></div></a>
+            <%
+
+            if(end < pages && i == end){
+                %>
+                    <a href="<%= url %><%= pages %>"><div class="page"><%= pages %></div></a>
+                <%
+            }
+
+        }
+    %>
+    </div>
+
+</div>

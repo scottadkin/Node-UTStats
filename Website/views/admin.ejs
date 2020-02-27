@@ -1,0 +1,1745 @@
+
+<%-
+    include("../partials/header.ejs", {"req": req, "title": "Admin Area", "description": "Admin area"});
+%>
+
+
+
+
+
+<%
+
+
+
+
+//if(bSetup){
+    function displayLoginArea(){
+
+        %>
+            <div class="default">
+                <div class="default-header">
+                    Login To Admin Area
+                </div>
+
+                <div class="form">
+                    <form action="/login" method="POST">
+                        <div class="form-row-admin">
+                            <div>Username</div>
+                            <div><input type="text" style="float:left;" class="form-row-box" name="name" placeholder="username"/></div>
+                        </div>
+                        <div class="form-row-admin">
+                            <div>Password</div>
+                            <div><input type="password" style="float:left;" class="form-row-box" name="pass" placeholder="password"/></div>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="submit" class="search-b" name="submit" value="Submit"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <%
+    }
+//}
+
+function bMapFileExists(name){
+
+    let d = 0;
+    let result = 0;
+    const fileReg = /^(.+)\.jpg$/i;
+
+    for(let i = 0; i < mapFiles.length; i++){
+
+        d = mapFiles[i];
+
+        if(fileReg.test(d)){
+            result = fileReg.exec(d);
+
+            if(result[1] == name){
+                return {"found": true, "name": '<span class="green"><b>FOUND</b></span>'};
+            }
+        }
+    }
+
+    return -1;
+}
+
+function bMapImageExists(name){
+
+    const reg = /^.+?\-(.+?)(\.unr|)$/i;
+    const backupReg = /^(.+?)(\.unr|)$/;
+
+    
+
+    let result = null;
+
+    if(reg.test(name)){
+
+        result = reg.exec(name);
+       // console.log(result);
+
+        const parsedName = result[1].toLowerCase();
+        //console.log(parsedName);
+
+        let d = 0;
+
+        
+
+        //
+        const fileResult = bMapFileExists(parsedName);
+        if(fileResult != -1){
+            return fileResult;
+        }
+
+        const removeExt = /^(.+?)\.unr$/i;
+
+        if(removeExt.test(parsedName)){
+
+            result = removeExt.exec(parsedName);
+            
+            return {"found": false, "name": `<span class="red"><b>MISSING</b></span> Required File <b>${result[1]}.jpg</b>`};
+        }
+
+        return {"found": false, "name": `<span class="red"><b>MISSING</b></span> Required File <b>${parsedName}.jpg</b>`};
+
+    }else if(backupReg.test(name)){
+    
+        result = backupReg.exec(name);
+
+        const parsedName = result[1].toLowerCase();
+        //console.log(result);
+
+        /*for(let i = 0; i < mapFiles.length; i++){
+
+            d = mapFiles[i];
+
+            if(fileReg.test(d)){
+                result = fileReg.exec(d);
+
+                if(result[1] == parsedName){
+                    return {"found": true, "name": '<span class="green"><b>FOUND</b></span>'};
+                }else{
+                    return {"found": false, "name": `<span class="red"><b>MISSING</b></span> Required File <b>${parsedName}.jpg</b>`};
+                }
+            }
+        }*/
+
+        const fileResult = bMapFileExists(parsedName);
+
+        if(fileResult != -1){
+            return fileResult;
+        }else{
+            return {"found": false, "name": `<span class="red"><b>MISSING</b></span> Required File <b>${parsedName}.jpg</b>`};
+        }
+
+    }
+
+    return {"found": false, "name": "Error..."};
+}
+
+function fixMapName(name){
+
+    const unrReg = /^(.+)\.unr$/i;
+
+    let result = unrReg.exec(name);
+
+    if(result != null){
+
+        name = result[1];
+    }
+
+    const prefixReg = /^.+?\-(.+)$/i;
+
+    result = prefixReg.exec(name);
+
+    if(result != undefined){
+
+        name = result[1];
+    }
+
+    return name;
+}
+
+function displayMapImageList(){
+
+    %>
+        <div class="default">
+            <div class="default-header">
+                Map Images Status    
+            </div>   
+
+            <div class="admin-info">
+            <div class="default-header">Information</div>
+            <div class="admin-info-text">
+                Each match report and map page require a map screenshot.<br>
+                Here you can see what files are missing how often they are used, and what file is required to be added to <b><u>/public/files/maps/</u></b><br>
+                Each map screenshot must be at least <b>1920x1080 pixels</b>(or any 16:9 aspect ratio) for best quality and <b>.jpg</b> file format.<br> If the file type is not .jpg it will be converted to a jpg image and saved to the server.<br>
+                You can find the required file name in the image status column.
+            </div>
+            <div class="default-header">Create Thumbnails Tool</div>
+            <div class="admin-info-text">
+                By default there is no thumbnails for map images, if you would like the site to use map thumbnails where possible it will improve page loading times dramatically.<br>To create the thumbnails simply click the button below.<br>
+
+                
+                <div class="big-button" id="create-map-thumbs">
+                    Create Map Thumbnails    
+                </div>
+                <div id="create-map-output">
+                
+                </div>
+
+                <script>
+                    (() =>{
+
+                        const buttonElem = document.getElementById("create-map-thumbs");
+                        const buttonOutElem = document.getElementById("create-map-output");
+
+                        let bClicked = false;
+
+
+                        buttonElem.addEventListener('click', () =>{
+
+                            if(bClicked){
+                                console.log("You can only press once per page load");
+                                return;
+                            }else{
+
+                                bClicked = true;
+                            }
+
+
+                            buttonElem.style.cssText = "background-color:orange;";
+
+                            const x = new XMLHttpRequest();
+
+                            buttonOutElem.innerHTML = "Map thumbnails are being created, this site may become slow or unresponsive while the files are created.";
+
+                            x.onreadystatechange = () =>{
+
+                                if(x.status == 200 && x.readyState == 4){
+                                    console.log("ok");
+                                }
+                            }
+
+                            x.open("POST", "/admin?mode=createmapthumbs");
+                            x.send();
+                        });
+
+                    })();
+                </script>
+
+            </div>
+            <div class="default-header">Upload Map Images</div>
+            <div class="admin-info-text">
+                
+                You can upload map images here instead of using ftp or VM, file type must be .jpg and 16:9 aspect ratio for best appearance.
+
+                <form method="POST" action="/admin?mode=uploadmaps" class="text-center" enctype="multipart/form-data">
+                    <input type="file" name="map-files" style="padding:25px;" id="map-files" multiple accept="image/*"><br>
+                    <input type="submit" name="map-submit" class="search-b" value="Upload Maps"><br>
+                </form>
+                <div id="admin-image-preview">
+                </div>
+                <script>
+                    const a = document.getElementById("map-files");
+
+                    console.log(a);
+                    console.log(a.files);
+
+                    const elem = document.getElementById("admin-image-preview");
+                    elem.style.cssText = "text-align:center;";
+
+                    a.addEventListener("change", () =>{
+
+                        console.log("newmemwomeowmeow");
+
+                        console.log(a.files);
+
+                        const fileReaders = [];
+
+                        //const fr = new FileReader();
+
+
+                        for(let i = 0; i < a.files.length; i++){
+
+
+
+                            fileReaders.push(new FileReader());
+                            fileReaders[i].readAsDataURL(a.files[i]);
+
+                            fileReaders[i].addEventListener("load", () =>{
+
+                                console.log(a.files[i]);
+                                //console.log(this);
+                                const data = fileReaders[i].result;
+                                //console.log(fileReaders[fileReaders.length - 1].result);
+                               // console.log(data);
+
+                                const t = new Image();
+                                t.src = data;
+                                t.style.cssText = "width:210px;height:135px;border:1px solid rgb(32,32,32);box-shadow:1px 1px 1px rgba(0,0,0,0.5);";
+                                elem.appendChild(t);
+                            });
+                        }
+
+                    });
+
+                </script>
+
+            </div>
+        </div>
+            
+            <div class="data-header admin-map-images">
+                <div>Map File</div>
+                <div>Total Matches</div>
+                <div>Image Status</div>
+                <div>Upload Single Image (name is automatically set)</div>
+            </div>
+        
+    <%
+
+    let d = 0;
+
+    //console.table(mapDetails);
+
+    let imageStatus = null;
+    let currentMapName = "";
+
+    let realMapName = "";
+
+    for(let i = 0; i < mapDetails.length; i++){
+
+        d = mapDetails[i];
+
+        imageStatus = bMapImageExists(d.name);
+       // console.log(imageStatus);
+
+        currentMapName = fixMapName(d.name);
+
+        realMapName = currentMapName;
+
+        if(imageStatus.found == false){
+
+            currentMapName = "default";
+        }
+
+
+
+        currentMapName = `
+            <input type="file" id="map-image-uploader-${i}" accept="image/*" name="map-files">
+            <input type="button" id="map-image-${i}" class="map-image-uploader" data-fileid="${i}" data-mapname="${realMapName.toLowerCase()}" name="map-submit" value="Upload">
+        `;
+        
+
+        %>
+        <div class="data-default admin-map-images">
+            <div><%= d.name %></div>
+            <div><%= d.matches %></div>
+            <div id="upload-map-status-<%= i %>"><%- imageStatus.name %><br> <a href="files/maps/<%= (imageStatus.found)  ? realMapName.toLowerCase() : "default" ; %>.jpg" style="color:yellow;text-decoration:underline;" target="_blank">View Image</a></div>
+            <div id="upload-map-name-<%= i %>"><%- currentMapName %></div>
+        </div>
+        <%
+        
+
+    }
+
+
+    %>
+
+    <script>
+        (() =>{
+
+
+            function uploadFile(elem){
+
+                elem = document.getElementById(elem);
+                const elemId = elem.id;
+                const mapName = elem.dataset.mapname;
+                const fileId = elem.dataset.fileid;
+
+               // console.log(elemId);
+              //  console.log(mapName);
+               // console.log(fileId);
+                //const fileElem = 
+
+                const fileElem = document.getElementById("map-image-uploader-"+fileId);
+
+                console.log(fileElem.files);
+
+                if(fileElem.files.length == 0){
+                    console.log("NOOOOOOO FILELSLELSLESLESLSLELSLESLEL");
+
+                    //console.log(fileElem);
+                    return;
+                }
+
+                const currentFile = fileElem.files[0];
+
+                const currentData = new FormData();
+
+                currentData.append("mapname", mapName);
+                currentData.append("map-files", fileElem.files[0]);
+                // currentData.append(fileElem);
+                
+
+                const mapNameBox = document.getElementById("upload-map-name-"+fileId);
+                const statusBox = document.getElementById("upload-map-status-"+fileId);
+
+                const x = new XMLHttpRequest();
+
+                x.onreadystatechange = () =>{
+
+                    //console.log("STTE CHANGED");
+
+                    if(x.status == 200 && x.readyState == 4){
+                        console.log("send");           
+                        mapNameBox.innerHTML = `UPLOADED <div style="display:none;">${mapNameBox.innerHTML }</div>`; 
+                        statusBox.innerHTML = `<span class="green"><b>FOUND</b></span><br><a href="files/maps/${mapName}.jpg" style="color:yellow;text-decoration:underline;" target="_blank">View Image</a>`; 
+                        mapNameBox.style.cssText = "background-color:rgb(0,155,0);text-align:center;font-size:16px;line-height:28px";
+                    }
+                }
+
+                
+
+                x.open("POST","/admin?mode=uploadmaps");
+
+               // console.log(currentData);
+                // console.log("/admin?mode=uploadmaps&mapname="+mapName+"&data="+currentData);
+
+                x.send(currentData);
+
+            }
+
+            const elems = document.getElementsByClassName("map-image-uploader");
+
+            for(let i = 0; i < elems.length; i++){
+
+                elems[i].addEventListener("click", (e) =>{
+
+                    uploadFile(elems[i].id);           
+                });
+
+            }
+        })();
+    </script>
+    </div>
+    <%
+}
+
+
+function bFaceFileExists(name){
+
+    for(let i = 0; i < faceFiles.length; i++){
+
+        if(faceFiles[i] == name+".png"){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+function displayFaces(){
+
+    %>
+    <div class="default">
+        <div class="default-header">Manage Faces</div>   
+        <div class="admin-info">
+            <div class="default-header">Information</div>
+            <div class="admin-info-text">
+                Every time a match is imported the players face details are saved, this data is then used to display the face images in match reports and screenshots.<br>
+                Here you can see what files are missing how often they are used, and what file is required to be added to <b><u>/public/files/faces/</u></b><br>
+                Each face file must be at least <b>64x64 pixels</b> and <b>.png</b> file format, the file name is automatically set.
+            </div>
+        </div>
+        <div class="data-header admin-faces">
+            <div>Face</div>
+            <div>Times Used</div>
+            <div>Status</div>
+            <div>Image</div>
+            <div>Upload Image (name is automatic)</div>
+        </div> 
+
+    <%
+        let d = 0;
+        let result = null;
+        let resultString = "";
+
+        let currentImage = "";
+
+        for(let i = 0; i < faceDetails.length; i++){
+
+            d = faceDetails[i];
+
+           // console.log(d);
+            result = bFaceFileExists(d.name);
+
+            if(result){
+                resultString = `<span class="green"><b>FOUND</b></span>`;
+                currentImage = d.name;
+            }else{
+                resultString = `<span class="red"><b>MISSING</b></span> Required file <b>${d.name}.png</b>`;
+                currentImage = "faceless";
+            }
+
+            %>
+                <div class="data-default admin-faces">
+                    <div><%= d.name %></div>
+                    <div><%= d.uses %></div>
+                    <div><%- resultString %></div>
+                    <div><img src="files/faces/<%= currentImage %>.png" id="admin-face-<%= i %>" alt="Image"/></div>
+                    <div id="admin-face-box-<%= i %>">
+                        
+                        <input type="hidden" name="facename" value="<%= d.name %>">
+                        <input type="file" id="admin-face-file-<%= i %>" name="facefile" accept="image/png">
+                        <input type="button" class="admin-face-uploader" id="admin-face-upload-<%= i %>" data-id="<%= i %>" data-facename="<%= d.name %>" name="facesubmit" value="Upload">
+                    
+                    </div>
+                </div>
+            <%
+        }
+    %>
+
+    <script>
+
+        (() =>{
+
+
+            function uploadFace(elem){
+
+                elem = document.getElementById(elem);
+
+                const fileName = elem.dataset.facename;
+                const fileId = elem.dataset.id;
+
+                const fileElem = document.getElementById("admin-face-file-"+fileId);
+
+                const data = new FormData();
+
+                if(fileElem.files.length == 0){
+                    console.log("No file selected");
+                    return;
+                }
+
+                data.append("facename", elem.dataset.facename);
+                data.append("facefile", fileElem.files[0]);
+
+                const faceBox = document.getElementById("admin-face-box-"+fileId);
+                const faceImage = document.getElementById("admin-face-"+fileId);
+
+
+               // const fileName = elem.dataset.facename;
+
+                const x = new XMLHttpRequest();
+
+                console.log("Current filename = "+fileName);
+
+                x.onreadystatechange = () =>{
+
+                    if(x.status == 200 && x.readyState == 4){
+
+                        //console.log(x.responseText);
+                        faceBox.style.cssText = "background-color:rgb(0,150,0);text-align:center;font-size:16px;line-height:50px;";
+                        faceBox.innerHTML = `${x.responseText}<div style="display:none;">${faceBox.innerHTML}</div>`;
+
+                     
+
+                        faceImage.src = "files/success.png";
+                       
+
+                    }
+                }
+
+                x.open("POST", "/admin?mode=uploadfaces");
+                x.send(data);
+
+            }
+
+            const elems = document.getElementsByClassName("admin-face-uploader");
+
+            for(let i = 0; i < elems.length; i++){
+
+                elems[i].addEventListener("click", () =>{
+
+                    uploadFace(elems[i].id);
+
+                });
+            }
+        })();    
+    </script>
+    </div>
+    <%
+}
+
+function getMonsterFile(className){
+
+    let d = 0;
+
+    for(let i = 0; i < monsterImages.length; i++){
+
+        d = monsterImages[i];
+
+        if(d.class == className){
+            return d.image;
+        }
+    }
+
+    return className;
+}
+
+
+function bMonsterFileExists(name){
+
+
+    name = name.toLowerCase();
+   // const file = getMonsterFile(name);
+
+   const file = name;
+
+    //console.log("File = "+file);
+    
+
+    let d = 0;
+
+    console.log(name);
+
+    console.table(monsterFiles);
+
+    for(let i = 0; i < monsterFiles.length; i++){
+
+        f = monsterFiles[i];
+
+        
+        if(file == f){
+            return file;
+        }
+    }
+
+    return null;
+
+}
+
+function displayMonsters(){
+
+    console.table(monsterImages);
+
+    %>
+    <div class="default">
+        <div class="default-header">Monster Images</div>  
+        <div class="admin-info">
+            <div class="default-header">Information</div>
+            <div class="admin-info-text">
+                Monster images are required for match reports and the homescreen if any match has had a monster death in it.<br>
+                Here you can see what files are missing and how often the monster is seen.<br>
+                Monster images must be placed in <b><u>public/files/monsters/</u></b> and be a <b>.png</b> file format, 500x500pixels or greater for best appearance, filename is automatically set.<br>
+                
+               </div>
+        </div>
+        <div class="data-header admin-monsters">
+            <div>Monster Name</div>    
+            <div>Matches Seen</div>    
+            <div>Image Status</div>    
+            <div>Upload Image (Name is automatic)</div>
+        </div> 
+        
+    <%
+
+    let d = 0;
+    let result = null;
+    let resultString = "";
+
+    let fileName = "";
+
+    for(let i = 0; i < monsterDetails.length; i++){
+
+        d = monsterDetails[i];
+
+        result = bMonsterFileExists(d.name+".png");
+
+        console.log(result);
+
+        fileName = result;
+
+        if(fileName){
+            resultString = `<span class="green"><b>Found</b></span>`;
+        }else{
+            resultString = `<span class="red"><b>Missing</b></span> Required file <b>${d.name}.png</b>`;
+        }
+
+        if(fileName == null){
+            fileName = "default.png";
+        }
+
+        %>
+        <div class="data-default admin-monsters">
+            <div><%=  d.name %></div>    
+            <div><%=  d.matches %></div>    
+            <div id="admin-monster-string-<%= i %>"><%- resultString %> <a href="/files/monsters/<%= fileName %>" target="_blank">View Image</a></div>    
+            <div id="admin-uploader-box-<%= i %>">
+                
+                <input type="file" id="admin-monster-file-<%= i %>" name="monsterfile" accept="image/png">
+                <input type="button" id="admin-monster-upload-<%= i %>" class="admin-monster-uploader" data-id="<%= i %>" data-monstername="<%= d.name %>" name="monstersubmit" value="Upload">
+            
+            </div>
+        </div>
+        <%
+    }
+    
+    %>
+    </div>
+    <script>
+        (() =>{
+
+
+            function uploadMonster(id){
+
+                const elem = document.getElementById("admin-monster-upload-"+id);
+
+                const fileName = elem.dataset.monstername;
+                const fileId = elem.dataset.id;
+
+                const fileElem = document.getElementById("admin-monster-file-"+id);
+
+                const fileStatus = document.getElementById("admin-monster-string-"+id);
+
+                if(fileElem.files.length == 0){
+                    alert("No file selected!");
+                    return;
+                }
+
+
+                const boxElem = document.getElementById("admin-uploader-box-"+id);
+
+                const data = new FormData();
+
+                data.append("monstername", fileName);
+                data.append("monsterfile", fileElem.files[0]);
+
+                const x = new XMLHttpRequest();
+
+                x.onreadystatechange = () =>{
+
+                    if(x.status == 200 && x.readyState == 4){
+
+                        console.log(x.responseText);
+
+                        if(x.responseText == "Uploaded"){
+
+                            fileStatus.innerHTML = `<span class="green"><b>Found</b></span><a href="/files/monsters/${fileName}.png" target="_blank"> View Image</a>`;
+                            boxElem.style.cssText = "background-color:rgb(0,155,0);text-align:center;font-size:16px;line-height:28px";
+                            boxElem.innerHTML = x.responseText+'<div style="display:none;">'+boxElem.innerHTML+'</div>';
+                        }else{
+                            boxElem.style.cssText = "background-color:rgb(155,0,0);text-align:center;font-size:16px;line-height:28px";
+                            boxElem.innerHTML = x.responseText+'<div style="display:none;">'+boxElem.innerHTML+'</div>';
+                        }
+                    }
+                }
+
+                x.open("POST", "/admin?mode=uploadmonsters");
+
+                x.send(data);
+            }
+
+            const elems = document.getElementsByClassName("admin-monster-uploader");
+
+            for(let i = 0; i < elems.length; i++){
+
+                elems[i].addEventListener("click", () =>{
+
+                    uploadMonster(elems[i].dataset.id);
+
+                });
+
+            }
+        })();
+    </script>
+    <%
+}
+
+function getGametypeSelectionBox(){
+
+%>
+<select class="default-select" name="gametype" id="map-name">
+    <option value="0">All Gametypes</option>
+    <%
+    for(let i = 0; i < gametypes.length; i++){
+        %>
+        <option value="<%= gametypes[i].id %>"><%= gametypes[i].name %></option>
+        <%
+    }
+    %>
+</select>
+<%
+}
+
+function getMapSelectionBox(){
+
+    %>
+    <select class="default-select" name="map" id="map-name">
+        <option value="0">All Maps</option>
+        <%
+        for(let i = 0; i < maps.length; i++){
+            %>
+            <option value="<%= maps[i].id %>"><%= maps[i].name %></option>
+            <%
+        }
+        %>
+    </select>
+    <%
+}
+
+function displayMatches(){
+
+    %>
+    <div class="default">
+        <div class="default-header">
+            Manage Matches    
+        </div>    
+
+        <div class="default-form">
+            <form action="/admin?mode=matches&amp;search=1" method="post">
+
+                <div class="form-row-admin">
+                    <div>Gametype</div>
+                <%
+                getGametypeSelectionBox();
+                %>
+                </div>
+                
+                <div class="form-row-admin">
+                    <div>Map</div>
+                <%
+                getMapSelectionBox();
+                %>
+                </div>
+                <div class="form-row-admin">
+                    <div>Time Frame</div>
+                <select class="default-select" name="timeFrame">      
+                    <option value="0">Last 24 Hours</option>
+                    <option value="1">Last 7 Days</option>
+                    <option value="2">Last 31 Days</option>
+                    <option value="3">Last 365 Days</option>
+                    <option value="4">All Time</option>
+                </select>
+                </div>
+
+                <input type="submit" class="form-button" value="Search"/>
+            </form>
+        </div>
+
+        <div class="admin-header-default a-recent-matches">
+            <div>ID</div>    
+            <div>Date</div>   
+            <div>Map</div>    
+            <div>Players (Bots)</div>  
+            <div>Playtime</div>     
+            <div>Options</div>
+
+        </div>
+
+        <%
+
+        let d = 0;
+
+        for(let i = 0; i < matches.length; i++){
+
+            d = matches[i];
+
+            %>
+                <div class="admin-data-default a-recent-matches" data-matchid="<%= d.id %>">
+                    <div><a href="/match?id=<%= d.id %>" target="blanc">Match link</a></div>    
+                    <div class="date"><%= d.date %></div>  
+                    <div><%= getMapName(d.map) %></div>    
+                    <div><%= d.total_players %> <span class="yellow">(<%= d.total_bots %>)</span></div>  
+                    <div class="date-alt"><%= d.match_playtime %></div>     
+                    <div class="delete">Delete Match</div>
+
+                </div>
+            <%
+        }
+        %>
+    </div>
+    <%
+}
+
+
+function getMapName(id){
+
+    for(let i = 0; i < maps.length; i++){
+
+        if(maps[i].id == id){
+            return maps[i].name;
+        }
+    }
+    return "Unknown Map";
+}
+
+
+function displayServers(){
+
+    %>
+    <div class="default">
+        <div class="default-header">Servers</div>
+        <div class="admin-info">
+            <div class="default-header">Information</div>
+            <div class="admin-info-text">
+                Here you can manage what unreal tournament servers this website queries that are then displayed on the homepage.
+            </div>
+        </div>
+
+        <div class="default">
+            <div class="default-header">
+                Current Servers    
+            </div>  
+
+            <div class="data-default yellow admin-servers">
+                <div>Server Name</div>    
+                <div>Server IP</div>   
+                <div>Current Players</div>  
+                <div>Current Map</div>
+                <div>Last Query</div>
+                
+            </div>
+            <%
+            for(let i = 0; i < servers.length; i++){
+
+                %>
+                <div class="data-default admin-servers">
+                    <div><%= servers[i].name %></div>    
+                    <div><%= servers[i].ip %>:<span class="yellow"><%= servers[i].port %></span></div>   
+                    <div><%= servers[i].current_players %> / <%= servers[i].max_players %></div>  
+                    <div><%= servers[i].map %></div>
+                    <div class="date"><%= servers[i].fetched %></div>
+                    
+                </div>
+                <%
+            }
+            %>
+        </div>
+
+        <div class="default">
+            <div class="default-header">Add a Server</div>    
+            <div class="default-form">
+                <form action="/admin?mode=servers" method="POST">
+                    <div class="form-row-admin">
+                        <div>Server IP</div>
+                        <div><input type="text" class="default-textbox" name="ip" placeholder="Server Ip"/></div>
+                    </div>
+                    <div class="form-row-admin">
+                        <div>Server Port</div>
+                        <div><input type="text" class="default-textbox" name="port" placeholder="Server Port"/></div>
+                    </div>
+                    <input type="hidden" name="type" value="add"/>
+                    <input type="submit" class="form-button" value="Finish"/>  
+                </form>  
+                
+            </div>
+        </div>
+
+        <div class="default">
+            <div class="default-header">Delete a Server</div>    
+            <div class="default-form">
+                <form action="/admin?mode=servers" method="POST">
+                    <div class="form-row-admin">
+                        <div>Server IP</div>
+                        <div>
+                            <select class="default-select-alt" name="server">      
+                                <%
+
+                                    for(let i = 0; i < servers.length; i++){
+
+                                        %>
+                                        <option value="<%= servers[i].id %>"><%= servers[i].ip+":"+servers[i].port+" "+servers[i].name %></option>
+                                        <%
+
+                                    }
+                                %>
+                            </select>
+                        </div>
+                    </div>      
+                    <input type="hidden" name="type" value="delete"/>
+                    <input type="submit" class="form-button" value="Delete"/>  
+                </form>  
+                
+            </div>
+        </div>
+    </div>
+    <%
+}
+
+
+function displayPlayers(){
+
+
+    %>
+    <div class="default">
+        <div class="default-header">Search Players</div>  
+    
+        
+        <div class="form-row">
+            <div>Choose Player</div>    
+            <div>
+                <select style="float:left;" class="default-select" id="admin-player-select">
+                    <option value="">Any Player</option>
+                    <%
+                    
+                    if(playerNames != undefined){
+                        for(let i = 0; i < playerNames.length; i++){
+                            %>
+                            <option value="<%= playerNames[i].name %>"><%= playerNames[i].name %></option>
+                            <%
+                        }
+                    }
+                    %>
+                </select> 
+
+            </div>       
+        </div>
+        <div class="form-row">
+            <div>Choose IP</div>    
+            <div>
+                <input type="text" class="default-textbox" id="admin-ip-select" placeholder="IP4 Address...">
+            </div>     
+        </div>
+
+    
+        <div class="default-form">
+            <input type="button" class="search-b" id="admin-search-button" value="Search">
+        </div>
+
+        
+            <div class="default">
+                <div class="default-header">Search Results</div>
+
+                <div id="player-output">
+                    <div class="text-center yellow">Select an option(s) from the drop down box to load data. </div>   
+                </div>
+
+
+                <div id="player-output-ace">
+                    <div class="text-center yellow"></div>   
+                </div>
+            
+            </div>
+       
+
+    </div>
+
+
+    <div class="default">
+        <div class="default-header">
+            Merge Players
+        </div>
+
+        <form action="/admin?mode=mergePlayers" method="POST">
+            <div class="form-row">
+                <div>
+                <select style="float:right;" class="default-select" name="admin-player-master" id="admin-player-master">
+                        <option value="">Please select a player</option>
+                        <%
+                        
+                        if(playerNames != undefined){
+                            for(let i = 0; i < playerNames.length; i++){
+                                %>
+                                <option value="<%= playerNames[i].name %>"><%= playerNames[i].name %></option>
+                                <%
+                            }
+                        }
+                        %>
+                    </select> 
+                </div>    
+                <div>
+                    <select style="float:left;" class="default-select"  name="admin-player-potato" id="admin-player-potato">
+                        <option value="">Please select a player</option>
+                        <%
+                        
+                        if(playerNames != undefined){
+                            for(let i = 0; i < playerNames.length; i++){
+                                %>
+                                <option value="<%= playerNames[i].name %>"><%= playerNames[i].name %></option>
+                                <%
+                            }
+                        }
+                        %>
+                    </select> 
+
+                </div>       
+            </div>
+
+            <div class="default-form">
+                <input type="submit" class="search-b" id="admin-merge-submit" value="Merge">
+            </div>
+        </form>
+    </div>
+
+
+    <div class="default">
+        <div class="default-header">
+            Merge Player With IPs 
+        </div>
+        <form action="/admin?mode=mergeIps" method="POST">
+        <div class="form-row">
+            <div>
+                <select class="default-select" style="float:right"  name="admin-player-ip-name" id="admin-player-ip-name">
+                    <option value="">Please select a player</option>
+                    <%
+                    
+                    if(playerNames != undefined){
+                        for(let i = 0; i < playerNames.length; i++){
+                            %>
+                            <option value="<%= playerNames[i].name %>"><%= playerNames[i].name %></option>
+                            <%
+                        }
+                    }
+                    %>
+                </select>     
+            </div>
+            <div>
+                <select class="default-select" style="float:left"  name="admin-player-ip-ip" id="admin-player-ip-ip">
+                    <option value="">Please select an IP</option>
+                    <%
+                    
+                    if(playerIps != undefined){
+                        for(let i = 0; i < playerIps.length; i++){
+                            %>
+                            <option value="<%= playerIps[i].ip %>"><%= playerIps[i].ip %></option>
+                            <%
+                        }
+                    }
+                    %>
+                </select> 
+                
+            </div>
+
+         
+        </div>
+
+        <div class="default-form">
+                <input type="submit" class="search-b" id="admin-merge-submit" value="Merge">
+            </div>
+        </form>
+    </div>
+
+    <div class="default">
+        <div class="default-header">
+            Rename Player    
+        </div>
+
+        <form action="/admin?mode=renameplayer" method="POST">
+            <div class="form-row">
+                <div>
+                    <select style="float:right;" class="default-select"  name="admin-player-rename-select">
+                        <option value="">Please select a player</option>
+                        <%
+                        
+                        if(playerNames != undefined){
+                            for(let i = 0; i < playerNames.length; i++){
+                                %>
+                                <option value="<%= playerNames[i].name %>"><%= playerNames[i].name %></option>
+                                <%
+                            }
+                        }
+                        %>
+                    </select>     
+                </div>
+                <div>
+                    
+                    <input type="text" class="default-textbox" name="admin-player-new-name" placeholder="New name...">
+                </div>    
+            </div>
+            
+            <div class="default-form">
+                <input type="submit" class="search-b" id="admin-player-rename" value="Rename">
+            </div> 
+            
+        </form>
+    </div>
+
+    <div class="default" style="background-color:rgba(150,0,0,0.75)">
+        <div class="default-header">
+            Delete Player    
+        </div>
+
+        <form action="/admin?mode=deleteplayer" method="POST">
+            <div class="form-row">
+                <div>Select Player</div>
+                <div>
+                    <select style="float:right;" class="default-select"  name="admin-player-delete">
+                        <option value="">Please select a player</option>
+                    <%
+                        if(playerNames != undefined){
+                            for(let i = 0; i < playerNames.length; i++){
+                                %>
+                                <option value="<%= playerNames[i].name %>"><%= playerNames[i].name %></option>
+                                <%
+                            }
+                        }
+
+                        %>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>Are you sure?</div>    
+                <div><input type="checkbox" name="admin-player-sure1" id="admin-player-sure1"></div>    
+            </div>
+            <div class="form-row">
+                <div>Are you sure, you're sure?</div>    
+                <div><input type="checkbox" name="admin-player-sure2"  id="admin-player-sure2"></div>    
+            </div>
+            <div class="form-row">
+                <div>Are you sure, you're sure, you're sure?</div>    
+                <div><input type="checkbox" name="admin-player-sure3"  id="admin-player-sure3"></div>    
+            </div>
+
+            <div class="default-form">
+                <input type="submit" class="search-b" id="admin-player-delete-submit" style="display:none;" value="Delete">
+            </div>
+
+            <script>
+                (() =>{
+                    const a = document.getElementById("admin-player-sure1");
+                    const b = document.getElementById("admin-player-sure2");
+                    const c = document.getElementById("admin-player-sure3");
+                    const submit = document.getElementById("admin-player-delete-submit");
+                    
+                    const updateSumbit  = () =>{
+
+                        if(a.checked && b.checked && c.checked){
+                            submit.style.cssText = "display:inline-block;";
+                        }else{
+                            submit.style.cssText = "display:none;";
+                        }
+                    }
+                    a.addEventListener("click", () =>{
+                        
+                        updateSumbit();
+                    });
+                    
+                    b.addEventListener("click", () =>{
+                        updateSumbit();
+                    });
+
+                    c.addEventListener("click", () =>{
+                        updateSumbit();
+                    });
+                })();    
+            </script>
+        </form>
+    </div>
+    <%
+}
+
+
+function displayStats(){
+
+    if(stats != undefined){
+
+        console.log(stats.todaysHits);
+
+        const data = [{"name": "Hits", "data": []}];
+
+        let best = 0;
+
+        for(let i = 0; i < stats.todaysHits.length; i++){
+            data[0].data.push(stats.todaysHits[i].hits);
+
+            if(stats.todaysHits[i].hits > best){
+                best = stats.todaysHits[i].hits;
+            }
+        }
+
+        let offset = 0;
+
+        offset = best % 10;
+
+        console.log("offset = "+offset);
+
+        best = best + (10 - offset);
+        %>
+        <div class="default">
+            <div class="default-header">Total Hits</div>
+            <div style="color:yellow;font-size:32px;text-align:center;font-weight:300">
+                <%= stats.totalHits %>
+            </div>
+
+        </div>
+        
+
+        <div class="default">
+            <div class="default-header">
+                Todays hits    
+            </div>   
+
+            <div style="color:yellow;font-size:32px;text-align:center;font-weight:300;margin-bottom:25px;">
+                <%= stats.todaysTotalHits %>
+            </div>
+            
+            <div id="todays-hits">
+            </div>
+            <script>
+                new SGraph('todays-hits', 700, "rgb(12,12,12)", "Todays hits", <%- JSON.stringify(data) %>, "hits", "12am to 11pm", "", <%= best %>);
+            </script>
+        </div>
+
+        <%
+        
+            data[0].data = [];
+            best = 0;
+            
+
+            for(let i = 0; i < stats.monthsHits.length; i++){
+
+                if(stats.monthsHits[i] > best){
+                    best = stats.monthsHits[i];
+                }
+
+                data[0].data.push(stats.monthsHits[i]);
+            }
+
+            offset = best % 10;
+
+            best = best + (10 - offset);
+
+        %>
+
+
+        <div class="default">
+            <div class="default-header">
+                This Months hits    
+            </div>   
+            <div style="color:yellow;font-size:32px;text-align:center;font-weight:300;margin-bottom:25px;">
+                <%= stats.totalMonthsHits %>
+            </div>
+            
+            <div id="months-hits">
+            </div>
+            <script>
+                new SGraph('months-hits', 700, "rgb(12,12,12)", "This Months hits", <%- JSON.stringify(data) %>, "hits", "1st to the "+<%= stats.totalDays-1 %>, "", <%= best %>);
+            </script>
+        </div>
+        <%
+        
+    }
+}
+
+function displayAceLogs(){
+
+    let searchName = "";
+    let searchIp = "";
+    let searchMac1 = "";
+    let searchMac2 = "";
+    let searchHwid = "";
+
+
+
+    if(aceName != undefined){
+        searchName = aceName;
+    }
+
+    if(aceIp != undefined){
+        searchIp = aceIp;
+    }
+
+    if(aceMac1 != undefined){
+        searchMac1 = aceMac1;
+    }
+
+    if(aceMac2 != undefined){
+        searchMac2 = aceMac2;
+    }
+
+    if(aceHwid != undefined){
+        searchHwid = aceHwid;
+    }
+
+    %>
+
+    <div class="default">
+
+        <div class="default-header">
+            Search For Logs
+        </div>
+        <div class="default-form">
+            <form action="/admin" method="GET">
+                <input type="hidden" name="mode" value="ace">
+                <div class="form-row">
+                    <div>Search Name</div>
+                    <div><input type="text" class="default-textbox" value="<%= searchName %>" name="aceName"></div>
+                </div>
+                <div class="form-row">
+                    <div>Search IP</div>
+                    <div><input type="text" class="default-textbox" value="<%= searchIp %>" name="aceIp"></div>
+                </div>
+                <div class="form-row">
+                    <div>Search MAC1</div>
+                    <div><input type="text" class="default-textbox" value="<%= searchMac1 %>" name="aceMac1"></div>
+                </div>
+                <div class="form-row">
+                    <div>Search MAC2</div>
+                    <div><input type="text" class="default-textbox" value="<%= searchMac2 %>" name="aceMac2"></div>
+                </div>
+                <div class="form-row">
+                    <div>Search HWID</div>
+                    <div><input type="text" class="default-textbox" value="<%= searchHwid %>" name="aceHwid"></div>
+                </div>
+                <div class="default-form">
+                    <input type="submit" class="search-b" id="admin-search-button" value="Search">
+                </div>
+                
+            </form>
+        </div>
+        <div class="default-header">
+            Recent ACE Kick Logs 
+        </div>    
+        <div class="text-center" style="padding:25px;font-weight:100;">
+            <span class="yellow">
+                There is a max of <%= maxLogs %> results per seach    
+            </span>
+        </div>
+
+        <%
+
+        let d = 0;
+        let currentData = "";
+        let currentImage = "";
+
+
+       // const fr = new FileReader();
+
+        if(logs.length == 0){
+            %>
+            <div class="text-center" style="padding:25px;font-weight:100;">
+                <span class="yellow">
+                  There search found no results.  
+                </span>
+            </div>
+        <%
+        }
+
+        for(let i = 0; i < logs.length; i++){
+
+            d = logs[i];
+
+            //console.log(d.image);
+
+            currentData = d.data.replace(/\n/g,'<br>');
+            currentImage = d.image;
+
+            %>
+            <div class="admin-ace-log">
+
+                <div>
+                <%- currentData %>
+                </div>    
+                <div><img src="data:image/png;base64, <%- currentImage.toString('base64') %>" alt="image"></div>    
+
+            </div>
+            <%
+        }
+        %>
+    </div>
+    <%
+}
+
+function displayRankings(){
+
+    %>
+    <div class="default">
+        <div class="default-header">
+            Manage Rankings
+        </div>    
+
+
+        <div class="data-default admin-gametypes yellow">
+            <div>Name</div>    
+            <div>Matches</div>    
+            <div>Displayed</div>    
+        </div>
+        <%
+        let d = 0;
+
+        let currentImage = "";
+
+        for(let i = 0; i < gametypes.length; i++){
+
+            d = gametypes[i];
+
+            if(d.bdisplay == 0){
+                currentImage = "off";
+            }else{
+                currentImage = "on";
+            }
+
+            %>
+            <div class="data-default admin-gametypes">
+                <div><%= d.name %></div>    
+                <div><%= d.matches %></div>    
+                <div><img src="files/<%= currentImage %>.png" data-id="<%= d.id %>" data-bdisplay="<%= d.bdisplay %>" class="admin-button" alt="image"></div>    
+            </div>
+            <%
+
+        }
+        %>
+    </div>
+
+    <script>
+        (() =>{
+
+            const elems = document.getElementsByClassName("admin-button");
+
+            for(let i = 0; i < elems.length; i++){
+
+                elems[i].addEventListener("click", () =>{
+                    
+                    const d = elems[i];
+
+                    const onImage = "on.png";
+                    const offImage = "off.png";
+
+                    console.log("click");
+
+                    
+
+                    let currentImage = "";
+
+                    if(d.dataset.bdisplay == 0){
+                        d.dataset.bdisplay = 1;
+                        currentImage = onImage;
+                    }else{
+                        d.dataset.bdisplay = 0;
+                        currentImage = offImage;
+                    }
+
+                    //d.src = "files/"+currentImage;
+
+                    const x = new XMLHttpRequest();
+
+                    x.onreadystatechange = () =>{
+
+                        if(x.status == 200 && x.readyState == 4){
+
+                            console.log(x.responseText);
+                            d.src = "files/"+currentImage;
+                        }
+                    }
+
+                    x.open("POST", "/admin?mode=ranking");
+                    x.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    x.send("id="+d.dataset.id+"&value="+d.dataset.bdisplay);
+
+
+                });
+            }
+        })();    
+    </script>
+    <%
+}
+
+function displayRecords(){
+
+
+    %>
+
+
+    <div class="default">
+        <div class="default-header">Manage Records</div>    
+        <div class="data-default admin-records yellow">
+            <div>Record Type</div>    
+            <div>Displayed</div>    
+        </div>
+        <%
+            let d = 0;
+
+            let currentImage = "";
+
+            const onImage = "on.png";
+            const offImage = "off.png";
+
+            for(let i = 0; i < records.length; i++){
+
+                d = records[i];
+
+
+                if(d.bdisplay == 0){
+                    currentImage = offImage;
+                }else{
+                    currentImage = onImage;
+                }
+                %>
+                <div class="data-default admin-records">
+                    <div><%= d.name %></div>    
+                    <div><img class="admin-button-records" src="files/<%= currentImage %>" data-id="<%= d.id %>" data-value="<%= d.bdisplay %>" alt="image"></div>    
+                </div>
+                <%
+            }
+        %>
+    </div>
+    <script>
+    
+        (() =>{
+
+            const elems = document.getElementsByClassName("admin-button-records");
+
+            const onImage = "on.png";
+            const offImage = "off.png";
+
+            for(let i = 0; i < elems.length; i++){
+
+                elems[i].addEventListener("click", () =>{
+
+                    console.log(elems[i].dataset.id);
+
+                    const x = new XMLHttpRequest();
+
+                    let currentImage = "";
+
+                    if(elems[i].dataset.value == 0){
+                        elems[i].dataset.value = 1;
+                    }else{
+                        elems[i].dataset.value = 0;
+                    }
+
+
+
+                    x.onreadystatechange = () =>{
+
+                        if(x.status == 200 && x.readyState == 4){
+                            console.log(x.responseText);
+
+                            if(elems[i].dataset.value == 1){
+                                elems[i].src = "files/"+onImage;
+                            }else{
+                                elems[i].src = "files/"+offImage;
+                            }
+                        }
+                    }
+
+                    x.open("POST", "/admin?mode=records");
+                    x.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    x.send("id="+elems[i].dataset.id+"&value="+elems[i].dataset.value);
+                });
+            }
+        })();
+    </script>
+    <%
+}
+
+if(req.session.userId == undefined && req.session.bLoggedIn == undefined){
+
+    displayLoginArea();
+
+}else if(req.session.bLoggedIn && req.session.bAdmin){
+
+    %>
+        <div class="default">
+            <div class="default-header">
+                Admin Area    
+            </div>    
+
+            <div class="admin-options">
+                
+                <a href="/admin?mode=servers">
+                    <div class="admin-options">
+                        <img src="files/server.png" alt="icon"/>
+                        Manage Servers
+                    </div>
+                </a> 
+                <a href="/admin?mode=matches">
+                    <div class="admin-options">
+                        <img src="files/folder-9.png" alt="icon"/>
+                        Manage Matches
+                    </div>
+                </a>    
+                <a href="/admin?mode=players">
+                    <div class="admin-options">
+                        <img src="files/id-card-3.png" alt="icon"/>
+                        Manage Players
+                    </div>
+                </a>  
+                <a href="/admin?mode=rankings">
+                    <div class="admin-options">
+                        <img src="files/app.png" alt="icon"/>
+                        Manage Rankings
+                    </div>
+                </a> 
+                <a href="/admin?mode=records">
+                    <div class="admin-options">
+                        <img src="files/098-trophy.png" alt="icon"/>
+                        Manage Records
+                    </div>
+                </a>
+                <a href="/admin?mode=faces">
+                    <div class="admin-options">
+                        <img src="files/user-6.png" alt="icon"/>
+                        Manage Faces
+                    </div>
+                </a>   
+                <a href="/admin?mode=maps">
+                    <div class="admin-options">
+                        <img src="files/map.png" alt="icon"/>
+                        Manage Maps
+                    </div>
+                </a>   
+                <a href="/admin?mode=monsters">
+                    <div class="admin-options">
+                        <img src="files/folder-8.png" alt="icon"/>
+                        Manage Monsters
+                    </div>
+                </a> 
+                <a href="/admin?mode=ace">
+                    <div class="admin-options">
+                        <img src="files/ace2.png" alt="icon"/>
+                        Manage Ace Kick Logs
+                    </div>
+                </a> 
+                <a href="/admin?mode=stats">
+                    <div class="admin-options">
+                        <img src="files/worldwide.png" alt="icon"/>
+                        Site Statistics
+                    </div>
+                </a> 
+            </div>
+        </div>
+    <%
+
+
+    let mode = null;
+
+    if(req.query.mode != undefined){
+        mode = req.query.mode.toLowerCase();
+    }
+
+    if(mode == "maps"){
+        displayMapImageList();
+    }else if(mode == "faces"){
+        displayFaces();
+    }else if(mode == "monsters"){
+        displayMonsters();
+    }else if(mode == "matches"){
+        displayMatches();
+    }else if(mode == "servers"){
+        displayServers();
+    }else if(mode == "players"){
+        displayPlayers();
+    }else if(mode == "ace"){
+        displayAceLogs();
+    }else if(mode == "rankings"){
+        displayRankings();
+    }else if(mode == "records"){
+        displayRecords();
+    }else{
+
+        displayStats();
+    }
+}
+
+%>
+
+<script src="js/admin.js"></script>
+
+<%-
+
+    include("../partials/footer.ejs");
+%>

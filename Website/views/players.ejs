@@ -1,0 +1,199 @@
+
+<%-
+    include("../partials/header.ejs",{"title":"Player Search"});
+%>
+
+<%
+
+
+let bDisplayedData = false;
+
+
+function getFace(string){
+
+    for(let i = 0; i < faces.length; i++){
+
+        if(faces[i].string == string){
+            return faces[i].url;
+        }
+    }
+    return "faceless.png";
+}
+
+function displayPlayers(){
+
+    
+    if(data.players.length > 0){
+
+        let hours = 0;
+
+        console.table(data.players);
+
+        bDisplayedData = true;
+        %>
+
+     
+ 
+            <table class="default-table">
+            <tr>
+                <th>Name</th>
+                <th>First Match</th>
+                <th>Last Match</th>
+                <th>Points</th>
+                <th>Kills</th>
+                <th>Deaths</th>
+                <th>Total Playtime</th>
+                <th>Total Matches</th>
+            </tr>
+           
+            
+        
+        <%
+
+        let d = 0;
+
+        let currentFace = null;
+
+        for(let i = 0; i < data.players.length; i++){
+
+            d = data.players[i];
+
+            hours = 0;
+
+            console.log(d.flag);
+
+            if(d.total_time > 0){
+                hours = (d.total_time / (60 * 60)).toFixed(2)
+            }
+
+            %>
+            <tr>
+                <td><a href="/player?id=<%= d.id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></a></td>
+                <td class="date"><%= d.first_match %></td>
+                <td class="date"><%= d.last_match_date %></td>
+                <td class="text-center"><%= d.points %> </td>
+                <td class="text-center"><%= d.kills %> </tdclass="text-center">
+                <td class="text-center"><%= d.deaths %></tdclass="text-center">
+                <td class="text-center"><%= hours %> Hours</tdclass="text-center">
+                <td class="text-center"><%= d.total_matches %></td class="text-center">
+            </tr>
+            <%
+        }
+        %>
+        </table>
+        <%
+    }
+}
+
+%>
+
+<div class="default">
+<div class="default-header">
+            Search for a Player
+        </div>
+    <form action="/players" class="default-form" method="GET">
+        
+        
+        <input type="text" class="search-f" name="search" value="<%= req.query.search %>" placeholder="Player Name..."/><br>
+        <div class="form-row-admin">
+            <div>Sort By</div>
+            <div>
+                <select class="default-select" style="float:left" name="sortType">
+                    <option <%= (req.query.sortType == "name") ? "selected" : "" %> value="name">Player Name</option>
+                    <option <%= (req.query.sortType == "playtime") ? "selected" : "" %> value="playtime">Playtime</option>
+                    <option <%= (req.query.sortType == "matches") ? "selected" : "" %> value="matches">Matches</option>
+                    <option <%= (req.query.sortType == "first") ? "selected" : "" %> value="first">First Match</option>
+                    <option <%= (req.query.sortType == "last") ? "selected" : "" %> value="last">Last Match</option>
+                    <option <%= (req.query.sortType == "score") ? "selected" : "" %> value="score">Score</option>
+                    <option <%= (req.query.sortType == "kills") ? "selected" : "" %> value="kills">Kills</option>
+                    <option <%= (req.query.sortType == "deaths") ? "selected" : "" %> value="deaths">Deaths</option>
+                    
+                </select>
+            </div>
+        </div>
+        <div class="form-row-admin">
+            <div>Order Type</div>
+            <div>
+                <select class="default-select" style="float:left" name="orderType">
+                    <option <%= (req.query.orderType == "0") ? "selected" : "" %> value="0">Ascending</option>
+                    <option <%= (req.query.orderType == "1") ? "selected" : "" %> value="1">Descending</option>
+                </select>
+            </div>
+        </div>
+        <input type="submit" class="search-b" value="Search"/>
+    </form>
+</div>
+<%
+
+    displayPlayers();
+
+%>
+
+<%
+
+if(!bDisplayedData){
+    %>
+        <div class="no-data">
+            There is nothing to display.
+        </div>
+    <%
+}
+
+
+let sortType = "name";
+
+if(req.query.sortType != undefined){
+
+    const validSorts = [
+        "name",
+        "matches",
+        "last",
+        "playtime"
+    ];
+
+    const index = validSorts.indexOf(req.query.sortType.toLowerCase());
+
+    if(index != -1){
+
+        sortType = validSorts[index];
+    }
+
+}
+
+let searchName = "";
+
+if(req.query.search != undefined){
+
+    searchName = req.query.search;
+}
+
+let orderType = "0";
+
+if(req.query.orderType != undefined){
+
+    orderType = req.query.orderType;
+
+    if(orderType != 1 && orderType != 0){
+
+        orderType = 0;
+    }
+}
+%>
+
+
+<div class="default">
+<%-
+    include("../partials/pagination.ejs",
+    {
+        "page": data.page, 
+        "pages": data.pages, 
+        "results":data.totalPlayers, 
+        "url": "/players?search="+searchName+"&sortType="+sortType+"&orderType="+orderType+"&page="
+    });
+%>
+</div>
+
+
+<%-
+    include("../partials/footer.ejs");
+%>

@@ -1,0 +1,856 @@
+
+<%-
+    include("../partials/header.ejs",{"title": "Home"});
+%>
+
+
+
+<%
+
+
+let bDisplayedData = false;
+
+
+//console.table(queryServerPlayers);
+//console.table(queryServers);
+
+
+
+function displayGametypes(){
+
+    if(gametypes.length > 0){
+
+        bDisplayedData = true;
+
+        %>
+
+        <div class="default home-gametypes">
+            <div class="default-header">
+                Most Played Gametypes
+            </div>
+        
+            <table class="default-table">
+                <tr>
+                    <th>Name</th>    
+                    <th>Last Match</th>    
+                    <th>Total Playtime</th>    
+                    <th>Total Matches</th>    
+                </tr>
+        <%
+
+        let d = 0;
+
+        for(let i = 0; i < gametypes.length; i++){
+
+            d = gametypes[i];
+
+            let hours = 0;
+
+            if(d.total_time > 0){
+
+                hours = d.total_time / (60 * 60);
+            }
+            %>
+            
+            <tr>
+                <td><%= d.name %></td>    
+                <td><span class="date"><%= d.last %></span></td>    
+                <td><%= hours.toFixed(2) %> Hours Played</td>    
+                <td><%= d.matches %> Matches</td>    
+            </tr>
+            <%
+        }
+
+        %>
+            </table>
+            </div>
+        <%
+    }
+}
+
+
+function fixMapName(name){
+
+    name = name.toLowerCase();
+
+    const reg = /^.+?\-(.+)$/i;
+
+    if(reg.test(name)){
+
+        const result = reg.exec(name);
+
+        return result[1];
+    }
+
+    return name;
+}
+
+function getMapImage(name){
+
+    const dir = "files/maps/";
+    const thumbDirs = "files/maps/thumbs/";
+    const ext = ".jpg";
+
+    name = name+".jpg";
+
+
+    //first look for thumbnails
+    for(let i = 0; i < mapThumbs.length; i++){
+
+        if(mapThumbs[i] == name)
+            return thumbDirs+mapThumbs[i];        
+        
+    }
+
+    //if there isn't a thumbnail get a fullsize image if it exists
+
+    for(let i = 0; i < mapImages.length; i++){
+
+        if(mapImages[i] == name)
+            return dir+mapImages[i];
+        
+    }
+
+    return 'files/maps/default.jpg';
+}
+
+
+function displayMaps(){
+
+
+    if(maps == undefined){
+        return;
+    }
+
+    if(maps.length == 0){
+        return;
+    }
+    
+
+    %>
+    <div class="default" id="home-maps">
+        <div class="default-header">
+            Most Played Maps
+        </div>
+    <%
+    let mapName = "";
+
+   // console.log(mapImages);
+
+  // console.table(mapImages);
+
+    for(let i = 0; i < maps.length; i++){
+        d = maps[i];
+
+        mapName = getMapImage(fixMapName(d.name));
+
+        %><a href="/map?id=<%= d.id %>"><div class="home-maps-test" style="background-image:url('<%=mapName%>');"><div><span class="yellow"><%= d.name %></span><br>Total Matches <%= d.matches %><br>Last <span class="date"><%= d.last %></span></div></div></a><%
+    }
+    %>
+    </div>
+    <%
+}
+
+
+
+function getMapName(id){
+
+
+    id = parseInt(id);
+
+    for(let i = 0; i < mapNames.length; i++){
+        
+        if(mapNames[i].id == id){
+            return mapNames[i].name;
+        }
+    }
+
+    return "Unknown map";
+}
+
+
+function getGametypeName(id){
+
+
+
+    id = parseInt(id);
+
+
+    let d = 0;
+
+    for(let i = 0; i < gametypeNames.length; i++){
+
+        d = gametypeNames[i];
+
+        if(parseInt(d.id) == id){
+            return d.name;
+        }
+    }
+
+    return 'Unknown gametype';
+}
+
+
+function getMatchWinner(data){
+
+   
+    winningTeam = parseInt(data.winning_team);
+    dmWinner = data.dm_winner;
+    totalTeams = parseInt(data.total_teams);
+    //dmWinner = parseInt(dmWinner);
+    let className = 0;
+    let name = "";
+
+   // console.log("dmWinner = "+dmWinner);
+
+   //console.log(winningTeam);
+
+    if(dmWinner == 0){
+
+        if(winningTeam == 0){
+            className = "team-red";
+            name = "Red Team";
+        }else if(winningTeam == 1){
+            className = "team-blue";
+            name = "Blue Team";
+        }else if(winningTeam == 2){
+            className = "team-green";
+            name = "Green Team";
+        }else if(winningTeam == 3){
+            className = "team-yellow";
+            name = "Yellow Team";
+        }else{
+            className = "team-grey";
+            name = "None Team";
+        }
+
+    
+    }else{
+        className = "team-grey";
+        name = dmWinner;
+    }
+
+    //return {"name": name,"className": className};
+
+    if(totalTeams < 2){
+        %>
+        <div class="solo-test">
+            <div class="team-grey"><%= dmWinner %></div>
+        </div>
+        <%
+    }else if(totalTeams == 2){
+        %>
+        <div class="double-test">
+            <div class="team-red"><%= data.teamscore_0 %></div>
+            <div class="team-blue"><%= data.teamscore_1 %></div>
+        </div>
+        <%
+    }else if(totalTeams == 3){
+        %>
+        <div class="tripple-test">
+            <div class="team-red"><%= data.teamscore_0 %></div>
+            <div class="team-blue"><%= data.teamscore_1 %></div>
+            <div class="team-green"><%= data.teamscore_2 %></div>
+        </div>
+        <%
+    }else if(totalTeams == 4){
+        %>
+        <div class="quad-test">
+            <div class="team-red"><%= data.teamscore_0 %></div>
+            <div class="team-blue"><%= data.teamscore_1 %></div>
+            <div class="team-green"><%= data.teamscore_2 %></div>
+            <div class="team-yellow"><%= data.teamscore_3 %></div>
+        </div>
+        <%
+    }
+    
+
+}
+
+
+function displayRecentMatches(){
+
+
+    if(matches.length == 0)
+        return;
+    
+
+    %>
+    <div class="default">
+        <div class="default-header">Recent Matches</div>    
+        <%
+
+        let d = null;
+        let mapImage = null;
+
+        for(let i = 0; i < matches.length; i++){
+
+            d = matches[i];
+
+            mapImage = getMapImage(fixMapName(getMapName(d.map)));
+
+            //console.log(d);
+            console.log("Looking for gametype "+d.gametype+" Found "+getGametypeName(d.gametype));
+            %>
+            
+            <div class="home-recent-match-test">
+                <div class="home-recent-match-test-server"> <%= d.name %></div>
+                <a style="color:white" href="/match?id=<%= d.id %>">
+                <div class="home-recent-match-test-inner">
+                    
+                    <div>
+                        
+                            <img src="<%= mapImage %>" alt="sshot"/>
+                        
+                    
+                    </div>    
+                    <div class="home-recent-match-test-info">
+                        
+                        <span class="yellow"><%= getMapName(d.map) %>  </span>  <br>
+                        <%= getGametypeName(d.gametype) %>    <br>
+                        Played <span class="date"><%= d.date %></span> <br>   
+                        <span class="yellow">Length <span class="date-alt"><%= d.match_playtime %></span> </span>   <br>
+                        Players <%= d.total_players %><br>
+                        
+
+                    </div>
+                    <div>
+                        <%= winner = getMatchWinner(d); %>
+                    </div>
+                </div>
+                </a>
+            
+
+            </div>
+            
+            <%
+
+        }
+        %>
+    </div>
+    <%
+
+}
+
+
+
+function getFaceImage(string){
+
+    for(let i = 0; i < playerFaces.length; i++){
+
+        if(playerFaces[i].string == string){
+            return playerFaces[i].url;
+        }
+    }
+    return "faceless.png";
+}
+
+function displayAddictedPlayers(){
+
+    if(players.length > 0){
+
+        bDisplayedData = true;
+        %>
+            <div class="default">
+            <div class="default-header">
+                Most Addicted Players
+            </div>
+            <!--<div class="home-players data-header">
+                <div>Player</div>
+                <div>Last</div>
+                <div>Playtime</div>
+                <div>Matches</div>
+            </div>-->
+        <%
+
+
+
+        let d = 0;
+
+        %>
+        <div id="h-a-p">
+        <%
+
+        let face = "";
+
+        for(let i = 0; i < players.length; i++){
+
+            d = players[i];
+
+
+            face = d.face;
+
+            if(face == ""){
+                face = "faceless";
+            }
+
+
+            %>
+
+                <a href="/player?id=<%= d.id %>"><div class="player-box">
+                    <div><img src="files/flags/<%= d.flag %>.png" alt="flag"/><%= d.name %></div>
+                    <div><img class="face-image" src="files/faces/<%= getFaceImage(face) %>" alt="face"></div>
+                    <div><%= d.total_matches %> Matches</div>
+                    <div><span class="date-alt"><%= d.total_time %></span> Playtime</div>
+                    <div>First <span class="date"><%= d.first_match %></span></div>
+                    <div>Last <span class="date"><%= d.last_match_date %></span></div>
+                    
+                </div></a>
+
+                
+            <%
+        }
+        %>
+        </div>
+        <%
+
+
+        %>
+            </div>
+        <%
+    }
+
+}
+
+
+
+
+function displayFlags(){
+
+
+    if(flags.length > 0){
+
+        bDisplayedData = true;
+
+        %>
+        <div class="default">
+            <div class="default-header">
+                Most Popular Origin of Players
+            </div>
+            <table class="default-table">
+            <tr>
+                <th>Country</th>
+                <th>Players</th>
+            </tr>
+
+            <%
+
+                for(let i = 0; i < flags.length; i++){
+
+                    %>
+                        <tr>
+                            <td><img src="files/flags/<%= flags[i].flag %>.png" alt="image"/> <%= countries.getName(flags[i].flag) %></td>
+                            <td><%= flags[i].total_rows %></td>
+                        </tr>
+                    <%
+                }
+
+            %>
+            </table>
+        </div>
+
+        <%
+    }
+}
+
+
+function removePackageName(string){
+
+    const reg = /^.+\.(.+)$/i;
+
+    if(reg.test(string)){
+
+        const result = reg.exec(string);
+
+        return result[1];
+    }
+
+    return string;
+}
+
+
+function getMonsterFile(name){
+
+    name = name.toLowerCase()+".png";
+
+    //console.log(monsterFiles);
+
+    for(let i = 0; i < monsterFiles.length; i++){
+        
+       // console.log("looking for "+name+" found "+monsterFiles[i]);
+        if(monsterFiles[i] == name){
+            return name;
+        }
+    }
+
+
+    return 'default.png';
+}
+
+function displayMonsters(){
+
+   // console.log(monsterFiles);
+
+   // console.log(monsters.data);
+    if(monsters.data == undefined)
+        return;
+
+    if(monsters.data.length > 0){
+
+        %>
+
+            <div class="default">
+                <div class="default-header">Most Killed Monsters</div>
+                <div id="h-monsters">
+                <%
+
+                    let d = 0;
+
+                    for(let i = 0; i < monsters.data.length; i++){
+
+                        d = monsters.data[i];
+
+                        %>
+                        <div class="home-monster">
+                            <div><%= removePackageName(d.name).toUpperCase() %></div>
+                            <div>
+                                <img src="files/monsters/<%= getMonsterFile(d.name) %>" alt="image"/>
+                            </div>
+                            <div>Matches Seen <%= d.matches %></div>
+                            <div>Deaths <%= d.kills %></div>
+                        </div>
+                        <%
+
+                    }
+                %>
+                </div>
+            </div>
+
+        <%
+    }
+}
+
+
+
+
+
+function displayFaces(){
+
+    if(faces.length > 0){
+
+        %>
+            <div class="default">
+                <div class="default-header">
+                    Most Used Faces
+                </div>
+
+                <div id="home-faces">
+                    <%
+                    
+                        let d = 0;
+
+                        for(let i = 0; i < faces.length; i++){
+
+                            d = faces[i];
+
+                            %>
+                            <div class="face-card">
+                                <div><img src="files/faces/<%= d.name %>.png" alt="face"/></div>
+                                <div>Used <%= d.uses %> times.</div>
+                            </div>
+                            <%
+                        }
+
+                    %>
+                </div>
+            </div>
+        <%
+    }
+}
+
+function displayServers(){
+
+    if(servers != undefined){
+
+        if(servers.length > 0){
+
+            const mergedData = [];
+
+            const getPreviousIndex = (ip, port) =>{
+
+                for(let i = 0; i < mergedData.length; i++){
+
+                    if(mergedData[i].ip == ip && mergedData[i].port == port){
+                        return i;
+                    }
+                }
+
+                return -1;
+            }
+
+            let index = 0;
+
+            for(let i = 0; i < servers.length; i++){
+
+                index = getPreviousIndex(servers[i].ip, servers[i].port);
+
+                if(index == -1){
+                    mergedData.push(servers[i]);
+                }else{
+                    mergedData[index].matches += servers[i].matches;
+                    mergedData[index].playtime += servers[i].playtime;
+
+                    if(servers[i].last > mergedData[index].last){
+                        mergedData[index].last = servers[i].last;
+                    }
+
+                    if(servers[i].first < mergedData[index].first){
+                        mergedData[index].first = servers[i].first;
+                    }
+                }
+            }
+            //console.table(mergedData);
+
+            %>
+            <div class="default home-servers-wrapper">
+                <div class="default-header">
+                    Servers
+                </div>
+                
+
+                <%
+                let d = 0;
+
+                let hours = 0;
+
+                
+
+                for(let i = 0; i < mergedData.length; i++){
+
+                    d = mergedData[i];
+
+                    if(d.playtime > 0){
+
+                        hours = d.playtime / (60 * 60);
+
+                        hours = hours.toFixed(2);
+                    }
+
+                    %><div class="home-servers">
+                        <div><img src="files/logo1.png" alt="icon"></div>
+                        <div><%= d.server_name %></div>
+                        <div class="yellow"><%= d.ip %>:<%= d.port %></div>
+                        <div>Last <span class="date"><%= d.last %></span></div>
+                        <div><%= d.matches %> Matches</div>
+                        <div><%= hours %> Hours</div>
+                    </div><%
+
+                }
+                %>
+            </div>
+            <%
+        }
+    }
+}
+
+function getQueryPlayers(server){
+
+    const players = [];
+
+    let d = 0;
+
+    const usedNames = [];
+
+    for(let i = 0; i < queryServerPlayers.length; i++){
+
+        d = queryServerPlayers[i];
+
+        if(d.server == server){
+
+            //prevent duplicates
+            if(usedNames.indexOf(d.name) == -1){
+                usedNames.push(d.name);
+                players.push(d);
+            }
+        }
+
+    }
+
+
+    return players;
+}
+
+
+function displayQueryServers(){
+
+    if(queryServers.length == 0){
+
+        return;
+    }
+
+    %>
+    <div class="default home-query-servers">
+        <div class="default-header">Servers</div>
+
+        <%
+        
+
+        let d = 0;
+        let map = "";
+        let mapImage = "";
+
+        const now = new Date();
+        const time = Math.floor(now.getTime() / 1000);
+
+        let currentPlayers = [];
+        let currentPlayerString = "";
+
+        for(let i = 0; i < queryServers.length; i++){
+
+            d = queryServers[i];
+
+            map = d.map;
+
+            if(map == ""){
+                map = "Map not found!";
+            }
+
+            mapImage =  getMapImage(fixMapName(d.map.toLowerCase()));
+
+            //console.log("mapImage = "+mapImage);
+
+            currentPlayers = getQueryPlayers(d.id);
+
+            currentPlayers.sort((a,b) =>{
+                a = a.score;
+                b = b.score;
+
+                if(a > b){
+                    return -1;
+                }else if(a < b){
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            currentPlayerString = "";
+
+            for(let p = 0; p < currentPlayers.length; p++){
+
+                currentPlayerString += currentPlayers[p].name+" ("+currentPlayers[p].score+")";
+
+                if(p < currentPlayers.length - 1){
+                    currentPlayerString+=", \n";
+                }
+            }
+
+
+            %>
+            <div class="query-server" style="background-image:url(<%= mapImage %>);background-size:100% 100%;">
+                <div style="font-size:14px;">
+                    <%= d.name %>
+                </div>
+                <div>
+                    <a style="color:yellow" href="unreal://<%= d.ip+":"+d.port %>"> <%= d.ip+":"+d.port %></a>
+                </div>
+                <div class="m-o" data-title="Players currently on server" data-content="<%=  currentPlayerString %>">
+                    <%= d.current_players+"/"+d.max_players %> Players
+                </div>
+                <div>
+                    <%= map %>    
+                </div>
+                <div>
+                    Fetched <span class="date-alt"><%= time - d.fetched %></span> ago
+                </div>
+            </div>
+            <%
+        }
+        %>
+    </div>
+
+<%
+}
+
+
+
+function displayTotalHits(){
+
+    const string = ""+totalHits+"";
+
+    //console.log(string);
+    //console.log(totalHits);
+    %>
+    <div class="default home-hits">
+
+            <div class="home-hits-div">Page Views <%= string %></div>
+
+
+    </div>
+    <%
+}
+
+
+
+    displayQueryServers();
+
+   /* if(config.bHomeDisplayServers){
+        displayServers();
+    }*/
+
+    if(config.bHomeDisplayGametypes){
+        displayGametypes();
+    }
+
+    if(config.bHomeDisplayRecent){
+        displayRecentMatches();
+    }
+
+    if(config.bHomeDisplayMaps){
+        displayMaps();
+    }
+
+    if(config.bHomeDisplayPlayers){
+        displayAddictedPlayers();
+    }
+
+    if(config.bHomeDisplayFaces){
+        displayFaces();
+    }
+
+
+
+    if(config.bHomeDisplayMonsters){
+        displayMonsters();
+    }
+
+    
+
+    if(config.bHomeDisplayCountries){
+        displayFlags();
+    }
+
+    displayTotalHits();
+    %>
+
+
+    <%
+
+    if(!bDisplayedData){
+        %>
+            <div class="no-data">
+                There is nothing to display.
+            </div>
+        <%
+    }
+
+//}
+%>
+
+<div id="last-import">
+    Last match was imported <span class="date"><%= lastImport %></span>    
+</div>
+
+<%-
+    include("../partials/footer.ejs");
+%>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title><%= title %> - Node UTStats</title>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="js/countires.js"></script>
+    <script src="js/epochtostring.js"></script>
+    <script src="js/screenshot.js"></script>
+    <script src="js/sgraphs.js"></script>
+    <script src="js/main.js"></script>
+    <link rel="icon" type="image/png"  href="files/favicon.png">
+
+    <%
+        if(typeof description == 'undefined' || description == null){
+
+            %>
+            <meta name="description" content="NodeUTStats is a remake of the classic utstats website, with many new features and improvements." />
+            <meta property="og:description" content="NodeUTStats is a remake of the classic utstats website, with many new features and improvements." />
+
+            <%
+        }else{
+            %>
+                <meta name="description" content="<%= description %>" />
+                <meta property="og:description" content="<%= description %>" />
+            <%
+        }
+    %>
+    
+    <meta name="keywords" content="unreal,tournament,ut,node,stats,nutstats" />
+
+    <meta property="og:title" content="<%= title %> - Node UTStats" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://<%= req.headers.host%>" />
+    <%
+        if(typeof ogImage == 'undefined' || ogImage == null){
+            %>    
+                <meta property="og:image" content="<%=req.headers.host%>/files/tempog.png" />
+            <%
+        }else{
+            %>    
+                <meta property="og:image" content="<%= ogImage %>" />
+            <%
+        }
+    %>
+    
+</head>
+<body>
+<div id="mouseover">
+    <div id="mouseover-header">
+        Mouseover header
+    </div>
+    <div id="mouseover-content">
+        Dogs have wet noses!
+    </div>
+</div>
+
+<div id="content">
+
+
+<%
+
+const navItems = [
+    {"title":"Home","url":"/", "config": config.bNavDisplayHome},
+    {"title":"Recent Matches","url":"/recent" , "config": config.bNavDisplayRecentMatches},
+    {"title":"Rankings","url":"/rankings" , "config": config.bNavDisplayRankings},
+    {"title":"Players","url":"/players", "config": config.bNavDisplayPlayers},
+    {"title":"Maps","url":"/maps", "config": config.bNavDisplayMaps},
+    {"title":"Records","url":"/records", "config": config.bNavDisplayRecords},
+    {"title":"Bunnytrack","url":"/bunnytrack", "config": config.bNavDisplayBunnytrack}
+];
+
+navItems.push({"title":"Admin Area","url":"/admin","config": true});
+
+
+if(req.session.bLoggedIn != undefined){
+    if(req.session.bLoggedIn){      
+        navItems.push({"title":"Logout ","url":"/logout", "config": true});
+    }
+}
+
+let navString = "";
+
+for(let i = 0; i < navItems.length; i++){
+
+    if(navItems[i].config){
+        navString+=`<a href="${navItems[i].url}"><div class="n-i">${navItems[i].title}</div></a>`
+    }
+
+}
+
+%>
+
+<header>
+    <h1>NodeUTStats</h1>
+    <nav>
+        <%- navString %>
+    </nav>
+</header>
+
+<div id="wrapper">
+    <%
+        let message = "";
+
+        if(req.query.lo != undefined){
+            if(req.query.lo == "1"){        
+                message = "You have successfully been logged out.";       
+            }else if(req.query.lo == "2"){
+                message = "You have logged in successfully.";
+            }
+            %>
+            <div class="default" id="note-message-1">
+                <div class="pass">
+                    <%= message %>
+                </div>
+
+            </div>
+            <script>
+                (() =>{
+
+                    const e = document.getElementById("note-message-1");
+
+                    setInterval(() =>{
+
+                        e.style.cssText = "width:0px;height:0px;opacity:0;";
+                    }, 5000);
+                
+                })();
+                
+            </script>
+            <%
+        }
+    %>

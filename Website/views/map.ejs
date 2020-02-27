@@ -1,0 +1,375 @@
+<%-
+    include("../partials/header.ejs", {"title": fullMapName+" - Map", "ogImage": "http://"+req.headers.host+"/"+ogImage, "description": "View all matches and details for the map "+fullMapName+"."});
+%>
+
+
+
+<%
+
+function getDisplayHistory(){
+
+    let data = [];
+
+    for(let i = 0; i < 28; i++){
+
+        data.push(0);
+    }
+    const day = (60 * 60) * 24;
+
+
+    let d = 0;
+    let diff = 0;
+    let currentDay = 0;
+
+    const date = new Date();
+    const now = date.getTime() / 1000;
+
+    //console.table(mapHistory);
+
+    for(let i = 0; i < mapHistory.length; i++){
+
+        d = mapHistory[i].date;
+
+    //console.log(d);
+        diff = now - d;
+
+
+
+        currentDay = diff / day;
+        currentDay = Math.floor(currentDay);
+
+        //console.log(currentDay+" ("+day+")");
+
+        data[currentDay]++;
+
+    }
+
+    let fixedData = {"title": "Matches", "data": []};
+
+    for(let i = 0; i < data.length; i++){
+
+        fixedData.data.push(data[i]);
+
+    }
+
+    //console.log(fixedData);
+
+    return fixedData;
+
+    
+}
+
+
+
+function getMapName(id){
+
+    id = parseInt(id);
+
+    let d = 0;
+    for(let i = 0; i < maps.length; i++){
+
+        d = maps[i];
+
+        if(parseInt(d.id) == id){
+            return d.name;
+        }
+    }
+
+    return 'Unknown map';
+}
+
+
+function getGametypeName(id){
+
+    id = parseInt(id);
+
+    let d = 0;
+    for(let i = 0; i < gametypes.length; i++){
+
+        d = gametypes[i];
+
+        if(parseInt(d.id) == id){
+            return d.name;
+        }
+    }
+
+    return 'Unknown map';
+}
+
+
+
+function getMatchWinner(data){
+
+
+    winningTeam = parseInt(data.winning_team);
+    dmWinner = data.dm_winner;
+    totalTeams = parseInt(data.total_teams);
+    //dmWinner = parseInt(dmWinner);
+    let className = 0;
+    let name = "";
+
+    // console.log("dmWinner = "+dmWinner);
+
+    //console.log(winningTeam);
+
+    if(dmWinner == 0){
+
+    if(winningTeam == 0){
+        className = "team-red";
+        name = "Red Team";
+    }else if(winningTeam == 1){
+        className = "team-blue";
+        name = "Blue Team";
+    }else if(winningTeam == 2){
+        className = "team-green";
+        name = "Green Team";
+    }else if(winningTeam == 3){
+        className = "team-yellow";
+        name = "Yellow Team";
+    }else{
+        className = "team-grey";
+        name = "None Team";
+    }
+
+
+}else{
+    className = "team-grey";
+    name = dmWinner;
+}
+
+//return {"name": name,"className": className};
+
+if(totalTeams < 2){
+    %>
+    <div class="solo-test">
+        <div class="team-grey"><%= dmWinner %></div>
+    </div>
+    <%
+}else if(totalTeams == 2){
+    %>
+    <div class="double-test">
+        <div class="team-red"><%= data.teamscore_0 %></div>
+        <div class="team-blue"><%= data.teamscore_1 %></div>
+    </div>
+    <%
+}else if(totalTeams == 3){
+    %>
+    <div class="tripple-test">
+        <div class="team-red"><%= data.teamscore_0 %></div>
+        <div class="team-blue"><%= data.teamscore_1 %></div>
+        <div class="team-green"><%= data.teamscore_2 %></div>
+    </div>
+    <%
+}else if(totalTeams == 4){
+    %>
+    <div class="quad-test">
+        <div class="team-red"><%= data.teamscore_0 %></div>
+        <div class="team-blue"><%= data.teamscore_1 %></div>
+        <div class="team-green"><%= data.teamscore_2 %></div>
+        <div class="team-yellow"><%= data.teamscore_3 %></div>
+    </div>
+    <%
+}
+
+
+}
+
+function fixMapName(name){
+
+name = name.toLowerCase();
+
+const reg = /^.+?\-(.+)$/i;
+
+if(reg.test(name)){
+
+    const result = reg.exec(name);
+
+    return result[1];
+}
+
+return name;
+}
+
+function getMapImage(name){
+
+for(let i = 0; i < mapImages.length; i++){
+
+    if(mapImages[i].name == name){
+        return mapImages[i].file;
+    }
+}
+
+return 'default.jpg';
+}
+
+
+function stripUnr(name){
+
+
+    const reg = /^(.+)\.unr$/i;
+
+    const result = reg.exec(name);
+
+    if(result != null){
+
+        return result[1];
+    }
+
+    return name;
+}
+
+function displayRecentMatches(){
+
+    if(recentMatches == undefined){
+        return;
+    }   
+
+    if(recentMatches.length == 0){
+        return;
+    }
+
+    %>  
+
+    <div class="default">
+        <div class="default-header">Recent Matches</div>    
+        <%
+
+    
+        let mapImage = null;
+
+        for(let i = 0; i < recentMatches.length; i++){
+
+            d = recentMatches[i];
+
+            mapImage = getMapImage(fixMapName(getMapName(d.map)));
+
+            %>
+            <div class="home-recent-match-test">
+                <div class="home-recent-match-test-server"> <%= d.name %></div>
+                <a style="color:white" href="/match?id=<%= d.id %>">
+                <div class="home-recent-match-test-inner">
+                    
+                    <div>
+                        
+                            <img src="files/maps/<%= mapImage %>" alt="sshot"/>
+                        
+                    
+                    </div>    
+                    <div class="home-recent-match-test-info">
+                        
+                        <span class="yellow"><%= getMapName(d.map) %>  </span>  <br>
+                        <%= getGametypeName(d.gametype) %>    <br>
+                        Played <span class="date"><%= d.date %></span> <br>   
+                        <span class="yellow">Length <span class="date-alt"><%= d.match_playtime %></span> </span>   <br>
+                        Players <%= d.total_players %><br>
+                        
+
+                    </div>
+                    <div>
+                        <%= winner = getMatchWinner(d); %>
+                    </div>
+                </div>
+                </a>
+            
+
+            </div>
+            <%
+
+    }
+    %>
+</div>
+
+<%
+}
+
+let hours = 0;
+
+if(mapDetails[0].total_time != 0){
+
+    hours = mapDetails[0].total_time / (60 * 60);
+}
+
+%>
+<div class="default">
+    <div class="default-header">
+        <%=  fullMapName %> summary
+    </div>
+
+    <img class="map-main-image" src="<%= ogImage %>" alt="alt"/>
+    
+</div>
+
+<div class="default">
+    <div class="default-header">Map Details</div>
+
+    <table class="default-table single-map">   
+        <tr>
+            <td>File Name</td>    
+            <td><%= mapDetails[0].name %></td>    
+        </tr>
+        <tr>
+            <td>Map Title</td>    
+            <td><%= mapDetails[0].title %></td>    
+        </tr>
+        <tr>
+            <td>Map Author</td>    
+            <td><%= mapDetails[0].author %></td>    
+        </tr>
+        <tr>
+            <td>Total Matches</td>    
+            <td><%= mapDetails[0].matches %></td>    
+        </tr>
+        <tr>
+            <td>Total Playtime</td>    
+            <td><%= hours.toFixed(2) %> Hours</td>    
+        </tr>
+        <tr>
+            <td>Longest Match</td>    
+            <td class="date-alt"><%= longestMatch[0].match_playtime %></td>    
+        </tr>
+        <tr>
+            <td>Average Match Length</td>    
+            <td class="date-alt"><%= mapDetails[0].total_time / results %></td>    
+        </tr>
+        <tr>
+            <td>First Match</td>    
+            <td class="date"><%= mapDetails[0].first %></td>    
+        </tr>
+        <tr>
+            <td>Last Match</td>    
+            <td class="date"><%= mapDetails[0].last %></td>    
+        </tr>
+
+    </table>
+
+</div>
+
+<div class="default">
+    <div class="default-header">Map activity last 28 days</div>
+    <%
+       // displayHistoryGraph();
+    %>
+
+    <div id="map-history-graph">
+    </div>
+
+    
+    <script>
+        new SGraph("map-history-graph", 0.4, "rgb(12,12,12)", "Matches played over last 28 days" ,[{"name":"matches","data":[<%- getDisplayHistory().data %>]}], "Total Matches", "Date of match newest first", " Matches played", null);
+    </script>
+</div>
+
+
+
+    <%
+        displayRecentMatches();
+    %>
+
+
+<%-
+    include("../partials/pagination.ejs", {"url":"/map?id="+req.query.id+"&page=","pages":pages,"page":page,"results":results});
+%>
+
+<%-
+    include("../partials/footer.ejs");
+%>

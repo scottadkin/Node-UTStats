@@ -1,0 +1,261 @@
+<%-
+    include("../partials/header.ejs", {"title": "Map search"});
+%>
+
+
+<%
+
+
+let bDisplayedData = false;
+
+function stripUnr(name){
+
+
+    const reg = /^(.+)\.unr$/i;
+
+    const result = reg.exec(name);
+
+    if(result != null){
+
+        return result[1];
+    }
+
+    return name;
+}
+
+
+function getMapImage(name){
+
+    name = name.toLowerCase(name);
+    console.log(name);
+
+    const reg = /^.+\-(.+)$/i;
+
+    const result = reg.exec(name);
+
+    if(result != null){
+
+        name = result[1];
+    }
+    
+    const dir = "files/maps/";
+    const thumbDirs = "files/maps/thumbs/";
+    const ext = ".jpg";
+
+    name = name+".jpg";
+
+
+    //first look for thumbnails
+    for(let i = 0; i < mapThumbs.length; i++){
+
+        if(mapThumbs[i] == name)
+            return thumbDirs+mapThumbs[i];        
+        
+    }
+
+    //if there isn't a thumbnail get a fullsize image if it exists
+
+    for(let i = 0; i < mapImages.length; i++){
+
+        if(mapImages[i] == name)
+            return dir+mapImages[i];
+        
+    }
+
+    return 'files/maps/default.jpg';
+}
+
+
+function displayMaps(){
+
+
+    let d = 0;
+    let image = "";
+
+    %>
+    <table class="default-table maps-table">
+        <tr>
+            <th>Name</th>
+            <th>Author</th>
+            <th>Dates</th>
+            <th>Playtime</th>
+            <th>Matches</th>
+        </tr>
+    <%
+
+    for(let i = 0; i < maps.length; i++){
+
+        bDisplayedData = true;
+        d = maps[i];
+
+        image = getMapImage(stripUnr(d.name));
+
+        %>
+        
+            <tr>
+                <td><a href="/map?id=<%= d.id %>"><%= stripUnr(d.name) %><br><img src="<%= image %>" alt="image"><br><span class="yellow">(<%= d.title %>)</span></a></td >   
+                <td><%= d.author %></td> 
+                <td><span class="yellow">First</span> <span class="date"><%= d.first %></span><br><span class="yellow">Last</span> <span class="date"><%= d.last %></span><br></td> 
+                <td class="date-alt"><%= d.total_time %></td> 
+                <td><%= d.matches %></td> 
+            </tr>
+               
+            
+        <%
+    }
+
+    %>
+    </table>
+    <%
+}
+
+
+%>
+
+
+<div class="default">
+    <div class="default-header">Search Maps</div>
+
+
+
+    <div class="default-form">
+
+        <form action="/maps?search=" method="get">
+            <input type="text" class="search-f" placeholder="Map name..." value="<%= (req.query.map != undefined) ? req.query.map : "" %>" name="map"/>
+
+            <div class="form-row-admin">
+                <div>Search for</div>    
+                <div>
+                    <select class="default-select" style="float:left" name="mode">
+                        <option <%= (req.query.mode == "name") ? "selected" : "" %> value="name">Map Name</option>
+                        <option <%= (req.query.mode == "title") ? "selected" : "" %> value="title">Map Title</option>
+                        <option <%= (req.query.mode == "author") ? "selected" : "" %> value="author">Map Author</option>
+                    </select>    
+                </div>    
+            </div>
+            <div class="form-row-admin">
+                <div>Sort By</div>    
+                <div>
+                    <select class="default-select" style="float:left" name="sortBy">
+                        <option <%= (req.query.sortBy == "name") ? "selected" : "" %> value="name">Map Name</option>
+                        <option <%= (req.query.sortBy == "title") ? "selected" : "" %> value="title">Map Title</option>
+                        <option <%= (req.query.sortBy == "author") ? "selected" : "" %> value="author">Map Author</option>
+                        <option <%= (req.query.sortBy == "matches") ? "selected" : "" %> value="matches">Matches</option>
+                        <option <%= (req.query.sortBy == "total_time") ? "selected" : "" %> value="total_time">Playtime</option>
+                        <option <%= (req.query.sortBy == "last") ? "selected" : "" %> value="last">Last Match</option>
+                        <option <%= (req.query.sortBy == "first") ? "selected" : "" %> value="first">First Match</option>
+                    </select>    
+                </div>    
+            </div>
+
+            <div class="form-row-admin">
+                <div>Order By</div>    
+                <div>
+                    <select class="default-select" style="float:left" name="order">
+                    <option <%= (req.query.order == "ASC") ? "selected" : "" %> value="ASC">Ascending</option>
+                    <option <%= (req.query.order == "DESC") ? "selected" : "" %> value="DESC">Descending</option>
+                </select>  
+                </div>    
+            </div>
+
+            <input type="submit" class="search-b" value="Search">
+        </form>
+    </div>
+</div>
+<%
+
+displayMaps();
+%>
+
+<%
+
+if(!bDisplayedData){
+    %>
+        <div class="no-data">
+            There is nothing to display.
+        </div>
+    <%
+}
+
+%>
+
+<div class="default">
+
+<% 
+
+let url = "/maps?page=";
+let order = "ASC";
+let sort = "name";
+let mode = "name";
+
+if(req.query.sortBy != undefined){
+
+    const validSorts = [
+        "name",
+        "title",
+        "author",
+        "matches",
+        "total_time",
+        "last",
+        "first"
+    ];
+
+    sort = req.query.sortBy;
+
+    const index = validSorts.indexOf(sort);
+
+    if(index != -1){
+        sort = validSorts[index];
+    }else{
+        sort = "name";
+    }
+}
+
+if(req.query.order != undefined){
+
+    order = req.query.order.toUpperCase();
+
+    //console.log(order);
+
+    if(order != "ASC" && order != "DESC"){
+        order = "ASC";
+    }
+
+    //console.log(order);
+}
+
+
+if(req.query.mode != undefined){
+
+    mode = req.query.mode;
+
+    if(mode != "name" && mode != "author" && mode != "title"){
+        mode = "name";
+    }
+}
+
+if(search != -1){
+    url = "/maps?map="+search+"&mode="+mode+"&sortBy="+sort+"&order="+order+"&page=";
+}
+
+%>
+
+
+
+
+
+<%-
+    
+    include("../partials/pagination.ejs", {"url": url, "pages": pages, "page": page, "results": results});
+%>
+</div>
+
+
+
+
+
+
+<%-
+
+    include("../partials/footer.ejs");
+%>

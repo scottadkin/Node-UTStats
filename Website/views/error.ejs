@@ -1,0 +1,16 @@
+<%- include('../partials/header.ejs', {"title": "Error", "description": "Oops something went wrong.", "req": req}); %>
+
+
+<div class="default">
+       
+    <div class="error">
+        <div class="error-header">
+            Error   
+        </div> 
+        <div class="error-text">
+            <%- message %>  
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer.ejs'); %>

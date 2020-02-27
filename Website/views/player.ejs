@@ -1,0 +1,1422 @@
+
+<%
+
+
+//GET ALL PLAYER WEAPON STATS TOTALS AND DISPLAY THEM ON THIS PAGE
+const reg = /s$/i;
+
+let tName = name;
+
+if(reg.test(name)){
+    tName = name+"'";
+}else{
+    tName = name+"'s";
+}
+
+mergeWeaponStats();
+
+%>
+<%-
+    include('../partials/header.ejs', {
+        "title": tName+" career profile", 
+        "description": "View "+tName+" career profile and gameplay history. "+name+" has played a total of "+matches+"  matches, and has won a total of "+wins+" those matches."
+    });
+%>
+
+
+<%
+
+function getOrdinal(value){
+
+
+    const st = [1,21,31,41,51,61,71,81,91];
+    const nd = [2,22,32,42,52,62,72,82,92];
+    const rd = [3,23,33,43,53,63,73,83,93];
+
+    if(value < 100){
+        
+        if(st.indexOf(value) !== -1) return value+"st";
+        if(nd.indexOf(value) !== -1) return value+"nd";
+        if(rd.indexOf(value) !== -1) return value+"rd";
+
+        return value+"th";
+    }else{
+
+        value = ""+value+"";
+
+
+        const reg = /^\d+?(\d\d)$/i;
+
+
+        
+        if(reg.test(value)){
+            
+            const result = reg.exec(value);
+
+
+            const num = parseInt(result[1]);
+
+            if(st.indexOf(num) !== -1) return value+"st";
+            if(nd.indexOf(num) !== -1) return value+"nd";
+            if(rd.indexOf(num) !== -1) return value+"rd";
+
+            return value+"th";
+        }   
+
+        
+
+    }
+
+    return value;
+}
+
+function getGametypeName(id){
+
+    if(id == 0){
+        return "All";
+    }
+
+    for(let i = 0; i < gametypes.length; i++){
+
+        if(gametypes[i].id == id){
+
+            if(gametypes[i].name == ""){
+                gametypes[i].name = "Noname";
+            }
+            return gametypes[i].name;
+        }
+
+    }
+
+    return "Unknown gametype";
+}
+
+
+function getMapName(id){
+
+    
+    for(let i = 0; i < maps.length; i++){
+
+        if(maps[i].id == id){
+            return maps[i].name;
+        }
+    }
+
+    return "Unknown map";
+
+}
+
+function getRankingDetails(gametype){
+
+
+    for(let i = 0; i < rankings.length; i++){
+
+        if(rankings[i].gametype == gametype){
+            return rankings[i];
+        }
+    }
+
+    return {"ranking":0, "ranking_diff": 0, "total_matches": 0, "gametype_position": 0};
+}
+
+
+function displayGametypes(){
+
+    if(totals != null){
+
+        if(totals.length > 0){
+
+            //console.table(totals[0]);
+            //console.table(rankings);
+            %>
+            <div class="default player-gametypes">
+                <div class="default-header">
+                    Gametype Statistics
+                </div>
+
+                <table class="default-table">
+
+                <tr>
+                    <th>Name</th>    
+                    <th>Matches</th>    
+                    <th>Wins</th>    
+                    <th>Winrate</th> 
+                    <th>Ranking</th>   
+                </tr>
+
+                <%
+                let d = 0;
+
+                let currentRanking = null;
+                let rankingIcon = "";
+                let rankingString = "";
+                let winString = "";
+
+                let winRate = 0;
+
+                for(let i = 0; i < totals.length; i++){
+
+                    d = totals[i];
+
+                    if(d.gametype == 0) 
+                        continue;
+
+                    currentRanking = getRankingDetails(d.gametype);
+
+                    rankingString = "<b>"+name+"</b> ";
+
+                    if(currentRanking.ranking_diff > 0){
+                        icon = "up.png";
+
+                        rankingString += " gained "+currentRanking.ranking_diff+" points in the last match.";
+                        
+
+                    }else if(currentRanking.ranking_diff < 0){
+                        icon = "down.png"
+
+                        rankingString += " lost "+Math.abs(currentRanking.ranking_diff)+" points in the last match.";
+
+                    }else{
+                        icon = "nochange.png";
+                        rankingString += " had no change to their points in the last match.";
+                    }
+
+                    rankingString += "<br><b>"+name+"</b> currently has "+currentRanking.ranking+" points.<br>";
+                    rankingString += "<b>"+name+"</b> is currently placed in "+getOrdinal(currentRanking.gametype_position)+" for <b>"+getGametypeName(currentRanking.gametype)+"</b>";
+
+
+                    winString = "<b>"+name+"</b> has won "+d.wins+" out of "+d.total_matches+" matches, that is a winrate of ";
+
+                    if(d.wins == 0){
+                        winString += "0";
+                    }else{
+
+                        if(d.total_matches > 0){
+                            winString += ((d.wins / (d.total_matches)) * 100).toFixed(2);
+                        }else{
+                            winString += "0";
+                        }               
+                    }
+
+                    winString += "&#37;.";
+
+                    if(d.wins == 0){
+                        winRate = 0;
+                    }else{
+
+                        winRate = (d.wins / (d.wins + d.total_matches)) * 100;
+
+                        winRate = winRate.toFixed(2);
+                    }
+                    %>
+                    
+                    <tr>
+                        <td><%= getGametypeName(d.gametype) %></td>    
+                        <td><%= d.total_matches %></td>    
+                        <td class="m-o" data-title="Winrate Information" data-content="<%= winString %>"><%= d.wins %></td>    
+                        <td ><%= winRate %>&#37;</td> 
+                        <td class="m-o" data-title="Ranking Information" data-content="<%= rankingString %>"><img class="ranking-icon"  src="files/<%= icon %>" alt="icon"/><%= currentRanking.ranking %></b> <span class="ranking-place">(<%= getOrdinal(currentRanking.gametype_position) %>)</span></td>   
+                    </tr>
+                    <%
+                }
+                %>
+                </table>
+            </div>
+            <%
+        }
+    }
+
+}
+
+
+function getWinningTeam(d){
+
+    //console.table(d);
+
+    if(d.total_teams < 2){
+        %>
+        <div class="solo">
+            <div class="team-grey">
+                <%=
+                    d.dm_winner
+                %>
+            </div>
+        </div>
+        <%
+    }else if(d.total_teams == 2){
+
+        %>
+            <div class="double">
+                <div class="team-red">
+                    <%= d.teamscore_0 %>        
+                </div>
+                <div class="team-blue">
+                    <%= d.teamscore_1 %>
+                </div>
+            </div>
+        <%
+    }else if(d.total_teams == 3){
+
+        %>
+            <div class="tripple">
+                <div class="team-red">
+                    <%= d.teamscore_0 %>        
+                </div>
+                <div class="team-blue">
+                    <%= d.teamscore_1 %>
+                </div>
+                <div class="team-green">
+                    <%= d.teamscore_2 %>
+                </div>
+            </div>
+        <%
+    }else if(d.total_teams == 4){
+
+        %>
+            <div class="quad">
+                <div class="team-red">
+                    <%= d.teamscore_0 %>        
+                </div>
+                <div class="team-blue">
+                    <%= d.teamscore_1 %>
+                </div>
+                <div class="team-green">
+                    <%= d.teamscore_2 %>
+                </div>
+                <div class="team-yellow">
+                    <%= d.teamscore_3 %>
+                </div>
+            </div>
+        <%
+    }
+}
+
+
+
+function getMatchWinner(data){
+
+   
+winningTeam = parseInt(data.winning_team);
+dmWinner = data.dm_winner;
+totalTeams = parseInt(data.total_teams);
+//dmWinner = parseInt(dmWinner);
+let className = 0;
+let name = "";
+
+// console.log("dmWinner = "+dmWinner);
+
+//console.log(winningTeam);
+
+if(dmWinner == 0){
+
+    if(winningTeam == 0){
+        className = "team-red";
+        name = "Red Team";
+    }else if(winningTeam == 1){
+        className = "team-blue";
+        name = "Blue Team";
+    }else if(winningTeam == 2){
+        className = "team-green";
+        name = "Green Team";
+    }else if(winningTeam == 3){
+        className = "team-yellow";
+        name = "Yellow Team";
+    }else{
+        className = "team-grey";
+        name = "None Team";
+    }
+
+
+}else{
+    className = "team-grey";
+    name = dmWinner;
+}
+
+//return {"name": name,"className": className};
+
+if(totalTeams < 2){
+    %>
+    <div class="solo-test">
+        <div class="team-grey"><%= dmWinner %></div>
+    </div>
+    <%
+}else if(totalTeams == 2){
+    %>
+    <div class="double-test">
+        <div class="team-red"><%= data.teamscore_0 %></div>
+        <div class="team-blue"><%= data.teamscore_1 %></div>
+    </div>
+    <%
+}else if(totalTeams == 3){
+    %>
+    <div class="tripple-test">
+        <div class="team-red"><%= data.teamscore_0 %></div>
+        <div class="team-blue"><%= data.teamscore_1 %></div>
+        <div class="team-green"><%= data.teamscore_2 %></div>
+    </div>
+    <%
+}else if(totalTeams == 4){
+    %>
+    <div class="quad-test">
+        <div class="team-red"><%= data.teamscore_0 %></div>
+        <div class="team-blue"><%= data.teamscore_1 %></div>
+        <div class="team-green"><%= data.teamscore_2 %></div>
+        <div class="team-yellow"><%= data.teamscore_3 %></div>
+    </div>
+    <%
+}
+
+
+}
+
+function fixMapName(name){
+
+    name = name.toLowerCase();
+
+    const reg = /^.+?\-(.+)$/i;
+
+    if(reg.test(name)){
+
+        const result = reg.exec(name);
+
+        return result[1];
+    }
+
+    return name;
+}
+
+function getMapImage(name){
+
+    name = name.toLowerCase(name);
+    console.log(name);
+
+    const reg = /^.+\-(.+)$/i;
+
+    const result = reg.exec(name);
+
+    if(result != null){
+
+        name = result[1];
+    }
+
+    const dir = "files/maps/";
+    const thumbDirs = "files/maps/thumbs/";
+    const ext = ".jpg";
+
+    name = name+".jpg";
+
+
+    //first look for thumbnails
+    for(let i = 0; i < mapThumbs.length; i++){
+
+        if(mapThumbs[i] == name)
+            return thumbDirs+mapThumbs[i];        
+        
+    }
+
+    //if there isn't a thumbnail get a fullsize image if it exists
+
+    for(let i = 0; i < mapImages.length; i++){
+
+        if(mapImages[i] == name)
+            return dir+mapImages[i];
+        
+    }
+
+    return 'files/maps/default.jpg';
+}
+
+
+function displayRecentMatches(){
+
+    if(typeof matchesData == 'undefined' || matchesData == null){
+        return;
+    }   
+
+    if(matchesData.length == 0){
+        return;
+    }
+
+    %>  
+
+    <div class="default">
+        <div class="default-header">Recent Matches</div>    
+        <%
+
+      
+        let mapImage = null;
+
+        for(let i = 0; i < matchesData.length; i++){
+
+            d = matchesData[i];
+
+            mapImage = getMapImage(fixMapName(getMapName(d.map)));
+
+            %>
+            <div class="home-recent-match-test">
+                <div class="home-recent-match-test-server"> <%= d.name %></div>
+                <a style="color:white" href="/match?id=<%= d.id %>">
+                <div class="home-recent-match-test-inner">
+                    
+                    <div>
+                        
+                            <img src="<%= mapImage %>" alt="sshot"/>
+                        
+                    
+                    </div>    
+                    <div class="home-recent-match-test-info">
+                        
+                        <span class="yellow"><%= getMapName(d.map) %>  </span>  <br>
+                        <%= getGametypeName(d.gametype) %>    <br>
+                        Played <span class="date"><%= d.date %></span> <br>   
+                        <span class="yellow">Length <span class="date-alt"><%= d.match_playtime %></span> </span>   <br>
+                        Players <%= d.total_players %><br>
+                        
+
+                    </div>
+                    <div>
+                        <%= winner = getMatchWinner(d); %>
+                    </div>
+                </div>
+                </a>
+            
+
+            </div>
+            <%
+
+        }
+        %>
+    </div>
+    
+
+    <div class="default">
+        <%-
+            include("../partials/pagination.ejs",{"page": page, "pages": pages, "results":results, "url": "/player?id="+id+"&page="});
+        %>
+    </div>
+
+    
+
+
+    <%
+}
+
+
+function displaySpecialEvents(){
+
+    let allTime = -1;
+
+    for(let i = 0; i < totals.length; i++){
+
+        if(totals[i].gametype == 0){
+            allTime = totals[i];
+        }
+    }
+
+
+    if(allTime != -1){
+
+        const d = allTime;
+        %>
+        <div class="default player-event-boxes">
+            <div class="default-header">
+                Killing Sprees
+            </div>
+
+            <table class="default-table text-center">
+                <tr>
+                    <th class="m-o" data-title="Killing Spree" data-content="The player killed 5 players in one life time.">
+                        Killing Spree
+                    </th>
+                    
+                    <th class="m-o" data-title="Rampage" data-content="The player killed 10 players in one life time.">
+                        Rampage
+                    </th>
+
+                    <th class="m-o" data-title="Dominating" data-content="The player killed 15 players in one life time.">
+                        Dominating
+                    </th>
+                    <th class="m-o" data-title="Unstoppable" data-content="The player killed 20 players in one life time.">
+                        Unstoppable
+                    </th>
+                    <th class="m-o" data-title="Godlike" data-content="The player killed 25 players in one life time.">
+                        Godlike
+                    </th>
+                    <th class="m-o" data-title="Massacre" data-content="The player killed 30 players in one life time.">
+                        Massacre
+                    </th>
+                    <th class="m-o" data-title="Brutalizing" data-content="The player killed 35 players in one life time.">
+                        Brutalizing
+                    </th>
+                    <th class="m-o" data-title="Best Spree" data-content="The players highest amount of kills in a single life.">
+                        Best Spree
+                    </th>
+                </tr>
+
+                <tr>
+                    <td><%= d.s1 %></td>
+                    <td><%= d.s2 %></td>
+                    <td><%= d.s3 %></td>
+                    <td><%= d.s4 %></td>
+                    <td><%= d.s5 %></td>
+                    <td><%= d.s6 %></td>
+                    <td><%= d.s7 %></td>
+                    <td><%= d.best_spree %></td>
+                </tr>
+            </table>
+
+            <%
+
+                
+
+                %>
+                
+                <div class="default-header">
+                    Multi Kills
+                </div>
+                
+                <table>
+
+                <th class="m-o"  data-title="Double Kill" data-content="The player killed 2 players in a short frame of time.">
+                    Double Kill
+                </th>
+                <th class="m-o"  data-title="Multi Kill" data-content="The player killed 3 players in a short frame of time.">
+                    Multi Kill
+                </th>
+                <th class="m-o"  data-title="Mega Kill" data-content="The player killed 4 players in a short frame of time.">
+                    Mega Kill
+                </th>
+                <th class="m-o"  data-title="Ultra Kill" data-content="The player killed 5 players in a short frame of time.">
+                    Ultra Kill
+                </th>
+                <th class="m-o"  data-title="Monster Kill" data-content="The player killed 6 players in a short frame of time.">
+                    Monster Kill
+                </th>
+                <th class="m-o"  data-title="Ludicrous Kill" data-content="The player killed 7 players in a short frame of time.">
+                    Ludicrous Kill
+                </th>
+                <th class="m-o"  data-title="Holy Shit" data-content="The player killed 8 or more players in a short frame of time.">
+                    Holy Shit
+                </th>
+                <th class="m-o"  data-title="Best Multi Kill" data-content="The players highest amount of kills in a short space of time without dying.">
+                    Best Multi Kill
+                </th>
+
+                <tr>
+                    <td><%= d.m1 %></td>
+                    <td><%= d.m2 %></td>
+                    <td><%= d.m3 %></td>
+                    <td><%= d.m4 %></td>
+                    <td><%= d.m5 %></td>
+                    <td><%= d.m6 %></td>
+                    <td><%= d.m7 %></td>
+                    <td><%= (d.best_multi != 0) ? d.best_multi - 1 : 0 %></td>
+                </tr>
+
+                </table>
+        </div>
+        <%
+    }
+
+}
+    
+%>
+
+
+<%
+
+
+function displayCareer(){
+
+    let nameTitle = name;
+
+    const reg = /s$/i;
+
+    //..if(reg.test(name)){
+       // nameTitle = name+"'";
+    //}else{
+       // nameTitle = name+"'s";
+   // }
+
+    let d = -1;
+
+    for(let i = 0; i < totals.length; i++){
+
+        if(totals[i].gametype == 0){
+            d = totals[i];
+            //console.log(d);
+        }
+    }
+
+    //console.table(d);
+
+    let playtime = 0;
+
+    playtime = d.total_time;
+
+    if(d.total_time != 0){
+
+        playtime = Math.floor(d.total_time / (60 * 60));
+    }
+
+    const currentDate = new Date();
+    const now = currentDate.getTime() / 1000;
+
+    const timeDiff = now - d.last_match;
+
+    //console.log("d.last_match = "+d.last_match);
+    %>
+    <div class="default">
+        <div class="default-header"><img src="files/flags/<%= flag %>.png" alt="flag"/>Player Profile for <%= nameTitle %></div>
+
+        <div class="player-career-wrapper">
+
+            <div class="player-career">
+                <div><img src="files/archive.png" alt="icon"/><span class="yellow">Matches</span> <br><%= d.total_matches %></div>
+            </div><div class="player-career">
+                <div><img src="files/trophy.png" alt="icon"/><span class="yellow">Wins</span> <br><%= d.wins %></div>
+            </div><div class="player-career">
+                <div><img src="files/clock-1.png" alt="icon"/><span class="yellow">Playtime</span> <br><%= playtime %> Hours</div>
+            </div><div class="player-career">
+                <div><img src="files/view.png" alt="icon"/><span class="yellow">First Seen</span> <br><span class="date"><%= d.first_match %></span></div>
+            </div><div class="player-career">
+                <div><img src="files/view-1.png" alt="icon"/><span class="yellow">Last Seen</span> <br><span class="date"><%= d.last_match_date %></span></div>
+            </div><div class="player-career">
+                <div><img src="files/binoculars.png" alt="icon"/><span class="yellow">Page Views</span> <br><%= d.views %> </div>
+            </div>
+            
+    
+
+        </div>
+
+
+
+    </div>
+
+    <%
+
+}
+
+
+function displayPerformance(){
+
+    let kills = [];
+    let deaths = [];
+    let points = [];
+
+    if(performance.length <= 1){
+        return;
+    }
+
+    let d = 0;
+
+    for(let i = 0; i < performance.length; i++){
+
+        d = performance[i];
+
+        kills.push(d.kills);
+        deaths.push(d.deaths);
+        points.push(d.points);
+    }
+
+    const data = [
+        {"name": "Kills", "data": kills},
+        {"name": "Deaths", "data": deaths},
+        //{"name": "Points", "data": points},
+    ];
+
+    %>
+    
+    <div class="default">
+        <div class="default-header">
+            Performance Graphs
+        </div>
+
+        <div id="kills-graph">           
+        </div>
+
+        <script>
+            new SGraph("kills-graph", 0.5, "rgb(12,12,12)", "Frag Performance",<%- JSON.stringify(data) %>, "Kills/Deaths", "Matches newest first", "", null);
+            /*new SGraph("kills-graph", "", "Matches newest to oldest", 600, "rgb(32,32,32)", [
+                {"name":"kills", "data": <%- JSON.stringify(kills) %>},
+                {"name":"deaths", "data": <%- JSON.stringify(deaths) %>},
+                {"name":"points", "data": <%- JSON.stringify(points) %>},
+                ], "Frag Performance (Latest "+<%=kills.length%>+" Matches)");*/
+        </script>
+
+    </div>
+    <%
+}
+
+
+function displayCtfStats(){
+
+    if(totals.length > 0){
+
+
+        let ctfTotals = {
+            "grabs": 0,
+            "caps": 0,
+            "assists": 0,
+            "kills": 0,
+            "drops": 0,
+            "pickups": 0,
+            "covers": 0,
+            "returns": 0
+
+        };
+
+        const reg = /capture the flag/i;
+
+        let d = 0;
+        let currentGametype = 0;
+
+        for(let i = 0; i < totals.length; i++){
+
+            d = totals[i];
+
+            currentGametype = getGametypeName(d.gametype);
+
+            if(reg.test(currentGametype)){
+
+                ctfTotals.grabs += d.flag_grabs;
+                ctfTotals.caps += d.flag_caps;
+                ctfTotals.assists += d.flag_assists;
+                ctfTotals.kills += d.flag_kills;
+                ctfTotals.drops += d.flag_drops;
+                ctfTotals.pickups += d.flag_pickups;
+                ctfTotals.covers += d.flag_covers;
+                ctfTotals.returns += d.flag_returns;
+            }
+
+        }
+
+
+        const totalGrabs = ctfTotals.grabs + ctfTotals.pickups;
+
+        let capP = 0;
+
+        if(totalGrabs == 0){
+
+            if(ctfTotals.caps > 0){
+                capP = 100;
+            }else{
+                capP = 0;
+            }
+
+        }else{
+
+            if(ctfTotals.caps > 0){
+
+                capP = (ctfTotals.caps / (totalGrabs + ctfTotals.caps)) * 100;
+                capP = capP.toFixed(2);
+            }
+        }
+
+
+
+        %>
+
+        <div class="default player-event-boxes">
+            <div class="default-header">
+                Capture the Flag Events
+            </div>
+
+            <table class="default-table">
+                <tr>
+                    <th>Grabs</th>    
+                    <th>Pickups</th>    
+                    <th>Drops</th>    
+                    <th>Assists</th>    
+                    <th>Captures</th>    
+                    <th class="m-o" data-title="Grab To Cap Ratio" data-content="How successful a player is at grabbing and picking up a flag and capping.">Grab to Cap %</th>    
+                    <th>Covers</th>    
+                    <th>Kills</th>    
+                    <th>Returns</th>   
+                </tr>    
+
+                <tr>
+                    <td><%= ctfTotals.grabs %></td>    
+                    <td><%= ctfTotals.pickups %></td>    
+                    <td><%= ctfTotals.drops %></td>    
+                    <td><%= ctfTotals.assists %></td>    
+                    <td><%= ctfTotals.caps %></td>    
+                    <td><%= capP %>&#37;</td>    
+                    <td><%= ctfTotals.covers %></td>    
+                    <td><%= ctfTotals.kills %></td>    
+                    <td><%= ctfTotals.returns %></td>    
+                </tr>
+            </table>
+      
+        </div>
+        <%
+    }
+}
+
+
+function displayDomAssaultStats(){
+
+    let data = {
+        "domCaps":0,
+        "assaultCaps":0
+    };
+
+    const domReg = /domination/i;
+    const assaultReg = /assault/i;
+
+
+    let d = 0;
+
+    for(let i = 0; i < totals.length; i++){
+
+        d = totals[i];
+
+        if(domReg.test(d)){
+            data.domCaps += d.dom_caps;
+        }else if(assaultReg.test(d)){
+            data.assaultCaps += d.assault_caps;
+        }
+    }
+
+    %>
+
+    <div class="default player-event-boxes">
+        <div class="default-header">
+            Assault &amp; Domination summary
+        </div>
+
+        <table>
+            <tr>
+                <th>Assault Object Captures</th>
+                <th>Domination Point Captures</th>
+            </tr>
+            <tr>
+                <td><%= data.assaultCaps %></td>
+                <td><%= data.domCaps %></td>
+            </tr>
+        </table>
+
+
+    </div>
+
+    <%
+}
+
+function getWeaponData(id){
+
+    for(let i = 0; i < weaponNames.length; i++){
+
+        if(weaponNames[i].id == id){
+            return weaponNames[i];
+        }
+    }
+    return {"id":-1,"name":"Unknown weapon","img":""}
+}
+
+
+
+
+function mergeWeaponStats(){
+
+
+    const fixedData = [];
+
+
+    const getIndex = (weapon) =>{
+
+        for(let i = 0; i < fixedData.length; i++){
+
+            if(fixedData[i].weapon_id == weapon){
+                return i;
+            }
+        }
+
+        return null;
+    }
+    
+
+
+    let currentIndex = 0;
+
+    for(let i = 0; i < weaponStats.length; i++){
+
+        currentIndex = getIndex(weaponStats[i].weapon_id);
+
+        if(currentIndex == null){
+            fixedData.push(weaponStats[i]);
+        }else{
+
+            fixedData[currentIndex].shots += weaponStats[i].shots;
+            fixedData[currentIndex].hits += weaponStats[i].hits;
+            fixedData[currentIndex].kills += weaponStats[i].kills;
+            fixedData[currentIndex].damage += weaponStats[i].damage;
+        }
+    }
+
+
+    weaponStats = fixedData;
+}
+
+function displayWeaponStats(){
+
+   // if(weaponStats == undefined)
+        //return;
+
+    //console.log("weaponStats");
+    ///console.log(weaponStats);
+    //console.log("weaponStats");
+
+
+    if(weaponStats.length > 0){
+
+        %>
+
+        <div class="default">
+            <div class="default-header">
+                Weapon Stats
+            </div>
+
+
+            <table>
+                <tr>
+                    <th>Weapon</th>
+                    <th>Shots</th>
+                    <th>Hits</th>
+                    <th>Kills</th>
+                    <th>Accuracy</th>
+                    <th>Damage</th>
+                </tr>
+            
+            <%
+
+            let d = 0;
+
+            let currentWeapon = 0;
+            let accuracy = 0;
+            let currentDamage = 0;
+
+            for(let i = 0; i < weaponStats.length; i++){
+
+                d = weaponStats[i];
+
+                currentWeapon = getWeaponData(d.weapon_id);
+                accuracy = 0;
+
+                if(d.shots > 0){
+
+                    if(d.hits > 0){
+
+                        accuracy = d.hits / d.shots;
+
+                        accuracy = (accuracy * 100).toFixed(2);
+                    }
+                }
+
+                currentDamage = 0;
+
+                if(d.damage > 0){
+                    currentDamage = d.damage * 0.001;
+                }
+
+                %>
+                <tr>
+                    <td><%= currentWeapon.name %></td>
+                    <td><%= d.shots %></td>
+                    <td><%= d.hits %></td>
+                    <td><%= d.kills %></td>
+                    <td><%= accuracy %>&#37;</td>
+                    <td><%= Math.round(currentDamage) %>K</td>
+                </tr>
+                <%
+            }
+            %>
+            </table>
+        </div>
+
+        <%
+    }
+}
+
+function displayRankings(){
+
+    if(rankings.length > 0){
+
+        %>
+        <div class="default">
+            <div class="default-header">
+                Ranking Summary
+            </div>
+
+            <table class="default-table">
+                <tr>
+                    <th>Gametype</th>
+                    <th>Matches</th>
+                    <th>Ranking Change</th>
+                    <th>Ranking</th>
+                </tr>
+ 
+
+            <%
+            
+            let d = 0;
+
+            let icon = "";
+
+            for(let i = 0; i < rankings.length; i++){
+
+                d = rankings[i];
+
+                if(d.ranking_diff > 0){
+                    icon = "up.png";
+                }else if(d.ranking_diff < 0){
+                    icon = "down.png";
+                }else{
+                    icon = "nochange.png";
+                }
+
+                %>
+                <tr>
+                    <td><%= getGametypeName(d.gametype) %></td>
+                    <td class="text-center"><%= d.total_matches %></td>
+                    <td><%= d.ranking_diff %><img class="ranking-icon" src="files/<%= icon %>" alt="flag"/></td>
+                    <td><%= d.ranking %><img class="ranking-icon" src="files/<%= icon %>" alt="flag"/> <span class="ranking-place">(<%= getOrdinal(d.gametype_position) %>)</span></td>
+                </tr>
+                <%
+            }
+            %>
+            </table>
+        </div>
+        <%
+    }
+}
+
+function displayFragPerformance(){
+
+    let d = 0;
+    let eff = 0;
+
+    let totalShots = 0;
+    let totalHits = 0;
+    let accuracy = 0;
+    
+
+    for(let i = 0; i < weaponStats.length; i++){
+
+        if(weaponStats[i].shots > 0){
+            totalShots += weaponStats[i].shots;
+            totalHits += weaponStats[i].hits;
+        }
+
+    }
+    
+    if(totalShots > 0){
+
+        if(totalHits > 0){
+
+            accuracy = (totalHits / (totalHits + totalShots)) * 100;
+        }
+    }
+
+
+    for(let i = 0; i < totals.length; i++){
+
+        if(totals[i].gametype == 0){
+            d = totals[i];
+            break;
+        }
+    }
+
+    if(d.deaths > 0){
+
+        if(d.kills > 0){
+
+            eff = d.kills / (d.kills + d.deaths);
+
+            eff*=100;
+            eff = eff.toFixed(2);
+        }
+    }else{
+        if(d.kills > 0){
+            eff = 100;
+        }
+    }
+    %>
+    <div class="default player-event-boxes">
+        <div class="default-header">Frag Performance</div>
+
+        <table class="default-table">
+            <tr>
+                <th>Points</th>    
+                <th>Kills</th>    
+                <th>Team Kills</th>    
+                <th class="m-o" data-title="Monster Kills (Monster Hunt)" data-content="Monster Kills are not the multi kill event, they are the total monster kills in monsterhunt and coop games.">Monster Kills (MH)</th>    
+                <th>Deaths</th>
+                <th>Suicides</th>
+                <th>Efficiency</th>
+                <th>Accuracy</th>
+            </tr>    
+
+            <tr>
+                <td><%= d.points %></td>    
+                <td><%= d.kills %></td>    
+                <td><%= d.team_kills %></td>    
+                <td><%= d.monster_kills %></td>    
+                <td><%= d.deaths %></td>    
+                <td><%= d.suicides %></td>    
+                <td><%= eff %></td>    
+                <td><%= accuracy.toFixed(2) %></td>    
+            </tr>
+        </table>
+
+    
+    </div>
+    <%
+
+}
+
+
+function getMonster(id){
+
+    for(let i = 0; i < monsters.length; i++){
+
+        if(monsters[i].id == id){
+            return monsters[i];
+        }
+    }
+
+    return null;
+}
+
+
+function stripPackage(name){
+
+    const reg = /^.+\.(.+)$/i;
+
+    if(reg.test(name)){
+
+        const result = reg.exec(name);
+
+        return result[1];
+    }
+    return name;
+}
+
+
+function getMonsterFile(name){
+
+    name = name.toLowerCase();
+
+    name = name+".png";
+
+    //console.log(monsterFiles);
+    for(let i = 0; i < monsterFiles.length; i++){
+
+        if(monsterFiles[i] == name){
+
+            return name;
+        }
+    }
+
+    return 'default.png';
+}
+
+function displayMonsters(){
+
+    if(monsters != undefined && monsterKills != undefined){
+
+        if(monsters.length > 0 && monsterKills.length > 0){
+
+            //console.table(monsterKills);
+            //console.table(monsters);
+            %>
+
+            <div class="default">
+                <div class="default-header">
+                    Monster Stats    
+                </div>   
+                
+                <div id="h-monsters">
+
+                <%
+
+                let d = 0;
+                let currentMonster = null;
+                
+
+                for(let i = 0; i < monsterKills.length; i++){
+
+                    d = monsterKills[i];
+                    currentMonster = getMonster(d.monster_id);
+
+                    if(currentMonster != null){
+                        %>
+                        <div class="home-monster">
+                            <div><%= stripPackage(currentMonster.name).toUpperCase() %></div>
+                            <div><img src="files/monsters/<%= getMonsterFile(currentMonster.name) %>" alt="image"/></div>
+                            
+                            <div>Kills <%= d.kills %></div>
+                            <div></div>
+                        </div>
+                        <%
+                    }
+                }
+
+                %>
+            
+        </div>
+
+            <%
+        }
+    }
+}
+
+function displayAliases(){
+
+    %>
+    <div id="player-aliases"></div>
+    <script>
+        (() =>{
+
+            
+            const aliases = new AliasesFetcher('<%- name %>', "player-aliases");
+
+        })();
+    </script>
+    <%
+}
+
+function mmss(input){
+
+    let seconds = input % 60;
+
+    seconds = seconds.toFixed(2);
+
+    let minutes = 0;
+
+    if(input >= 60){
+        minutes = Math.floor(input / 60);
+    }
+
+    if(minutes < 10){
+        minutes = "0"+minutes;
+    }
+
+    if(seconds < 10){
+        seconds = "0"+seconds;
+    }
+
+    return minutes+":"+seconds;
+}
+
+
+function getMapRecord(id){
+
+    for(let i = 0; i < btMapRecords.length; i++){
+
+        if(btMapRecords[i].map_id == id){
+            return btMapRecords[i].time;
+        }
+    }
+
+    return 0;
+
+}
+
+function displayBunnytrack(){
+
+    if(btPlayerRecords != undefined){
+
+        if(btPlayerRecords.length > 0){
+
+            %>
+            <div class="default">
+                <div class="default-header">
+                    Bunnytrack Map Records    
+                </div>    
+
+                <table class="default-table frag-table">
+                    <tr>
+                        <th>Map</th>    
+                        <th>Date Of Cap</th>    
+                        <th>Cap Time</th>    
+                        <th>Current Map Record</th>    
+                        <th>Offset To Record</th>    
+                    </tr>    
+
+                    <%
+
+                    (() =>{
+
+                        let d = 0;
+
+                        let offsetClass = "";
+                        let currentOffset = 0;
+
+
+                        for(let i = 0; i < btPlayerRecords.length; i++){
+
+                            d = btPlayerRecords[i];
+
+                            offsetClass = "team-red"
+
+                            currentOffset = Math.abs(getMapRecord(d.map_id) - d.time);
+
+                            if(currentOffset == 0){
+                                offsetClass = "team-purple";
+                            }
+                    
+                            %>
+                                <tr>
+                                    <td><a href="/match?id=<%= d.match_id %>"><%= getMapName(d.map_id) %></a></td>    
+                                    <td class="date"><%= d.date %></td>    
+                                    <td class="team-green"><%= mmss(d.time) %></td>    
+                                    <td class="team-purple"><%= mmss(getMapRecord(d.map_id)) %></td>    
+                                    <td class="<%= offsetClass %>">+<%= mmss(currentOffset) %></td>    
+                                </tr>
+
+                            <%
+                            }
+                            
+
+
+                    })();
+                    
+                    %>
+                </table>
+            </div>
+            <%
+        }
+    }
+}
+
+displayCareer();
+
+displayFragPerformance();
+displayGametypes();
+//displayRankings();
+displayCtfStats();
+displayDomAssaultStats();
+
+
+
+displaySpecialEvents();
+
+
+displayWeaponStats();
+
+displayPerformance();
+
+
+displayBunnytrack();
+
+displayMonsters();
+
+displayAliases();
+
+displayRecentMatches();
+
+%>
+
+<%-
+    include('../partials/footer.ejs');
+%>

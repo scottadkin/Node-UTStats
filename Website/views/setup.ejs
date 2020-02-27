@@ -1,0 +1,34 @@
+<%- include("../partials/header", {"req": req, "title": "Setup", "desc": "Set up"})%>
+
+
+
+<div class="default">
+
+    <div class="default-header">
+
+        First Time Setup
+    </div>
+
+
+    <div class="form">
+        <form action="/create-admin-account" method="POST">
+            <div class="form-row">
+                <div>Username</div>
+                <div><input class="form-row-box" type="text" name="username" placeholder="Username..."/></div>
+            </div>
+            <div class="form-row">
+                <div>Password</div>
+                <div><input class="form-row-box" type="password" name="pass1" placeholder="Password..."/></div>
+            </div>
+            <div class="form-row">
+                <div>Password Again</div>
+                <div><input class="form-row-box" type="password" name="pass2" placeholder="Password again..."/></div>
+            </div>
+           
+                <input class="form-button" type="submit" name="submit" value="Create Admin Account"/>
+            
+        </form>
+    </div>
+</div>
+
+<%- include("../partials/footer"); %>

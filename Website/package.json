@@ -1,0 +1,40 @@
+{
+  "name": "nodejs-utstats-website",
+  "version": "0.0.1",
+  "description": "WEbsite module for the nodejs utstats server module",
+  "main": "app.js",
+  "dependencies": {
+    "ejs": "^2.6.2",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.6-alpha.6",
+    "express-mysql-session": "^2.1.0",
+    "express-session": "^1.16.2",
+    "jimp": "^0.8.5",
+    "md5": "^2.2.1",
+    "mysql": "^2.17.1",
+    "promise": "^8.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scottadkin/NodeUTstats-website-module.git"
+  },
+  "keywords": [
+    "utstats",
+    "website",
+    "module",
+    "unreal",
+    "tournament",
+    "ut",
+    "ut99"
+  ],
+  "author": "Scott Adkin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scottadkin/NodeUTstats-website-module/issues"
+  },
+  "homepage": "https://github.com/scottadkin/NodeUTstats-website-module#readme"
+}

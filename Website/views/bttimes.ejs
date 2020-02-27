@@ -1,0 +1,127 @@
+
+<%-
+    include("../partials/header.ejs", {"title": "Bunnytrack times", "description": "View all the recent map times done by players."});
+
+%>
+
+<%
+
+function mmss(input){
+
+    let seconds = (input % 60).toFixed(2);
+
+    let minutes = Math.floor(input / 60);
+
+
+    if(seconds < 10){
+        seconds = "0"+seconds;
+    }
+
+    if(minutes < 10){
+
+        minutes = "0"+minutes;
+    }
+
+    return minutes+":"+seconds;
+}
+
+function getPlayer(id){
+
+    for(let i = 0; i < players.length; i++){
+
+        if(players[i].id == id){
+
+            return players[i];
+        }
+    }
+
+    return {"name":"Not Found", "id": -1, "flag": "xx"};
+}
+
+
+function getMapName(id){
+
+    for(let i = 0; i < maps.length; i++){
+
+        if(maps[i].id == id){
+            return maps[i].name;
+        }
+    }
+
+    return "Map name not found.";
+}
+
+
+
+
+
+function display(){
+
+    if(data.length > 0){
+
+        %>
+        <div class="default">
+            <div class="default-header">
+                Recent Bunnytrack Cap Times
+            </div>
+
+            <table class="default-table frag-table">
+            <tr>
+                <th>Player</th>
+                <th>Map</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+
+            <%
+
+            let d = 0;
+            let p = 0;
+
+            for(let i = 0; i < data.length; i++){
+
+                d = data[i];
+                p = getPlayer(d.player_id);
+
+                %>
+                <tr>
+                    <td><a href="/player?id=<%= p.id %>"><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <%= p.name %></a></td>
+                    <td><a href="/match?id=<%= d.match_id %>"><%= getMapName(d.map_id) %></a></td>
+                    <td class="date"><%= d.date %></td>
+                    <td class="team-green"><a href="/match?id=<%= d.match_id %>"><%= mmss(d.time) %></a></td>
+                </tr>
+                <%
+            }
+
+            %>
+            </table>
+        </div>
+        <%
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+display();
+
+%>
+
+
+<%-
+    include("../partials/pagination.ejs", {"url": "/bt-times?page=", "page":page, "pages": pages, "results": results});
+%>
+
+
+<%-
+
+    include("../partials/footer.ejs");
+
+%>
