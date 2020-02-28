@@ -50,9 +50,9 @@ ftpServers: [
 
 - Go into the Imported folder.
 - Open command prompt and type the command "node app"
-- The importer will now go through all the connected servers and import logs, by default it will check every minute to find new longs to import, you can change this in Importer/api/config.js and changing ```
+- The importer will now go through all the connected servers and import logs, by default it will check every minute to find new longs to import, you can change this in Importer/api/config.js and changing 
+```
  importInterval: 60 * 1000, //seconds * miliseconds
-
  to change it to every ten minutes replace the line with this one
   importInterval: 600 * 1000, //seconds * miliseconds
- ```
+```
