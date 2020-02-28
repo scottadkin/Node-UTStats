@@ -19,9 +19,9 @@ const Config = {
 
     bIgnoreBots: false,
     bIgnoreDuplicates: false,
-    bMoveTmpFiles: true,
+    //bMoveTmpFiles: true,
     tmpFileTimeMoveLimit: 300 * 60 , // minutes * seconds
-    bMoveLogFiles: false,
+    //bMoveLogFiles: false,
     multiKillTimeLimit: 3,
     minCaps: 1, //Ignore matches that don't have any caps (BT and CTF)
     minPlayers: 0, // set this to 2 if you want to ignore matches that only have 1 human player
@@ -33,11 +33,13 @@ const Config = {
    // acePrefix: "[ACE] - ",
     //acePlayerPrefix: "[ACE-PLAYER] - ",
     aceSShotDir: "Shots/",
+    aceSShotDirImport: "Logs/Imported/Ace-shots/",
     bMoveAceLogs: true,
-    aceImportDir: "Logs/ace/",
+    aceImportDir: "Logs/Imported/Ace/",
     btPlusPlusIni: "BTPlusPlus.ini",
     btGameIni: "BTGame.ini",
-    mapsDir: "Maps/"
+    mapsDir: "Maps/",
+    tmpDir: "tmp/"
 };
 
 

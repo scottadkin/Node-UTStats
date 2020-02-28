@@ -103,18 +103,18 @@ class Log{
 
         return new Promise((resolve, reject) =>{
 
-            const logDir = "../Logs/";
-            const newDir = "../Logs/imported/";
+            const logDir = config.logDir;
+            const newDir = config.importDir;
 
             const dateDir = this.createDirectoryString();
 
-            if(!config.bMoveLogFiles){
+            /*if(!config.bMoveLogFiles){
 
                 new Message("warning", "bMoveLogFiles is set to false, log file will not be moved.");
                
                 resolve();
 
-            }else{
+            }else{*/
 
                 if(fs.existsSync(newDir + dateDir)){
         
@@ -135,7 +135,7 @@ class Log{
                     });
                 }
 
-            }
+           // }
 
         });
         

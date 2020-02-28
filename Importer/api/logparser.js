@@ -121,7 +121,7 @@ class LogParser{
             await this.ftpConnections[i].import();
 
             this.logs = this.logs.concat(this.ftpConnections[i].logs);
-            this.tmps = this.tmps.concat(this.ftpConnections[i].tmps);
+            this.tmps = this.tmps.concat(this.ftpConnections[i].tmpFiles);
             console.log("check");
             //new Message("note", "Connecting to ftp "+config.ftpServers[i].host+":"+config.ftpServers[i].port);
         }
@@ -208,10 +208,10 @@ class LogParser{
         //return new Promise();
     }
 
-    /*async importTmpFiles(){
+    async importTmpFiles(){
 
 
-        if(config.bMoveTmpFiles){
+        //if(config.bMoveTmpFiles){
             
             const now = Date.now() / 1000;
 
@@ -224,7 +224,7 @@ class LogParser{
 
                 try{
 
-                    stats = fs.statSync(this.dir+d);//, (err, stats) =>{
+                    stats = fs.statSync(config.tmpDir+d.name);//, (err, stats) =>{
 
                     if(stats != undefined){
 
@@ -243,11 +243,11 @@ class LogParser{
 
                 }catch(err){
 
-                    new Message("warning", "Failed to move .tmp file: "+err);
+                   // new Message("warning", "Failed to move .tmp file: "+err);
                 }
             }
-        }
-    }*/
+        //}
+    }
 
     sortFilesByExt(){
 

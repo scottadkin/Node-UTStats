@@ -104,7 +104,7 @@ class ACE{
         const hwidReg = /^\[.*\]: HWID.*: (.+)$/i;
         const versionReg = /^\[.*\]: GameVersion.*: (.+)$/i;
         const timeStampReg = /^\[.*\]: TimeStamp.*: (.+)$/i;
-        const sshotReg = /^\[.*\]: Filename.*: (.+)$/i;
+        const sshotReg = /^\[.*\]: Filename.*: \.\.\/(.+)$/i;
 
 
         let playerName = "";
@@ -117,6 +117,8 @@ class ACE{
         let fileName = "";
 
         let result = "";
+
+        let cleanName = "";
         
         for(let i = 0; i < lines.length; i++){
 
@@ -167,7 +169,14 @@ class ACE{
             let sshotData = null;
 
             if(fileName != null && fileName != ""){
-                sshotData = fs.readFileSync(fileName,'utf-8');      
+                sshotData = fs.readFileSync(fileName,'utf-8');  
+
+                cleanName = fileName.replace(/^.*(shots\/)/i,'');
+                console.log("CLEAN NAME = "+cleanName);
+                fs.rename(fileName, config.aceSShotDirImport + cleanName, (err) =>{
+
+                    if(err) throw err;
+                });
             }
 
             if(sshotData == null || sshotData == undefined){
