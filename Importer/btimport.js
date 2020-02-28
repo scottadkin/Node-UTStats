@@ -23,6 +23,7 @@ async function importBTRecords(){
         await bt.checkWhatMapsExists();
         await bt.deleteOldRecords();
         await bt.insertRecords();
+        bt.moveImportedInis();
 
        new Message("pass","Inserted all records from BTPlusPlus.ini");
 

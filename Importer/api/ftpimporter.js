@@ -24,6 +24,10 @@ class FTPImporter{
         this.tmpFiles = [];
         this.aceShots = [];
 
+
+        this.maps = [];
+
+
         //this.createInstance();
     }
 
@@ -57,8 +61,37 @@ class FTPImporter{
             }
 
             this.readShotsDir();
-
         });
+    }
+
+    readMapsDir(){
+
+        this.client.list(config.mapsDir, (err, list) =>{
+
+            if(err) throw err;
+
+            //console.table(list);
+
+            const reg = /^.+\.unr$/i;
+
+            if(list != undefined){
+
+                for(let i = 0; i < list.length; i++){
+
+                    if(reg.test(list[i].name)){
+
+                        this.maps.push({
+                            "name": list[i].name,
+                            "size": list[i].size
+                        });
+                    }
+                }
+            }
+
+            //console.table(this.maps);
+        });
+
+        
     }
 
     sortFiles(){
@@ -180,8 +213,8 @@ class FTPImporter{
 
             if(config.bImportBTRecords){
 
-                await this.downloadFile("System/", {"name": config.btPlusPlusIni }, "BT/"+config.btPlusPlusIni);
-                await this.downloadFile("System/", {"name": config.btGameIni }, "BT/"+config.btGameIni);
+                await this.downloadFile("System/", {"name": config.btPlusPlusIni }, "BT/");
+                await this.downloadFile("System/", {"name": config.btGameIni }, "BT/");
             }
 
         }catch(err){
@@ -206,6 +239,10 @@ class FTPImporter{
                 new Message("pass", "Connected to "+this.host+":"+this.port+" successfully!");
 
                 this.readLogsDir();
+
+                if(config.bImportMaps){
+                    this.readMapsDir();
+                }
 
             });
 

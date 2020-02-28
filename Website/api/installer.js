@@ -1014,6 +1014,21 @@ class Installer{
                 ADD PRIMARY KEY (id);`,
           
                 `ALTER TABLE nutstats_item_locations
+                MODIFY id int(11) NOT NULL AUTO_INCREMENT;`,
+
+                `CREATE TABLE nutstats_dom_positions (
+                  id int(11) NOT NULL,
+                  map_id int(11) NOT NULL,
+                  name varchar(50) NOT NULL,
+                  x float NOT NULL,
+                  y float NOT NULL,
+                  z float NOT NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
+          
+                `ALTER TABLE nutstats_dom_positions
+                ADD PRIMARY KEY (id);`,
+          
+                `ALTER TABLE nutstats_dom_positions
                 MODIFY id int(11) NOT NULL AUTO_INCREMENT;`
 
   

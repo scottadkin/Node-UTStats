@@ -7,7 +7,7 @@ const Config = {
     "mysqlHost": "localhost",
     "mysqlUser": "root",
     "mysqlPassword": "",
-    "mysqlDatabase": "14node_utstats",
+    "mysqlDatabase": "node_utstats",
     "mysqlPort": 3306,
     "sessonTable": "nutstats_sessions",
 

@@ -46,6 +46,7 @@ class LogParser{
         this.totalCaps = 0;
         this.distanceData = [];
         this.flagKillData = [];
+        this.maps = [];
 
         this.ace = new ACE();
 
@@ -105,6 +106,7 @@ class LogParser{
         this.botPlayers = [];
         this.distanceData = [];
         this.flagKillData = [];
+        this.maps = [];
 
     }
 
@@ -122,7 +124,8 @@ class LogParser{
 
             this.logs = this.logs.concat(this.ftpConnections[i].logs);
             this.tmps = this.tmps.concat(this.ftpConnections[i].tmpFiles);
-            console.log("check");
+            this.maps = this.maps.concat(this.ftpConnections[i].maps);
+           // console.log("check");
             //new Message("note", "Connecting to ftp "+config.ftpServers[i].host+":"+config.ftpServers[i].port);
         }
 
@@ -182,6 +185,7 @@ class LogParser{
                 }
 
                 await this.importTmpFiles();
+                //await this.importMaps();
 
 
             }else{
@@ -1799,9 +1803,6 @@ class LogParser{
             });
         });
     }
-
-
-
 }
 
 

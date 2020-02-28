@@ -172,7 +172,7 @@ class ACE{
                 sshotData = fs.readFileSync(fileName,'utf-8');  
 
                 cleanName = fileName.replace(/^.*(shots\/)/i,'');
-                console.log("CLEAN NAME = "+cleanName);
+                //console.log("CLEAN NAME = "+cleanName);
                 fs.rename(fileName, config.aceSShotDirImport + cleanName, (err) =>{
 
                     if(err) throw err;

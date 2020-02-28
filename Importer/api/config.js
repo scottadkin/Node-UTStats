@@ -4,7 +4,7 @@ const Config = {
     host:"localhost", //database host
     user:"root",    //database user
     password:"", // database password
-    database:"14node_utstats", // database name
+    database:"node_utstats", // database name
     port: "3306",   //database port
 
     ftpServers: [
@@ -17,8 +17,8 @@ const Config = {
     bImportBTRecords: true,
     bImportMaps: true,
 
-    bIgnoreBots: false,
-    bIgnoreDuplicates: false,
+    bIgnoreBots: true,
+    bIgnoreDuplicates: true,
     //bMoveTmpFiles: true,
     tmpFileTimeMoveLimit: 300 * 60 , // minutes * seconds
     //bMoveLogFiles: false,
@@ -38,8 +38,10 @@ const Config = {
     aceImportDir: "Logs/Imported/Ace/",
     btPlusPlusIni: "BTPlusPlus.ini",
     btGameIni: "BTGame.ini",
+    btIniImportDir: "BT/Imported/",
     mapsDir: "Maps/",
-    tmpDir: "tmp/"
+    mapsImportJSON: "imported.json",
+    tmpDir: "Tmp/"
 };
 
 

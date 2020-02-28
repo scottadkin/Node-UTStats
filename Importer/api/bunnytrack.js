@@ -437,11 +437,11 @@ class BunnyTrack{
 
            // this.lines = [];
 
-            let fileLocation = config.btPlusPlusIni;
+            let fileLocation = "BT/"+config.btPlusPlusIni;
 
             if(bAlt != undefined){
                 if(bAlt){
-                    fileLocation = config.btGameIni;
+                    fileLocation = "BT/"+config.btGameIni;
                 }
             }
 
@@ -450,7 +450,8 @@ class BunnyTrack{
                 if(err){
                     
                     new Message("warning", "Failed to import BT records from "+fileLocation);
-                    new Message("warning", err);
+                    //new Message("warning", err);
+                    console.trace(err);
                     resolve();
                 }
 
@@ -742,9 +743,59 @@ class BunnyTrack{
                 await this.insertBlankGametype(this.records[i].player);
                 
             }
-        }
+        }    
+    }
 
-      
+
+    moveInis(newDir){
+
+        fs.rename("BT/"+config.btPlusPlusIni, newDir +"/"+ config.btPlusPlusIni, (err) =>{
+
+            if(err) throw err;
+            new Message("pass", "Moved BT/BTPlusPlus.ini to "+newDir+config.btPlusPlusIni);
+        });
+
+        fs.rename("BT/"+config.btGameIni, newDir + "/" + config.btGameIni, (err) =>{
+
+            if(err) throw err;
+
+            new Message("pass", "Moved BT/BTGame.ini to "+newDir+config.btGameIni);
+        });
+    }
+
+    moveImportedInis(){
+
+        const now = new Date();
+
+        const day = now.getDate();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+
+        const newDir = config.btIniImportDir+day+"-"+month+"-"+year;
+
+        fs.stat(newDir, (err, stats) =>{
+
+            if(err) console.log(err);
+
+            if(stats.isDirectory()){
+
+                this.moveInis(newDir);
+
+            }else{
+
+                fs.mkdir(newDir, (err) =>{
+
+                    if(err) throw err;
+        
+                    this.moveInis(newDir);
+        
+                });
+            }
+        });
+
+        
+
+        
     }
 }
 
