@@ -12,8 +12,6 @@ class Installer{
 
     constructor(){
 
-
-
 		this.errors = [];
 
 		this.bAltInstall = false;
@@ -21,37 +19,32 @@ class Installer{
 		if(arguments.length == 1){
 			this.bAltInstall = true;
 		}
+    }
 
 
-        this.connect().then(() =>{
+    async start(){
 
 
-            return this.createDatabase();
+        try{
 
-        }).then(() =>{
+			await this.connect();
+			await this.createDatabase();
+			new Message("pass", "Database "+config.mysqlDatabase+" created successfully!");
+			await this.connect(true);
+			await this.createTables();
+			new Message("pass", "Install completed!");
+			process.exit(0);
 
-            new Message("pass","Install completed without errors.");
+
+		}catch(err){
+
+			new Message("error", "There was a problem installing: "+err);
+			console.trace(err);
+		}
 
 
-            return this.connect(true);
+        
 
-            //return this.test();
-
-        }).then(() =>{
-
-            return this.createTables();
-            
-        }).then(() =>{
-
-            new Message("pass", "Install completed with no errors!");
-
-            process.exit(0);
-            
-        }).catch((message) =>{
-
-            console.trace(message);
-            new Message("error","There was a problem installing ("+message+")");
-        }); 
     }
 
     connect(){
@@ -100,9 +93,16 @@ class Installer{
 
             this.connection.query(query, (err) =>{
                 
-                if(err) reject(err);
+				if(err) reject(err);
+				
 
-                new Message("pass", " "+query+" ");
+				let endString = "";
+
+				if(query.length > 30){
+					endString = "...";
+				}
+
+                new Message("pass", " "+query.substring(0,30)+endString);
                 resolve();
             });
         });
