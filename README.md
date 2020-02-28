@@ -25,6 +25,7 @@
 - Now run the command "node install", this will create the database needed. If you don't have permission to create a database but have an empty database then run the command "node installalt" instead. If you are **upgrading from Node UTStats version 9 or above you can run "npm upgrade" to update your current database to work with the new version.**
 - Now the website and database has been set up go back to the main folder where Website and Importer folders are.
 - Now open the Importer folder then open the api folder.
+- Run the command "npm install" to install dependencies.
 - Open config.js and edit the mysql host, user, password, and database to the one you want to connect with.
 
 
