@@ -13,6 +13,7 @@
 
 - Current mapimport.js has not been changed to work with the ftp module.
 - The website will display errors for map pages that have been added via btimport if the map has had 0 games played on.
+- Ace player information logs currently don't import.
 
 # Install
 
