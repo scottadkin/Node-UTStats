@@ -313,8 +313,9 @@ class LogParser{
 
         let current = 0;
 
+
         current = fs.readFileSync("Logs/"+this.logs[this.currentLog].name, "utf8",(err) =>{
-            if(err) reject(err);
+            if(err) throw err;
         });
 
         new Message("note","Starting import for "+"Logs/"+this.logs[this.currentLog].name);

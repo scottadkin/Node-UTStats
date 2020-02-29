@@ -311,7 +311,7 @@ function displayMatchRecords(){
 
             %>
             <div class="data-default match-record">
-                <a href="/player?id=<%= getPlayerTotalId(p.name) %>"><div><img src="files/flags/<%= p.flag %>.png" alt="flag"/><%= p.name %></div></a>
+                <a href="/player?id=<%= getPlayerTotalId(p.name) %>"><div><img src="files/flags/<%= p.flag.toLowerCase() %>.png" alt="flag"/><%= p.name %></div></a>
                 <a href="/match?id=<%= p.match_id %>"><div><%= getMapName(p.match_id) %></div></a>
                 <div>
                 <%
@@ -528,7 +528,7 @@ function displayRecords(){
                             }
                             %>
                                 <tr>
-                                    <td><a href="/player?id=<%= getPlayerTotalId(d.name) %>"><span class="ranking-place"><%= image %></span> <img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></a></td>
+                                    <td><a href="/player?id=<%= getPlayerTotalId(d.name) %>"><span class="ranking-place"><%= image %></span> <img src="files/flags/<%= d.flag.toLowerCase() %>.png" alt="flag"/> <%= d.name %></a></td>
                                     <td class="text-center"><a href="/match?id=<%= d.match_id %>"><b><%= getPlayerTotalMatches(d.name) %></b> Matches Played</a></td>
                                     <td  class="text-center"><a href="/player?id=<%= d.id %>" ><%- d["value"] %></a></td>
                                 </tr>

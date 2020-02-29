@@ -17,8 +17,8 @@ const Config = {
     bImportBTRecords: true,
     bImportMaps: true,
 
-    bIgnoreBots: true,
-    bIgnoreDuplicates: true,
+    bIgnoreBots: false,
+    bIgnoreDuplicates: false,
     //bMoveTmpFiles: true,
     tmpFileTimeMoveLimit: 300 * 60 , // minutes * seconds
     //bMoveLogFiles: false,

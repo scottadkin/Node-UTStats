@@ -707,7 +707,7 @@ class BunnyTrack{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nutstats_player_totals (name, flag) VALUES(?,'xx')";
+            const query = "INSERT INTO nutstats_player_totals (name, flag, ip) VALUES(?,'xx','')";
 
             mysql.query(query, [playerId], (err, result) =>{
 
@@ -775,14 +775,25 @@ class BunnyTrack{
 
         fs.stat(newDir, (err, stats) =>{
 
-            if(err) console.log(err);
+            if(err) new Message("warning", err);
 
-            if(stats.isDirectory()){
+            if(stats != undefined){
 
-                this.moveInis(newDir);
+                if(stats.isDirectory()){
+                    this.moveInis(newDir);
+                }else{
+
+                    fs.mkdir(newDir, (err) =>{
+
+                        if(err) throw err;
+            
+                        this.moveInis(newDir);
+            
+                    });
+                }
 
             }else{
-
+       
                 fs.mkdir(newDir, (err) =>{
 
                     if(err) throw err;
@@ -790,6 +801,7 @@ class BunnyTrack{
                     this.moveInis(newDir);
         
                 });
+                
             }
         });
 

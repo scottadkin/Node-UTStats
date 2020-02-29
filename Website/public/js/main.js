@@ -1493,7 +1493,7 @@ class AliasesFetcher{
         for(let i = 0; i < data.length; i++){
 
             html += `<tr>
-                <td><a href="/player?id=${data[i].player_id}"><img src="files/flags/${data[i].flag}.png" alt="flag"> ${data[i].name}</a></td>
+                <td><a href="/player?id=${data[i].player_id}"><img src="files/flags/${data[i].flag.toLowerCase()}.png" alt="flag"> ${data[i].name}</a></td>
                 <td style="text-align:center">${data[i].total_uses}</td>
                 </tr>`;
         }

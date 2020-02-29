@@ -3,6 +3,7 @@ const fs = require('fs');
 const Message = require('./message');
 const Promise = require('promise');
 const config = require('./config');
+const mysql = require('./database');
 
 
 class FTPImporter{
@@ -31,7 +32,29 @@ class FTPImporter{
         //this.createInstance();
     }
 
+
     readShotsDir(){
+
+
+        //this.aceShotsImported = [];
+
+        const alreadyImported = [];
+
+        fs.readdir(config.aceSShotDirImport, (err, files) =>{
+
+            if(err) throw err;
+
+            if(files != undefined){
+
+                for(let i = 0; i < files.length; i++){
+
+                    alreadyImported.push(files[i]);
+                }
+            }
+
+            //console.table(alreadyImported);
+
+        });
 
         this.client.list(config.aceSShotDir, (err, list) =>{
 
@@ -39,15 +62,50 @@ class FTPImporter{
 
             if(list != undefined){
 
-                this.files = this.files.concat(list);
+               // this.files = this.files.concat(list);
+
+                for(let i = 0; i < list.length; i++){
+
+                    if(alreadyImported.indexOf(list[i].name) != -1){
+                        new Message("warning", "Ace screenshot "+list[i].name+" has already been imported, skipping.");
+                    }else{
+                        this.files.push(list[i]);
+                    }
+
+                    /*if(!this.bFileAlreadyImported(list[i].name)){
+
+                        this.files.push(list[i].name);
+                        console.log("new image");
+                    }else{
+                        new Message("warning", "Ace screenshot "+list[i].name+" has already been imported, skipping.");
+                    }*/
+
+                }
             }
 
             this.sortFiles();
 
         });
+        
     }
 
     readLogsDir(){
+
+        const tmpFiles = [];
+
+        fs.readdir(config.logDir, (err, files) =>{
+
+            if(err) throw err;
+
+            if(files != undefined){
+
+                for(let i = 0; i < files.length; i++){
+
+                    tmpFiles.push(files[i]);
+                }
+
+            }
+        });
 
         this.client.list(config.logDir ,(err, list) =>{
 
@@ -55,8 +113,22 @@ class FTPImporter{
 
             if(list != undefined){
 
-                this.files = list;
-                //console.table(this.files);
+                //this.files = list;
+                //console.table(list);
+
+                for(let i = 0; i < list.length; i++){
+
+                    if(!this.bFileAlreadyImported(list[i].name)){
+
+                        if(tmpFiles.indexOf(list[i].name) == -1){
+                            this.files.push(list[i]);
+                        }else{
+                            new Message("warning", "Tmp file "+list[i].name+" has already been imported, skipping.");
+                        }
+                    }else{
+                        new Message("warning", "Log "+list[i].name+" has already been imported, skipping.");
+                    }
+                }
 
             }
 
@@ -108,6 +180,8 @@ class FTPImporter{
 
             d = this.files[i];
 
+            //console.log(d);
+
             if(matchLogReg.test(d.name)){
 
                 this.logs.push(d);
@@ -130,6 +204,9 @@ class FTPImporter{
             }
         }
 
+        //console.table(this.logs);
+
+
         new Message("pass", "Found "+this.logs.length+" match logs to import from server "+this.host+":"+this.port);
         new Message("pass", "Found "+this.aceLogs.length+" ACE kick logs to import from server "+this.host+":"+this.port);
         new Message("pass", "Found "+this.acePlayerLogs.length+" ACE player logs to import from server "+this.host+":"+this.port);
@@ -140,51 +217,98 @@ class FTPImporter{
 
     }
 
+    bFileAlreadyImported(fileName){
+
+
+        const reg = /^.+\/logs\/(.+)$/i;
+
+        let result = reg.exec(fileName);
+
+        if(result != null){
+
+            fileName = result[1];
+        }
+        
+        let d = 0;
+
+        for(let i = 0; i < this.previousImports.length; i++){
+
+            d = this.previousImports[i];   
+
+            if(d.file == fileName){
+
+                return true;
+            }
+
+        }
+
+        return false;
+
+    }
+
     downloadFile(dir, file, targetDir){
+
+       // console.log("check");
 
         return new Promise((resolve, reject) =>{
 
-            this.client.get(dir + file.name, (err, stream) =>{
+            //console.log(this.bFileAlreadyImported(file.name));
+            if(this.bFileAlreadyImported(file.name)){
 
-                if(err) reject(err);
+                new Message("warning", "The file "+file.name+" has already been imported, skipping.");
+                resolve();
+        
+            }else{
 
-                if(stream != undefined){
-                    
-                    stream.once('close', () =>{
-                        //this.client.end();
-                        new Message("pass", "Downloaded "+dir + file.name);//; +" successfully to "+targetDir + file.name);
+                this.client.get(dir + file.name, (err, stream) =>{
 
-                        if(config.bDeleteFilesFromFTP){
+                    if(err) reject(err);
 
-                            //new Message("pass", "Deleted "+ dir + file.name + " from server "+this.host+":"+this.port);
-                        }
+                    if(stream != undefined){
+                        
+                        stream.once('close', () =>{
+                            //this.client.end();
+                            new Message("pass", "Downloaded "+dir + file.name);//; +" successfully to "+targetDir + file.name);
+
+                            if(config.bDeleteFilesFromFTP){
+
+                                //new Message("pass", "Deleted "+ dir + file.name + " from server "+this.host+":"+this.port);
+                            }
+                            resolve();
+                        });
+
+                        stream.pipe(fs.createWriteStream(targetDir + file.name));
+
+                    }else{
+
+                        new Message("error", dir+file.name+" was not found.");
                         resolve();
-                    });
+                    }
 
-                    stream.pipe(fs.createWriteStream(targetDir + file.name));
+                });
 
-                }else{
-
-                    new Message("error", dir+file.name+" was not found.");
-                    resolve();
-                }
-
-            });
-
+            }
         });
         
     }
 
+
+
     async downloadFiles(){
 
+        //console.table(this.logs);
+       // console.table(this.tmpFiles);
+        //console.table(this.aceLogs);
 
         try{
+
 
             new Message("note", "Starting download for match log files.");
 
             for(let i = 0; i < this.logs.length; i++){
 
                 await this.downloadFile(config.logDir, this.logs[i], config.logDir);
+
             }
 
             new Message("note", "Starting download for tmp files.");
@@ -225,8 +349,13 @@ class FTPImporter{
         this.client.end();
     }
 
-    import(){
+    async import(){
 
+        try{
+            await this.getPreviousImportList();
+        }catch(err){
+            throw err;
+        }   
 
         return new Promise((resolve, reject) =>{
 
@@ -265,6 +394,75 @@ class FTPImporter{
                 "password": this.password
             });
         });       
+    }
+
+
+    getPreviousMatchLogs(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT DISTINCT `file` FROM nutstats_match";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+                    
+                    for(let i = 0; i < result.length; i++){
+
+                        this.previousImports.push(result[i]);
+                    }
+                }
+                resolve();
+            });
+        });
+    }
+
+    getPreviousAceKickLogs(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT DISTINCT file FROM nutstats_ace_logs";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    for(let i = 0; i < result.length; i++){
+
+                        this.previousImports.push(result[i]);
+                    }
+                }
+
+                resolve();
+            });
+
+
+        });
+    }
+
+    getPreviousAcePlayers(){
+
+        //fs.readdir();
+    }
+
+    async getPreviousImportList(){
+
+        this.previousImports = [];
+
+        try{
+            await this.getPreviousMatchLogs();
+            await this.getPreviousAceKickLogs();
+            //this.getPreviousAcePlayers();
+
+            //console.table(this.previousImports);
+        }catch(err){
+            throw err;
+        }
+        
     }
 
 }
