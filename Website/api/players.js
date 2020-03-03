@@ -1047,7 +1047,8 @@ class Players{
         ?,?,?,?,?,?,?,?,?,?,
         ?,?,?,?,?,?,?,?,?,?,
         ?,?,?,?,?,?,?,?,?,?,
-        ?,?,?,?,?,?,?,?,?,?
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?
         )`;
 
         for(let i = 0; i < this.toMerge.length; i++){
@@ -1119,7 +1120,11 @@ class Players{
                         0,
                         d.best_spawn_kill_spree,
                         d.monster_kills,
-                        0
+                        0,
+                        d.shortest_distance_kill,
+                        d.longest_distance_kill,
+                        d.shortest_kill_time,
+                        d.longest_kill_time
 
 
 

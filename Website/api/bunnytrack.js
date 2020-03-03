@@ -714,6 +714,49 @@ class Bunnytrack{
             });
         });
     }
+
+
+    getMapTopPlayers(id, amount){
+
+        id = parseInt(id);
+        amount = parseInt(amount);
+
+        if(id != id){
+            id = 1;
+        }
+
+        if(amount != amount){
+            amount = 5;
+        }
+
+        this.mapPlayerRecords = [];
+        this.playerIds = [];
+
+        const query = "SELECT * FROM nutstats_bunnytrack_player_records WHERE map_id=? ORDER BY time ASC LIMIT ?";
+
+        return new Promise((resolve, reject) =>{
+
+            mysql.query(query,[id, amount], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.mapPlayerRecords = result;
+
+                    for(let i = 0; i < result.length; i++){
+
+                        if(this.playerIds.indexOf(result[i].player_id) == -1){
+                            this.playerIds.push(result[i].player_id);
+                        }
+                    }
+                }
+
+                resolve();
+            });
+        });
+
+    }
 }
 
 

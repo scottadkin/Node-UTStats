@@ -648,6 +648,8 @@ function defaultServer(){
                 return;
             }).catch((err) =>{
 
+                console.trace(err);
+
                 res.render("error",{"req":req, "message": err, "config": config});
                 return;
             });     
@@ -1668,17 +1670,19 @@ function defaultServer(){
     });
 
 
-    app.get("/map", (req, res) =>{
-        
+
+    async function displayMapPage(req, res){
+
+
         const m = new Maps();
         const matches = new Matches();
         const gametype = new Gametype();
         const maps = new Maps();
+        const bt = new Bunnytrack();
+        const p = new Players();
 
         let page = 1;
         let pages = 0;
-
-
         let mapId = -1;
 
         if(req.query.id != undefined){
@@ -1708,62 +1712,46 @@ function defaultServer(){
 
         }
 
-        m.getMapDetails(mapId).then(() =>{
+        try{
 
-            
-            return m.loadSingleImage(m.mapName);
-            
+            await m.getMapDetails(mapId);
+        
+            await m.loadSingleImage(m.mapName);
 
-            
+            await m.getMapPlayHistory(mapId);
 
-        }).then(() =>{
+            await matches.getMatchesByMap(mapId, page);
 
-            return m.getMapPlayHistory(mapId);
-            
+            await matches.getMapMatchCount(mapId);
 
-        }).then(() =>{
+            await hits.updateHits();
 
-            return matches.getMatchesByMap(mapId, page);
+            await maps.getMapNames([mapId]);
 
-        }).then(() =>{
+            await maps.loadImages(maps.mapNames);
 
-            return matches.getMapMatchCount(mapId);
+            await bt.getMapTopPlayers(mapId,10);
 
-        }).then(() =>{
-
-            return hits.updateHits();
-
-        }).then(() =>{
-
-            return maps.getMapNames([mapId]);
-
-        }).then(() =>{
-
-            return maps.loadImages(maps.mapNames);
-            
-        }).then(() =>{
+            await p.getPlayersByIds(bt.playerIds);
+                
 
             let ids = [];
-
             let d = 0;
 
             for(let i = 0; i < matches.mapMatches.length; i++){
 
                 d = matches.mapMatches[i];
 
-
                 if(ids.indexOf(d.gametype) == -1){
                     ids.push(d.gametype);
                 }
             }
 
-            return gametype.getGametypesByIds(ids);
+            await gametype.getGametypesByIds(ids);
 
-        }).then(() =>{
+            ids = [];
 
-            let ids = [];
-
-            let d = 0;
+            d = 0;
 
             for(let i = 0; i < matches.mapMatches.length; i++){
 
@@ -1775,13 +1763,9 @@ function defaultServer(){
 
             }
 
-            return m.getMapNames(ids);
+            await m.getMapNames(ids);
 
-        }).then(() =>{
-
-            return m.getLongestMatch(mapId);
-
-        }).then(() =>{
+            await m.getLongestMatch(mapId);
 
             pages = Math.ceil(matches.mapMatchCount / config.mapsResultsPerPage);
 
@@ -1800,15 +1784,25 @@ function defaultServer(){
                 "results": matches.mapMatchCount,
                 "longestMatch": m.longestMatchData,
                 "mapImages":maps.loadedMaps, 
-                "config": config
+                "config": config,
+                "btRecords": bt.mapPlayerRecords,
+                "btPlayers": p.players
             });
 
-        }).catch((err) =>{
+        }catch(err){
 
             console.trace(err);
-    
+
             res.render("error",{"req": req, "message": err, "config": config});
-        });
+        }
+       
+
+    }
+
+
+    app.get("/map", (req, res) =>{
+        
+        displayMapPage(req, res);
         
     });
 

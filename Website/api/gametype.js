@@ -1,6 +1,7 @@
 const mysql = require('./database');
 const Promise = require('promise');
 const config = require('./config');
+const Message = require('./message');
 
 
 
@@ -158,7 +159,9 @@ class Gametype{
                     resolve();
                 });
             }else{
-                reject("Gametype.getGametypeByIds(ids) is not an array or it's length is 0");
+                new Message("warning", "Gametype.getGametypeByIds() is not an array or it's length is 0");
+                resolve();
+                //reject("Gametype.getGametypeByIds(ids) is not an array or it's length is 0");
             }
         });
     }

@@ -282,7 +282,10 @@ function displayRecentMatches(){
 <%
 }
 
-let hours = 0;
+
+function displayDetails(){
+
+    let hours = 0;
 
 if(mapDetails[0].total_time != 0){
 
@@ -358,11 +361,101 @@ if(mapDetails[0].total_time != 0){
         new SGraph("map-history-graph", 0.4, "rgb(12,12,12)", "Matches played over last 28 days" ,[{"name":"matches","data":[<%- getDisplayHistory().data %>]}], "Total Matches", "Date of match newest first", " Matches played", null);
     </script>
 </div>
+<%
+
+}
 
 
+function getBtPlayer(id){
 
+    for(let i = 0; i < btPlayers.length; i++){
+
+        if(btPlayers[i].id == id){
+            return btPlayers[i];
+        }
+    }
+
+    return {"name": "Not Found", "flag": "xx"};
+}
+
+function displayBTRecords(){
+
+    if(btRecords.length > 0){
+
+    %>
+
+        <table class="frag-table">
+            <tr>  
+                <th>Player</th>    
+                <th>Date</th>    
+                <th>Time</th>    
+                <th>Difference</th>    
+            </tr>   
+            <%
+
+            let difference = "";
+
+            let d = 0;
+
+            let currentPlayer = null;
+
+
+            for(let i = 0; i < btRecords.length; i++){
+
+                d = btRecords[i];
+
+                currentPlayer = getBtPlayer(d.player_id);
+
+                if(i > 0){
+                    difference = (d.time - btRecords[0].time);
+                }
+
+                %>
+                <tr class="<%= (i == 0)  ? "team-purple" : "team-red" ;%>">
+
+                    <td><a href="/player?id=<%= d.player_id %>"><img src="files/flags/<%= currentPlayer.flag %>.png" alt="flag"> <%= currentPlayer.name %></a></td>    
+                    <td class="date"><%= d.date %></td>    
+                    <td class="date-alt-3"><%= d.time %></td>    
+                    <td class="<%= (i == 0) ? "" : "date-alt-3" %>"><%= difference %></td>    
+                </tr> 
+                <%
+
+            }
+            %>
+            
+        </table>
     <%
-        displayRecentMatches();
+    }
+
+}
+
+
+
+        if(gametypes.length > 0){
+            displayDetails();
+            displayBTRecords();
+            displayRecentMatches();
+        }else{
+
+            %>
+            <div class="default">
+                <div class="default-header">
+                    <%= mapDetails[0].name   %>
+                </div> 
+                
+                <% 
+                
+                displayBTRecords();
+
+                %>
+
+                <div style="color:white;font-weight:300;text-align:center;">
+                    This map has likely been imported using btimport or mapimport, there will only be limited data displayed until a match log that was played on this map is imported.
+                </div>
+
+            </div>
+            <%
+        }
     %>
 
 
