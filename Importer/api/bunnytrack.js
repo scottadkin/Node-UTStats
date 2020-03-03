@@ -602,6 +602,7 @@ class BunnyTrack{
 
         const query = "DELETE FROM nutstats_bunnytrack_records WHERE map_id IN(?)";
         
+        this.importedMaps = maps;
 
         return new Promise((resolve, reject) =>{
 
@@ -707,7 +708,7 @@ class BunnyTrack{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nutstats_player_totals (name, flag, ip) VALUES(?,'xx','')";
+            const query = "INSERT INTO nutstats_player_totals VALUES(NULL,?,'','xx',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,0,0,0,0,0,0,0)";
 
             mysql.query(query, [playerId], (err, result) =>{
 
@@ -804,11 +805,66 @@ class BunnyTrack{
                 
             }
         });
-
-        
-
-        
     }
+
+    deleteOldPlayerRecords(){
+
+        return new Promise((resolve, reject) =>{
+
+            if(this.importedMaps.length == 0){
+                new Message("pass", "There are no maps to import.");
+                resolve();
+            }
+
+            const query = "DELETE FROM nutstats_bunnytrack_player_records WHERE map_id IN(?)";
+
+            mysql.query(query, [this.importedMaps], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+
+    insertPlayerRecord(vars){
+
+        const query = "INSERT INTO nutstats_bunnytrack_player_records VALUES(NULL,?,?,-1,0,?,0)";
+
+        return new Promise((resolve, reject) =>{
+
+            mysql.query(query, vars, (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async insertPlayerRecords(){
+
+
+        await this.deleteOldPlayerRecords();
+
+        let d = 0;
+
+        let currentMapId = 0;
+        let currentPlayerId = 0;
+
+        for(let i = 0; i < this.records.length; i++){
+
+            d = this.records[i];
+
+            currentMapId = this.getMapId(d.map);
+
+            currentPlayerId = this.getPlayerIndex(d.player);
+
+            await this.insertPlayerRecord([currentMapId, currentPlayerId, d.capTime]);
+            
+        }
+    } 
 }
 
 

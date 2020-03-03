@@ -1416,7 +1416,14 @@ class PlayerManager{
                 m.deaths += d.deaths;
 
                 m.team = d.team;
-                m.points += d.points;
+
+                //test to see if it fixes players scores after reconnect
+               // m.points += d.points;
+
+                if(d.points > m.points){
+                    m.points = d.points;
+                }
+
                 m.headshots += d.headshots;
                 m.teamKills += d.teamKills;
                 m.suicides += d.suicides;

@@ -2,6 +2,7 @@ const mysql = require('./database');
 const Promise = require('promise');
 const Maps = require('./maps');
 const config = require('./config');
+const Message = require('./message');
 
 
 class Bunnytrack{
@@ -420,17 +421,24 @@ class Bunnytrack{
         });
     }
 
-    deleteMatchData(id){
+    async deleteMatchData(id){
 
         id = parseInt(id);
 
-        return this.deleteMatchCaps(id).then(() =>{
+        try{
+            await this.deleteMatchCaps(id);
             
-            return this.deleteMatchPlayerRecords(id);
-        }).then(() =>{
+            await this.deleteMatchPlayerRecords(id);
 
-            return this.deleteMatchRecords(id);
-        });
+            await this.deleteMatchRecords(id);
+
+        }catch(err){
+
+            console.trace(err);
+            new Message("error", err);
+
+        }
+  
     }
 
 
@@ -558,35 +566,36 @@ class Bunnytrack{
         });
     }
 
-    deletePlayer(player){
+    async deletePlayer(player){
 
-        player = parseInt(player);
+        try{
 
-        return new Promise((resolve, reject) =>{
+            player = parseInt(player);
+
+
 
             if(player != player){
-                reject("player is NaN");
+                //reject("player is NaN");
+                throw error("player is NaN");
             }
 
             this.currentPlayer = player;
 
-            return this.deletePlayerFromRecords().then(() =>{
+            await this.deletePlayerFromRecords();
+            new Message("pass", "Player records deleted");
 
-                console.log("Player records deleted");
-                return this.deletePlayerRecords();
+            await this.deletePlayerRecords();
+            new Message("pass", "Deleted players own records");
 
-            }).then(() =>{
-                console.log("Deleted players own records");
+            await this.deletePlayerCaps();
+            new Message("pass","Deleted players caps");
 
-                return this.deletePlayerCaps();
-            }).then(() =>{
 
-                console.log("Deleted players caps");
+        }catch(err){
 
-                resolve();
-            });
-
-        });
+            console.trace(err);
+            new Message("error", err);
+        }
     }
 
 
