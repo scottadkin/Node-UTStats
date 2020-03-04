@@ -12,8 +12,6 @@
 # Warning
 
 - Current mapimport.js has not been changed to work with the ftp module.
-- The website will display errors for map pages that have been added via btimport if the map has had 0 games played on.
-- Ace player information logs currently don't import.
 
 # Install
 
@@ -57,5 +55,5 @@ ftpServers: [
 ```
  importInterval: 60 * 1000, //seconds * miliseconds
  to change it to every ten minutes replace the line with this one
-  importInterval: 600 * 1000, //seconds * miliseconds
+importInterval: 600 * 1000, //seconds * miliseconds
 ```

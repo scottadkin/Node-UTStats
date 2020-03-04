@@ -40,7 +40,7 @@ class FTPImporter{
 
         const alreadyImported = [];
 
-        fs.readdir(config.aceSShotDirImport, (err, files) =>{
+        fs.readdir(config.aceSShotDir, (err, files) =>{
 
             if(err) throw err;
 
@@ -62,12 +62,31 @@ class FTPImporter{
 
             if(list != undefined){
 
+              //  console.table(alreadyImported);
+              //  console.table(list);
+
                // this.files = this.files.concat(list);
 
                 for(let i = 0; i < list.length; i++){
 
+                    //console.log(i);
+
                     if(alreadyImported.indexOf(list[i].name) != -1){
                         new Message("warning", "Ace screenshot "+list[i].name+" has already been imported, skipping.");
+
+                        this.client.rename(config.aceSShotDir+ list[i].name, config.backupFolder + list[i].name, (err) =>{
+
+                            if(err){
+                                //console.trace(err);
+                                new Message("error",err+" MOVE "+(config.aceSShotDir+ list[i].name));
+                            }else{
+    
+                                new Message("pass", "Local backup of "+config.aceSShotDir+list[i].name+" has been moved to the "+config.backupFolder+list[i].name+".");
+                            }
+    
+                            
+                        });
+
                     }else{
                         this.files.push(list[i]);
                     }
@@ -93,7 +112,7 @@ class FTPImporter{
 
         const tmpFiles = [];
 
-        fs.readdir(config.logDir, (err, files) =>{
+        /*fs.readdir(config.logDir, (err, files) =>{
 
             if(err) throw err;
 
@@ -105,7 +124,7 @@ class FTPImporter{
                 }
 
             }
-        });
+        });*/
 
         this.client.list(config.logDir ,(err, list) =>{
 
@@ -120,13 +139,24 @@ class FTPImporter{
 
                     if(!this.bFileAlreadyImported(list[i].name)){
 
-                        if(tmpFiles.indexOf(list[i].name) == -1){
+                        if(this.files.indexOf(list[i].name) == -1){
                             this.files.push(list[i]);
                         }else{
-                            new Message("warning", "Tmp file "+list[i].name+" has already been imported, skipping.");
+                            new Message("warning", "Log file "+list[i].name+" has already been imported, skipping.");
                         }
+
                     }else{
+
                         new Message("warning", "Log "+list[i].name+" has already been imported, skipping.");
+
+                        this.client.rename(config.logDir+ list[i].name, config.backupFolder + list[i].name, (err) =>{
+
+                            if(err) new Message("error",err);
+    
+                            new Message("pass", "Local backup of "+config.logDir+list[i].name+" has been moved to the "+config.backupFolder+list[i].name+".");
+    
+                            
+                        });
                     }
                 }
 
@@ -246,23 +276,67 @@ class FTPImporter{
 
     }
 
-    downloadFile(dir, file, targetDir){
+    downloadFile(dir, file, targetDir, bNeverDelete){
 
        // console.log("check");
+        if(bNeverDelete == undefined){
+            bNeverDelete = false;
+        }
 
         return new Promise((resolve, reject) =>{
 
             //console.log(this.bFileAlreadyImported(file.name));
             if(this.bFileAlreadyImported(file.name)){
 
-                new Message("warning", "The file "+file.name+" has already been imported, skipping.");
-                resolve();
+               // new Message("warning", "The file "+file.name+" has already been imported, skipping.");
+
+                if(config.bDeleteFilesFromFTP && !bNeverDelete){
+
+                    //resolve();
+                    //console.log("can deltete");
+                    //new Message("pass", "Deleted "+ dir + file.name + " from server "+this.host+":"+this.port);
+
+                    this.client.delete(dir + file.name, (err) =>{
+
+                        if(err){
+                            new Message("error", err);
+                        }else{
+                            new Message("pass", "Deleted "+file.name+" from utserver directory");
+                        }
+
+                        resolve();
+
+                    });
+
+                }else if(!bNeverDelete){
+
+
+                    this.client.rename(dir+ file.name, config.backupFolder + file.name, (err) =>{
+
+                        if(err) {
+                            new Message("error",err);
+                        }else{
+                            new Message("pass", "Local backup of "+dir+file.name+" has been moved to the "+config.backupFolder+file.name+".");
+                        }
+
+                        
+
+                        resolve();
+                    });
+                    
+                }
+                
         
             }else{
 
                 this.client.get(dir + file.name, (err, stream) =>{
 
-                    if(err) reject(err);
+                    if(err) {
+                        console.trace(err);
+                        new Message("error",err);
+                        resolve();
+                       // return;
+                    }
 
                     if(stream != undefined){
                         
@@ -270,11 +344,41 @@ class FTPImporter{
                             //this.client.end();
                             new Message("pass", "Downloaded "+dir + file.name);//; +" successfully to "+targetDir + file.name);
 
-                            if(config.bDeleteFilesFromFTP){
+                            if(config.bDeleteFilesFromFTP && !bNeverDelete){
+
+                               // console.log("CAN DELETE");
 
                                 //new Message("pass", "Deleted "+ dir + file.name + " from server "+this.host+":"+this.port);
+                                this.client.delete(dir + file.name, (err) =>{
+
+                                    if(err){
+                                        console.trace(err);
+                                        new Message("error", err);
+                                    }else{
+                                        new Message("pass", "Deleted "+file.name+" from utserver directory");
+                                    }
+
+                                    resolve();
+
+                                });
+                            }else if(!bNeverDelete){
+
+                                this.client.rename(dir+ file.name, config.backupFolder + file.name, (err) =>{
+
+                                    if(err){
+                                        //console.trace(err);
+                                        new Message("error",err);
+                                    }else{
+            
+                                        new Message("pass", "Local backup of "+dir+file.name+" has been moved to the "+config.backupFolder+file.name+".");
+                                    }
+                                    resolve();
+                                });
+                                
+                            }else{
+
+                                resolve();
                             }
-                            resolve();
                         });
 
                         stream.pipe(fs.createWriteStream(targetDir + file.name));
@@ -334,11 +438,18 @@ class FTPImporter{
                 await this.downloadFile(config.aceSShotDir, this.aceShots[i], config.aceSShotDir);
             }
 
+            new Message("note", "Starting download for ACE player logs.");
+
+            for(let i = 0; i < this.acePlayerLogs.length; i++){
+
+                await this.downloadFile(config.logDir, this.acePlayerLogs[i], config.logDir);
+            }
+
 
             if(config.bImportBTRecords){
 
-                await this.downloadFile("System/", {"name": config.btPlusPlusIni }, "BT/");
-                await this.downloadFile("System/", {"name": config.btGameIni }, "BT/");
+                await this.downloadFile("System/", {"name": config.btPlusPlusIni }, "BT/", true);
+                await this.downloadFile("System/", {"name": config.btGameIni }, "BT/", true);
             }
 
         }catch(err){
@@ -447,6 +558,25 @@ class FTPImporter{
     getPreviousAcePlayers(){
 
         //fs.readdir();
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT DISTINCT file FROM nutstats_ace_player";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+                    for(let i = 0; i < result.length; i++){
+
+                        this.previousImports.push(result[i]);
+                    }
+
+                }
+                resolve();
+            });
+        });
     }
 
     async getPreviousImportList(){
@@ -456,6 +586,7 @@ class FTPImporter{
         try{
             await this.getPreviousMatchLogs();
             await this.getPreviousAceKickLogs();
+            await this.getPreviousAcePlayers();
             //this.getPreviousAcePlayers();
 
             //console.table(this.previousImports);

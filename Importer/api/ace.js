@@ -200,11 +200,44 @@ class ACE{
 
             if(config.bMoveAceLogs){
 
-                fs.rename(config.logDir+file, config.aceImportDir+file, (err) =>{
+
+                const reg = /^.+(\d{4})\.(\d{2})\.(\d{2}).+$/i;
+
+               
+                const now = new Date();
+
+                let month = now.getMonth() + 1;
+                let year = now.getFullYear();
+
+                if(reg.test(file)){
+
+                    const result = reg.exec(file);
+
+                    year = parseInt(result[1]);
+                    month = parseInt(result[2]);
+
+                }
+
+                const newDir = config.aceImportDir+"/"+year+"-"+month;
+
+                const stats = fs.stat(newDir, (err, stats) =>{
+
+                    if(err){
+                        new Message("warning",err);
+                    }
+                    
+                    if(stats == undefined){
+                        fs.mkdirSync(newDir);
+                    }
+
+                    resolve();
+                });
+
+                fs.rename(config.logDir+file, newDir+"/"+file, (err) =>{
 
                     if(err){
                         console.trace(err);
-                        new Message("error","Moving file "+config.logDir+file+" to "+config.aceImportDir+file+" failed.");
+                        new Message("error","Moving file "+config.logDir+file+" to "+newDir+"/"+file+" failed.");
 
                         resolve();
                     }else{

@@ -13,7 +13,8 @@ const Config = {
         //{"host": "127.0.0.1", "port": 21, "user": "scott", "password": "password"},
     ],
 
-    bDeleteFilesFromFTP: true,
+    bDeleteFilesFromFTP: false, //set to false if you want them to be backed up on the utserver as well
+    backupFolder: "Logs/imported/",
     bImportBTRecords: true,
     bImportMaps: true,
 
