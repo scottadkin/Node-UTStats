@@ -9,10 +9,6 @@
 - Node UTStats mutator
 
 
-# Warning
-
-- Current mapimport.js has not been changed to work with the ftp module.
-
 # Install
 
 - Place the contents of the archive into a folder.
@@ -57,3 +53,5 @@ ftpServers: [
  to change it to every ten minutes replace the line with this one
 importInterval: 600 * 1000, //seconds * miliseconds
 ```
+- To import bt records run the command "node btimport".
+- To import all maps in the Maps/ dir run the command "node mapimport"

@@ -166,6 +166,121 @@ class FTPImporter{
         });
     }
 
+
+    getMapIndex(name){
+
+        let d = 0;
+
+        for(let i = 0; i < this.importedMaps.length; i++){
+
+            d = this.importedMaps[i];
+
+            if(d.name == name){
+
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    insertMap(vars){
+
+        return new Promise((resolve, reject) =>{
+
+            //console.log(vars);
+            let oldData = [];
+
+            const oldIndex = this.getMapIndex(vars[0]);
+
+            
+            if(oldIndex != -1){
+
+                oldData = this.importedMaps[oldIndex];
+
+                if(oldData.size != 0){
+
+                    new Message("pass", oldData.name+" has already been imported and size has already been set.");
+                    resolve();
+
+                }else{
+
+                   // console.table(oldData);
+
+                    const updateQuery = "UPDATE nutstats_map SET size=? WHERE id=?";
+
+                    mysql.query(updateQuery, [vars[1], oldData.id], (err) =>{
+
+                        if(err) reject(err);
+
+                        new Message("pass", "Updated "+oldData.name+" (id = "+oldData.id+") set size to "+vars[1]+" bytes,");
+                        resolve();
+                    });
+                }
+
+            }else{
+
+                const query = "INSERT INTO nutstats_map VALUES(NULL, ?,'','','','',0,0,0,?)";
+
+                mysql.query(query, vars, (err) =>{
+
+                    if(err) reject(err);
+
+                    new Message("pass", "Inserted map "+vars[0]+" successfully");
+
+                    resolve();
+                });
+
+            }
+
+        });
+
+    }
+
+    getPreviousMaps(){
+
+        return new Promise((resolve, reject) =>{
+
+            this.importedMaps = [];
+
+            const query = "SELECT id,name,size FROM nutstats_map";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.importedMaps = result;
+                }
+
+               // console.table(result);
+                resolve();
+            });
+
+        });
+    }
+
+
+    async insertMaps(){
+
+        try{
+            await this.getPreviousMaps();
+
+            const reg = /^.+\.unr$/i;
+            
+            for(let i = 0; i < this.maps.length; i++){
+
+                if(reg.test(this.maps[i].name)){
+                    await this.insertMap([this.maps[i].name, this.maps[i].size]);
+                }
+            }
+        }catch(err){
+            console.trace(err);
+
+            new Message("error", err);
+        }
+    }
+
     readMapsDir(){
 
         this.client.list(config.mapsDir, (err, list) =>{
@@ -190,7 +305,9 @@ class FTPImporter{
                 }
             }
 
-            //console.table(this.maps);
+           //console.table(this.maps);
+
+            this.insertMaps();
         });
 
         
