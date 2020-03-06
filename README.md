@@ -19,7 +19,6 @@ Node UTStats is a remake of the utstats system originally created in 2005 create
 - Node.js
 - MYSQL
 - UTStats mutator
-- Node UTStats mutator
 
 
 # Installing the Database and Website
