@@ -22,7 +22,7 @@ Node UTStats is a remake of the utstats system originally created in 2005 create
 - Node UTStats mutator
 
 
-# Install
+# Installing the Database and Website
 
 - Place the contents of the archive into a folder.
 - Open the website folder then open the Api folder in it.
@@ -30,13 +30,24 @@ Node UTStats is a remake of the utstats system originally created in 2005 create
 - Change the website adminname and admin password in the same file to something other than username and password.
 - Now go back to the website main folder.
 - Run the command "npm install" from the command line to install dependencies.
-- Now run the command "node install", this will create the database needed. If you don't have permission to create a database but have an empty database then run the command "node installalt" instead. If you are **upgrading from Node UTStats version 9 or above you can run "npm upgrade" to update your current database to work with the new version.**
-- Now the website and database has been set up go back to the main folder where Website and Importer folders are.
+- Now run the command "node install", this will create the database needed. If you don't have permission to create a database but have an empty database then run the command "node installalt" instead. If you are **upgrading from Node UTStats version 9 - 10D you can run "npm upgrade" to update your current database to work with the new version.**
+
+# Installing the Importer
+
+- Now the website and database have been set up go to the main folder where Website and Importer folders are.
 - Now open the Importer folder.
 - Run the command "npm install" to install dependencies.
 - Now open the api folder.
 - Open config.js and edit the mysql host, user, password, and database to the one you want to connect with.
 
+# Installing the UTStats and Node UTStats Mutators
+Node UTStats uses the already exisiting UTStats mutator as a base and extends it with the Node UTStats mutator.
+- First download the original UTStats mutator from [this package](http://ut-files.com/index.php?dir=Stats/&file=utstats_beta428.zip, "UTStats 428")
+- Now follow the install directions for the mutator ignoring the website setup in the readme.txt.
+- Now open the Node UTStats Mutator folder and place the file NodeUTStats.u in your servers System folder. Example: "C:/UnrealTournament/System"
+- While in the the UnrealTournament System folder, open the file UnrealTournament.ini
+- Now look for a block called **[Engine.GameEngine]** or **[XC_Engine.XC_GameEngine]** if you are using XC_Engine.
+- Now add the following line at the bottom of the block **ServerActors=NodeUTStats.NodeUTStatsServerActor**
 
 # Connecting to FTP servers
 
