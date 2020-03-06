@@ -1,5 +1,9 @@
+# Node UTStats
+Node UTStats is a remake of the utstats system originally created in 2005 created by azazel, AnthraX and toa, Node UTStats is made using node.js, the original version used PHP.
+
+
 # Node UTStats ftp
- Both importer and website combined into one module with ftp support
+ Both importer and website combined into one module with ftp support.
 
 
 # Requirements 
@@ -27,7 +31,7 @@
 
 # Connecting to FTP servers
 
-You can add ftp servers you want to connect with by editing the ftpServers array in the Imported/api/config.js, there are no limit to how many ftp servers you want to connect with. The Imported module is set up
+You can add ftp servers you want to connect with by editing the ftpServers array in the Importer/api/config.js, there are no limit to how many ftp servers you want to connect with. The Imported module is set up
 by default to connect directly to your unreal tournament servers main directory e.g C:/UnrealTournament/
 ```
 ftpServers: [
@@ -55,3 +59,37 @@ importInterval: 600 * 1000, //seconds * miliseconds
 ```
 - To import bt records run the command "node btimport".
 - To import all maps in the Maps/ dir run the command "node mapimport"
+
+
+# Importing Bunnytrack records
+- To import records from btPlusPlus.ini and or btgame.ini run the command "node btimport" in the importer directory, this will only work after you have used the main import function first as it downloads a copy of the bunnytrack ini files.
+
+# Setting up ACE
+
+- By default ACE doesn't save player information to log files, to get the most out of this module you will have to change a few lines in UnrealTournament.ini so ACE will save player information that will help admins ban trouble makers.
+- Find this section in UnrealTournament.ini [ACEv11d_S.ACEActor].
+- Now find the following lines and change them to the following
+```
+bExternalLog=true
+bExternalLogJoins=true
+JoinLogPath=../Logs/
+JoinLogPrefix=[ACE-PLAYER]
+```
+
+# Setting up Nexgenstats viewer
+You can now connect Nexgen Stats Viewer, to add a gametype to be fetched simply add the gametype name(case insensitive) to the nexgenStatsGametypes array in config.js (Website folder)
+
+Here is an example of what the nexgen.ini snippet would look like if you are connecting to localhost:1337/nexgenstats
+```
+[NexgenStatsViewer105.NSVConfigExt]
+lastInstalledVersion=105
+enableUTStatsClient=True
+utStatsHost=localhost
+utStatsPort=1337
+utStatsPath=/nexgenstats
+```
+
+# Thanks to
+- Original creators of the utstats mutators
+- esnesi (Lead tester)
+- ue (tester)
