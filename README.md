@@ -81,6 +81,8 @@ importInterval: 600 * 1000, //seconds * miliseconds
 - To import bt records run the command "node btimport".
 - To import all maps in the Maps/ dir run the command "node mapimport"
 
+# Importing Maps
+- By default Node UTStats imports every file name + file size of each map in your UT servers /Maps folder, if the map has already been imported via a match log only the file size is updated. Please note that the website will only display basic information about the map on the maps page, you can disable map importing by setting bImportMaps in the Importers config.js to false. 
 
 # Importing Bunnytrack records
 - To import records from btPlusPlus.ini and or btgame.ini run the command "node btimport" in the importer directory, this will only work after you have used the main import function first as it downloads a copy of the bunnytrack ini files.
