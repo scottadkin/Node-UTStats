@@ -42,7 +42,7 @@ Node UTStats is a remake of the utstats system originally created in 2005 create
 
 # Installing the UTStats and Node UTStats Mutators
 Node UTStats uses the already exisiting UTStats mutator as a base and extends it with the Node UTStats mutator.
-- First download the original UTStats mutator from [this package](http://ut-files.com/index.php?dir=Stats/&file=utstats_beta428.zip, "UTStats 428")
+- First download the original UTStats mutator from [this package](http://ut-files.com/index.php?dir=Stats/&file=utstats_beta428.zip "UTStats 428")
 - Now follow the install directions for the mutator ignoring the website setup in the readme.txt.
 - Now open the Node UTStats Mutator folder and place the file NodeUTStats.u in your servers System folder. Example: "C:/UnrealTournament/System"
 - While in the the UnrealTournament System folder, open the file UnrealTournament.ini
