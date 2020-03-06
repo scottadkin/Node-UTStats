@@ -1,9 +1,18 @@
 # Node UTStats
-Node UTStats is a remake of the utstats system originally created in 2005 created by azazel, AnthraX and toa, Node UTStats is made using node.js, the original version used PHP.
+Node UTStats is a remake of the utstats system originally created in 2005 created by azazel, AnthraX and toa, Node UTStats is made using node.js, the original version used PHP. Node UTStats also tracks a lot more data than the original UTStats and supports more custom gametypes.
 
 
-# Node UTStats ftp
- Both importer and website combined into one module with ftp support.
+# Supported Gametypes
+- Deathmatch
+- Team DeathMatch
+- Capture The Flag
+- Domination
+- Assault
+- Last Man Standing
+- Monster Hunt
+- Bunnytrack
+- Coop
+- Siege (basic support)
 
 
 # Requirements 
