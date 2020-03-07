@@ -219,7 +219,7 @@ class FTPImporter{
 
             }else{
 
-                const query = "INSERT INTO nutstats_map VALUES(NULL, ?,'','','','',0,0,0,?)";
+                const query = "INSERT INTO nutstats_map VALUES(NULL, ?,'','','',0,0,0,0,?)";
 
                 mysql.query(query, vars, (err) =>{
 

@@ -1229,40 +1229,33 @@ function defaultServer(){
 
 
 
+    async function displayPlayers(req, res){
+
+
+        try{
+
+            const p = new Players(req.query);
+
+            await p.getPlayers();
+
+            await hits.updateHits();
+                
+            res.render("players",{"data":p, "req": req, "config": config});       
+
+        }catch(err){
+            res.render("error",{"req": req, "message": err, "config": config});
+        }
+       
+
+    }
+
     app.get("/players", (req, res) =>{
 
 
 
-        //console.log(req);
+       displayPlayers(req, res);
 
-        const p = new Players(req.query);
-        const faces = new Faces();
-
-        p.getPlayers().then(() =>{
-
-            return hits.updateHits();
-            
-
-        }).then(() =>{
-
-            const faceNames = [];
-
-            if(p.players.length > 0){
-
-                for(let i = 0; i < p.players.length; i++){
-                    faceNames.push(p.players[i].face);
-                }
-            }
-            //console.table(faceNames);
-            return faces.loadImages(faceNames);
-        }).then(() =>{
-
-            res.render("players",{"data":p, "req": req, "faces": faces.images, "config": config});
-
-        }).catch((err) =>{
-
-            res.render("error",{"req": req, "message": err, "config": config});
-        });
+        
         
     });
 

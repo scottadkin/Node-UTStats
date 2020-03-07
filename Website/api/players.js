@@ -57,7 +57,7 @@ class Players{
                 "name",
                 "total_matches",
                 "last_played",
-                "first",
+                "first_match",
                 "total_time",
                 "kills",
                 "deaths",
@@ -72,6 +72,8 @@ class Players{
             }
 
             
+        }else{
+             this.sortType = "name";
         }
 
         if(req.page != undefined){

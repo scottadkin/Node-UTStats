@@ -29,6 +29,33 @@ function displayPlayers(){
 
         console.table(data.players);
 
+        let playerName = req.query.search;
+
+        if(playerName == undefined){
+            playerName = '';
+        }
+
+        const nameA = `/players?search=${playerName}&sortType=name&orderType=0`;
+        const nameD = `/players?search=${playerName}&sortType=name&orderType=1`;
+        const firstA = `/players?search=${playerName}&sortType=first&orderType=0`;
+        const firstD = `/players?search=${playerName}&sortType=first&orderType=1`;
+        const lastA = `/players?search=${playerName}&sortType=last&orderType=0`;
+        const lastD = `/players?search=${playerName}&sortType=last&orderType=1`;
+        const scoreA = `/players?search=${playerName}&sortType=score&orderType=0`;
+        const scoreD = `/players?search=${playerName}&sortType=score&orderType=1`;
+
+        const killsA = `/players?search=${playerName}&sortType=kills&orderType=0`;
+        const killsD = `/players?search=${playerName}&sortType=kills&orderType=1`;
+
+        const deathsA = `/players?search=${playerName}&sortType=deaths&orderType=0`;
+        const deathsD = `/players?search=${playerName}&sortType=deaths&orderType=1`;
+
+        const timeA = `/players?search=${playerName}&sortType=playtime&orderType=0`;
+        const timeD = `/players?search=${playerName}&sortType=playtime&orderType=1`;
+
+        const mA = `/players?search=${playerName}&sortType=matches&orderType=0`;
+        const mD = `/players?search=${playerName}&sortType=matches&orderType=1`;
+
         bDisplayedData = true;
         %>
 
@@ -36,14 +63,14 @@ function displayPlayers(){
  
             <table class="default-table">
             <tr>
-                <th>Name</th>
-                <th>First Match</th>
-                <th>Last Match</th>
-                <th>Points</th>
-                <th>Kills</th>
-                <th>Deaths</th>
-                <th>Total Playtime</th>
-                <th>Total Matches</th>
+                <th>Name <a href="<%= nameA %>" class="white">&#8593;</a> <a href="<%= nameD %>" class="white">&#8595;</a></th>
+                <th>First Match <a href="<%= firstA %>" class="white">&#8593;</a> <a href="<%= firstD %>" class="white">&#8595;</a></th>
+                <th>Last Match <a href="<%= lastA %>" class="white">&#8593;</a> <a href="<%= lastD %>" class="white">&#8595;</a></th>
+                <th>Points <a href="<%= scoreA %>" class="white">&#8593;</a> <a href="<%= scoreD %>" class="white">&#8595;</a></th>
+                <th>Kills <a href="<%= killsA %>" class="white">&#8593;</a> <a href="<%= killsD %>" class="white">&#8595;</a></th>
+                <th>Deaths <a href="<%= deathsA %>" class="white">&#8593;</a> <a href="<%= deathsD %>" class="white">&#8595;</a></th>
+                <th>Total Playtime <a href="<%= timeA %>" class="white">&#8593;</a> <a href="<%= timeD %>" class="white">&#8595;</a></th>
+                <th>Total Matches <a href="<%= mA %>" class="white">&#8593;</a> <a href="<%= mD %>" class="white">&#8595;</a></th>
             </tr>
            
             
@@ -95,31 +122,10 @@ function displayPlayers(){
         
         
         <input type="text" class="search-f" name="search" value="<%= req.query.search %>" placeholder="Player Name..."/><br>
-        <div class="form-row-admin">
-            <div>Sort By</div>
-            <div>
-                <select class="default-select" style="float:left" name="sortType">
-                    <option <%= (req.query.sortType == "name") ? "selected" : "" %> value="name">Player Name</option>
-                    <option <%= (req.query.sortType == "playtime") ? "selected" : "" %> value="playtime">Playtime</option>
-                    <option <%= (req.query.sortType == "matches") ? "selected" : "" %> value="matches">Matches</option>
-                    <option <%= (req.query.sortType == "first") ? "selected" : "" %> value="first">First Match</option>
-                    <option <%= (req.query.sortType == "last") ? "selected" : "" %> value="last">Last Match</option>
-                    <option <%= (req.query.sortType == "score") ? "selected" : "" %> value="score">Score</option>
-                    <option <%= (req.query.sortType == "kills") ? "selected" : "" %> value="kills">Kills</option>
-                    <option <%= (req.query.sortType == "deaths") ? "selected" : "" %> value="deaths">Deaths</option>
-                    
-                </select>
-            </div>
-        </div>
-        <div class="form-row-admin">
-            <div>Order Type</div>
-            <div>
-                <select class="default-select" style="float:left" name="orderType">
-                    <option <%= (req.query.orderType == "0") ? "selected" : "" %> value="0">Ascending</option>
-                    <option <%= (req.query.orderType == "1") ? "selected" : "" %> value="1">Descending</option>
-                </select>
-            </div>
-        </div>
+
+        <input type="hidden" name="sortType" value="name">
+        <input type="hidden" name="orderType" value="0">
+
         <input type="submit" class="search-b" value="Search"/>
     </form>
 </div>
