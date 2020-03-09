@@ -246,6 +246,10 @@ class Maps{
             sortBy = validOrders[orderIndex];
         }
 
+        if(sortBy == ""){
+            sortBy = "name";
+        }
+
         if(mode != "name" && mode != "author" && mode != "title"){
             mode = "name";
         }

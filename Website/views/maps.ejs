@@ -72,14 +72,37 @@ function displayMaps(){
     let d = 0;
     let image = "";
 
+
+    const modeQ = (req.query.mode != undefined) ? req.query.mode : "";
+
+    const mapQ = (req.query.map != undefined) ? req.query.map : "";
+
+    const sortBy = (req.query.sortBy != undefined) ? req.query.sortBy  : "";
+
+    const nameA = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=name&order=ASC`;
+    const nameD = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=name&order=DESC`;
+
+    const authorA = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=author&order=ASC`;
+    const authorD = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=author&order=DESC`;
+
+    const datesA = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=last&order=ASC`;
+    const datesD = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=last&order=DESC`;
+
+    const timeA = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=total_time&order=ASC`;
+    const timeD = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=total_time&order=DESC`;
+
+    const matchesA = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=matches&order=ASC`;
+    const matchesD = `/maps?map=${mapQ}&mode=${modeQ}&sortBy=matches&order=DESC`;
+
     %>
     <table class="default-table maps-table">
         <tr>
-            <th>Name</th>
-            <th>Author</th>
-            <th>Dates</th>
-            <th>Playtime</th>
-            <th>Matches</th>
+            <th>Name <a href="<%= nameA %>" class="white">&#8593;</a> <a href="<%= nameD  %>" class="white">&#8595;</a></th>
+            <th>Image</th>
+            <th>Author <a href="<%= authorA %>" class="white">&#8593;</a> <a href="<%= authorD %>" class="white">&#8595;</a></th>
+            <th>Last <a href="<%= datesA %>" class="white">&#8593;</a> <a href="<%= datesD  %>" class="white">&#8595;</a></th>
+            <th>Playtime <a href="<%= timeA  %>" class="white">&#8593;</a> <a href="<%= timeD  %>" class="white">&#8595;</a></th>
+            <th>Matches <a href="<%= matchesA  %>" class="white">&#8593;</a> <a href="<%= matchesD  %>" class="white">&#8595;</a></th>
         </tr>
     <%
 
@@ -93,9 +116,10 @@ function displayMaps(){
         %>
         
             <tr>
-                <td><a href="/map?id=<%= d.id %>"><%= stripUnr(d.name) %><br><img src="<%= image %>" alt="image"><br><span class="yellow">(<%= d.title %>)</span></a></td >   
+                <td><a href="/map?id=<%= d.id %>"><%= stripUnr(d.name) %></a></td>
+                <td><a href="/map?id=<%= d.id %>"><img src="<%= image %>" alt="image"></a></td>   
                 <td><%= d.author %></td> 
-                <td><span class="yellow">First</span> <span class="date"><%= d.first %></span><br><span class="yellow">Last</span> <span class="date"><%= d.last %></span><br></td> 
+                <td><span class="date"><%= d.last %></span></td> 
                 <td class="date-alt"><%= d.total_time %></td> 
                 <td><%= d.matches %></td> 
             </tr>
@@ -124,18 +148,20 @@ function displayMaps(){
             <input type="text" class="search-f" placeholder="Map name..." value="<%= (req.query.map != undefined) ? req.query.map : "" %>" name="map"/>
 
             <div class="form-row-admin">
-                <div>Search for</div>    
-                <div>
-                    <select class="default-select" style="float:left" name="mode">
-                        <option <%= (req.query.mode == "name") ? "selected" : "" %> value="name">Map Name</option>
-                        <option <%= (req.query.mode == "title") ? "selected" : "" %> value="title">Map Title</option>
-                        <option <%= (req.query.mode == "author") ? "selected" : "" %> value="author">Map Author</option>
-                    </select>    
-                </div>    
+                
+
+                    <div>Search for</div>    
+                    <div>
+                        <select class="default-select" style="float:left" name="mode">
+                            <option <%= (req.query.mode == "name") ? "selected" : "" %> value="name">Map Name</option>
+                            <option <%= (req.query.mode == "author") ? "selected" : "" %> value="author">Map Author</option>
+                        </select>    
+                    </div>    
+  
             </div>
             <div class="form-row-admin">
-                <div>Sort By</div>    
-                <div>
+                <!-- <div>Sort By</div>    
+                 <div>
                     <select class="default-select" style="float:left" name="sortBy">
                         <option <%= (req.query.sortBy == "name") ? "selected" : "" %> value="name">Map Name</option>
                         <option <%= (req.query.sortBy == "title") ? "selected" : "" %> value="title">Map Title</option>
@@ -145,17 +171,7 @@ function displayMaps(){
                         <option <%= (req.query.sortBy == "last") ? "selected" : "" %> value="last">Last Match</option>
                         <option <%= (req.query.sortBy == "first") ? "selected" : "" %> value="first">First Match</option>
                     </select>    
-                </div>    
-            </div>
-
-            <div class="form-row-admin">
-                <div>Order By</div>    
-                <div>
-                    <select class="default-select" style="float:left" name="order">
-                    <option <%= (req.query.order == "ASC") ? "selected" : "" %> value="ASC">Ascending</option>
-                    <option <%= (req.query.order == "DESC") ? "selected" : "" %> value="DESC">Descending</option>
-                </select>  
-                </div>    
+                </div>   --> 
             </div>
 
             <input type="submit" class="search-b" value="Search">

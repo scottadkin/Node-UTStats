@@ -1586,58 +1586,55 @@ function defaultServer(){
     });
 
 
-    app.get("/maps", (req, res) =>{
+    async function displayMaps(req, res){
 
-        const maps = new Maps();
 
-        let searchTerm = -1;
+        try{
 
-        let page = 1;
-        let pages = 1;
-        let sortBy = "name";
-        let order = "ASC";
-        let mode = "name";
+            const maps = new Maps();
 
-        if(req.query.page != undefined){
-            page = parseInt(req.query.page);
-        }
+            let searchTerm = -1;
 
-        if(req.query.map != undefined){
-            searchTerm = req.query.map;
-        }
+            let page = 1;
+            let pages = 1;
+            let sortBy = "name";
+            let order = "ASC";
+            let mode = "name";
 
-        if(req.query.sortBy != undefined){
+            if(req.query.page != undefined){
+                page = parseInt(req.query.page);
+            }
 
-            sortBy = req.query.sortBy.toLowerCase();
-        }
+            if(req.query.map != undefined){
+                searchTerm = req.query.map;
+            }
 
-        if(req.query.order != undefined){
+            if(req.query.sortBy != undefined){
 
-            order = req.query.order.toUpperCase();
+                sortBy = req.query.sortBy.toLowerCase();
+            }
 
-        }
+            if(req.query.order != undefined){
 
-        if(req.query.mode != undefined){
-            mode = req.query.mode.toLowerCase();
-        }
-        
-        maps.getTotalMaps(searchTerm).then(() =>{
+                order = req.query.order.toUpperCase();
 
-            return maps.getMapList(searchTerm, page, sortBy, order, mode);
+            }
 
-        }).then(() =>{
+            if(req.query.mode != undefined){
+                mode = req.query.mode.toLowerCase();
+            }
 
-            return maps.setMapImages();
-
-        }).then(() =>{
-
-            return maps.getAllImages();
-
-        }).then(() =>{
-
-            return hits.updateHits();
             
-        }).then(() =>{
+            await maps.getTotalMaps(searchTerm);
+
+            await maps.getMapList(searchTerm, page, sortBy, order, mode);
+
+            await maps.setMapImages();
+
+            await maps.getAllImages();
+
+            await hits.updateHits();
+
 
             if(maps.totalMaps > 0){
                 pages = Math.ceil(maps.totalMaps / config.mapsPerPage);
@@ -1655,10 +1652,20 @@ function defaultServer(){
                 "config": config
             });
 
-        }).catch((err) =>{
 
+        
+
+        }catch(err){
+            console.trace(err);
             res.render("error",{"req": req, "message": err});
-        });
+        }
+
+
+    }
+
+    app.get("/maps", (req, res) =>{
+
+        displayMaps(req, res);
         
     });
 

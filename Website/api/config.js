@@ -78,8 +78,8 @@ const Config = {
     "serverQueryInterval": 1, // how many minutes inbetween queries to server
     
 
-    "adminUsername": "usernamea", //can not be username
-    "password": "passworda", //can not be password
+    "adminUsername": "username", //can not be username
+    "password": "password", //can not be password
     "minUsernameLength": 2,
     "minPasswordLength": 6,
 
