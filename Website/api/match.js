@@ -42,23 +42,55 @@ class Match{
 
     getKillData(){
 
-        const query = "SELECT killer,victim,time FROM nutstats_kills WHERE match_id=? ORDER BY time ASC";
+        const query = "SELECT killer,victim,time,weapon,distance FROM nutstats_kills WHERE match_id=? ORDER BY time ASC";
 
 
         return new Promise((resolve, reject) =>{
             
             mysql.query(query, [this.matchId], (err, result) => {
+
                 if(err) reject(err);
 
-                console.log("FOUND "+result.length);
+                if(result != undefined){
+                    //console.log("FOUND "+result.length);
 
-                this.matchData.killData = result;
+                   // console.table(result);
 
+                    this.matchData.killData = result;
+
+                }
 
                 resolve();
             });
         });
         
+    }
+
+    getPlayerKillData(playerId){
+
+        playerId = parseInt(playerId);
+
+        if(playerId != playerId){
+            playerId = 1;
+        }
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT killer,victim,time,weapon,distance FROM nutstats_kills WHERE (killer=? OR victim=?) AND match_id=? ORDER BY time ASC";
+
+            mysql.query(query, [playerId, playerId, this.matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+                    this.matchData.killData = result;
+                }
+
+                //console.table(result);
+                resolve();
+            });
+
+        });
     }
 
     getLMSData(){

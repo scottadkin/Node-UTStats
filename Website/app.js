@@ -1457,9 +1457,29 @@ function defaultServer(){
             await hits.updateHits();
             await maps.getAuthor(m.matchData.map);
 
+            if(req.query.pid != undefined){
+
+                await m.getPlayerKillData(req.query.pid);
+            }
+
+            let bPlayer = false;
+
+            let pId = 0;
+
+            if(req.query.pid != undefined){
+
+                bPlayer = true;
+                pId = parseInt(req.query.pid);
+
+                if(pId != pId){
+                    pId = 1;
+                }
+            }
+
+
             m.matchData.mapAuthor = maps.currentAuthor;
 
-            res.render("match", {"matchData": m.matchData, "mapUrl": m.matchData.mapImage, "req": req, "faces": f.images, "config": config});
+            res.render("match", {"matchData": m.matchData, "mapUrl": m.matchData.mapImage, "req": req, "faces": f.images, "config": config, "bPlayer": bPlayer, "playerId": pId});
 
         }catch(err){
             res.render("error",{"req": req, "message": err, "config": config});
@@ -1470,7 +1490,9 @@ function defaultServer(){
     app.get("/match", (req, res) =>{
 
         displayMatch(req, res);
+        
     });
+
 
 
     app.get("/rankings", (req, res) =>{
