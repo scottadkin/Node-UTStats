@@ -521,6 +521,8 @@ class KillMatchUp{
 
             d = this.players[i];
 
+            //console.log(d);
+
             if(d.killer != lastKillerId){
 
                 lastKillerId = d.killer;
@@ -529,8 +531,10 @@ class KillMatchUp{
 
                 currentKiller = this.getPlayerData(d.killer);
 
+                console.log(currentKiller);
+
                 if(currentKiller != null){
-                    string += `<th style="color:white"> <img src="files/flags/${currentKiller.flag}.png" alt="flag"/> <a href="/player?id=${currentKiller.totalId}">${currentKiller.name}</a></th>`;
+                    string += `<th style="color:white"> <img src="files/flags/${currentKiller.flag}.png" alt="flag"/> <a href="/match?id=${this.matchId}&amp;pid=${currentKiller.id}">${currentKiller.name}</a></th>`;
                 }else{
                     string += `<th>Ignored Player</th>`;
                 }
@@ -566,7 +570,7 @@ class KillMatchUp{
 
            // console.table(playerData);
 
-            let string = `<tr><td><img src="files/flags/${playerData.flag}.png" alt="flag"/> <a href="/player?id=${playerData.totalId}">${killerName}</a></td>`;
+            let string = `<tr><td><img src="files/flags/${playerData.flag}.png" alt="flag"/> <a href="/match?id=${this.matchId}&amp;pid=${playerData.id}">${killerName}</a></td>`;
 
             for(let i = 0; i < playerOrder.length; i++){
 
@@ -997,6 +1001,8 @@ class PickupsDisplay{
         this.matchId = parseInt(matchId);
         this.players = players;
 
+        console.table(players);
+
         this.pickupData = [];
         this.pickupTypes = [];
 
@@ -1052,7 +1058,7 @@ class PickupsDisplay{
             currentPlayer = this.getPlayerDetails(p.player);
             
             if(p.type == type && currentPlayer != null){
-                string+=` <img src="files/flags/${currentPlayer.flag}.png" alt="flag"/> ${currentPlayer.name} <span style="color:yellow">(${p.count})</span>`;
+                string+=` <img src="files/flags/${currentPlayer.flag}.png" alt="flag"/> <a href="/match?id=${this.matchId}&amp;pid=${currentPlayer.id}">${currentPlayer.name}</a> <span style="color:yellow">(${p.count})</span>`;
                 
                   
                 
@@ -1075,6 +1081,29 @@ class PickupsDisplay{
             }
         }
         return 0;
+    }
+
+    bPlayerPickupAnything(player){
+
+        let total = 0;
+
+        let d = 0;
+
+        for(let i = 0; i < this.pickupData.length; i++){
+
+            d = this.pickupData[i];
+
+            if(d.player == player){
+                total += d.count;
+
+                if(total > 0){
+                    return true;
+                }
+            }
+        }
+        
+
+        return false;
     }
 
     displayData(){
@@ -1152,8 +1181,12 @@ class PickupsDisplay{
                 cssStyle = "rgb(16,16,16)";
             }
 
+            if(!this.bPlayerPickupAnything(this.players[i].id)){
+                continue;
+            }
+
             string += `<tr style="background-color:${cssStyle};">
-                <td><a href="/player?id=${this.players[i].totalId}"><img src="files/flags/${this.players[i].flag}.png" alt="flag"> ${this.players[i].name}</td></a>`;
+                <td><a href="/match?id=${this.matchId}&amp;pid=${this.players[i].id}"><img src="files/flags/${this.players[i].flag}.png" alt="flag"> ${this.players[i].name}</td></a>`;
 
             for(let w = 0; w < this.pickupTypes.length; w++){
 
@@ -1350,7 +1383,7 @@ class ConnectionDisplay{
             //this.elem.innerHTML += '<tr>asfasf</tr>';
             string += `
             <tr>
-                <td><img src="/files/flags/${currentPlayer.flag}.png" alt="flag"/> ${currentPlayer.name}</td>
+                <td><img src="/files/flags/${currentPlayer.flag}.png" alt="flag"/> <a href="/match?id=${this.matchId}&amp;pid=${currentPlayer.id}">${currentPlayer.name}</a></td>
                 <td class="text-center">${action}</td>
                 <td class="text-center">${minutes}:${seconds}</td>
             </tr>`;

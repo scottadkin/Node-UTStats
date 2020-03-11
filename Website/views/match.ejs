@@ -409,7 +409,7 @@ function displayFrags(){
 
             <tr class="<%= getTeamColorClass(d.team) %>">
 
-            <td><a href="/player?id=<%= d.player_id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(d.name)) %>)</span></a></td>
+            <td><a href="/match?id=<%= matchData.id %>&amp;pid=<%= d.player_match_id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(d.name)) %>)</span></a></td>
             <td class="date-alt-2"><%= d.play_time %></td>
             <td><%= (d.suicides > 0) ? d.suicides : "" %></td>
             <td><%= (d.team_kills > 0 ) ? d.team_kills : "" %></td>
@@ -610,7 +610,7 @@ function displayPlayerMultis(player){
 
     %>
         <tr class="<%= getTeamColorClass(player.team) %>">
-            <td><a href="/player?id=<%= player.player_id %>"><img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span></a></td>
+            <td><a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_match_id %>"><img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span></a></td>
             <td><%= (player.m1 > 0) ? player.m1 : "" ; %></td>
             <td><%= (player.m2 > 0) ? player.m2 : "" ; %></td>
             <td><%= (player.m3 > 0) ? player.m3 : "" ; %></td>
@@ -634,7 +634,7 @@ function displayPlayerSprees(player){
 
     %>
         <tr class="<%= getTeamColorClass(player.team) %>">
-            <td><a href="/player?id=<%= player.player_id %>"><img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span></a></td>
+            <td><a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_match_id %>"><img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span></a></td>
             <td><%= (player.s1 > 0) ? player.s1 : "" ; %></td>
             <td><%= (player.s2 > 0) ? player.s2 : "" ; %></td>
             <td><%= (player.s3 > 0) ? player.s3 : "" ; %></td>
@@ -1088,7 +1088,7 @@ function displayPlayerWeaponStats(weaponId){
             if(d.shots > 0 || d.hits > 0 || d.kills > 0 || d.damage > 0 || d.accuracy > 0){
             %>
                 <tr class="<%= getTeamColorClass(currentPlayer.team) %>">
-                    <td><img src="files/flags/<%= currentPlayer.flag %>.png" alt="flag"/> <%= currentPlayer.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(currentPlayer.name)) %>)</span></td>
+                    <td><img src="files/flags/<%= currentPlayer.flag %>.png" alt="flag"/> <a href="/match?id=<%= matchData.id %>&amp;pid=<%= currentPlayer.player_match_id %>"><%= currentPlayer.name %></a> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(currentPlayer.name)) %>)</span></td>
                     <td><%= (d.shots > 0 ) ? d.shots : ""  %></td>
                     <td><%= (d.hits > 0 ) ? d.hits : ""  %></td>
                     <td><%= (d.kills > 0 ) ? d.kills : "" %></td>
@@ -1289,7 +1289,7 @@ function displayCTFData(){
             %>
             
                 <tr class="<%= getTeamColorClass(d.team) %>">
-                    <td><a href="/player?id=<%= d.player_id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></a></td>
+                    <td><a href="/match?id=<%= matchData.id %>&amp;pid=<%= d.player_match_id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></a></td>
                     <td><%= (d.flag_grabs > 0) ? d.flag_grabs :  "" ; %></td>
                     <td><%= (d.flag_pickups > 0) ? d.flag_pickups :  "" ; %></td>
                     <td><%= (d.flag_drops > 0) ? d.flag_drops :  "" ; %></td>
@@ -1754,7 +1754,7 @@ function displayTeamChanges(){
                 %>
 
                 <tr class="<%= getTeamColorClass(d.new_team) %>">
-                    <td><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <%= p.name %></td>
+                    <td><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <a href="/match?id=<%= matchData.id %>&amp;pid=<%= p.player_match_id %>"><%= p.name %></a></td>
                     <td>Changed to the <%= getTeamName(d.new_team); %> team at <span class="yellow"><span class="date-alt"><%= d.time %></span></span>.</td>
                     
                 </tr>
@@ -2530,9 +2530,9 @@ function displayDomData(){
             //console.log(player);
 
             %>
-            <a href="/player?id=<%= player.player_id %>"><tr class="<%= getTeamColorClass( player.team ) %>">
+            <a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_id %>"><tr class="<%= getTeamColorClass( player.team ) %>">
 
-                <td><img src="files/flags/<%= player.flag %>.png" alt="flag"><%= player.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span></td>
+                <td><img src="files/flags/<%= player.flag %>.png" alt="flag"> <a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_match_id %>"><%= player.name %></a> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span></td>
                 <%
                     for(let x = 0; x < pointNames.length; x++){
                         %>
@@ -2822,7 +2822,7 @@ function displayMonsterHuntFrags(){
 
                 %>
                 <tr class="team-red">
-                    <td><a href="/player?id=<%= d.player_id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(d.name)) %>)</span></a></td>
+                    <td><a href="/match?id=<%= matchData.id %>&amp;pid=<%= d.player_match_id %>"><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(d.name)) %>)</span></a></td>
                     <td class="date-alt"><%= d.play_time %></td>
                     <td><%= d.deaths %></td>
                     <td><%= d.suicides %></td>
@@ -3001,7 +3001,7 @@ function displayMonsters(){
                                     p = matchData.players[x];
 
                                     %>
-                                        <a href="/player?id=<%= p.player_id %>"><div class="monster-card-player team-grey"><div><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <%= p.name %></div> <div><%= getMonsterKillCount(p.player_match_id,d.id) %></div></div></a>
+                                        <a href="/match?id=<%= matchData.id %>&amp;<%= p.player_match_id %>"><div class="monster-card-player team-grey"><div><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <%= p.name %></div> <div><%= getMonsterKillCount(p.player_match_id,d.id) %></div></div></a>
                                     <%
                                 }
                             %>
@@ -3138,7 +3138,7 @@ function displayBunnytrackTimes(){
                     %>
                     <tr>
                         <td> <%= getOrdinal(i+1) %></td>
-                        <td><a href="/player?id=<%= p.player_id %>"><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <%= p.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(p.name)) %>)</span></a></td>
+                        <td><a href="/match?id=<%= matchData.id %>&amp;pid=<%= p.player_id %>"><img src="files/flags/<%= p.flag %>.png" alt="flag"/> <%= p.name %> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(p.name)) %>)</span></a></td>
                         <td class="date"><%= d.date %></td>
                         <td><%= toBTTime(d.time) %></td>
                         <td class="<%= colorClass %>">
@@ -3367,14 +3367,16 @@ function displayRankingChanges(){
                     continue;
                 }
 
-                player = getPlayerByName(p.name);
+                //player = getPlayerByName(p.name);
 
      
                 diff =  d.ranking - p.ranking;
 
+                console.log(player);
+
                 %>
                 <tr>
-                    <td><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <%= d.name %></td>
+                    <td><img src="files/flags/<%= d.flag %>.png" alt="flag"/> <a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_match_id %>"><%= d.name %></a></td>
                     <td><%= d.total_matches %></td>
                     <td><img class="small-ranking-icon" src="<%= getRankingIcon(d.ranking_diff) %>" alt="icon"/><%= p.ranking_change.toFixed(2) %></td>
                     <td><img class="small-ranking-icon" src="<%= getRankingIcon(d.ranking_diff) %>" alt="icon"/><%= p.ranking.toFixed(2) %> </td>
@@ -3767,8 +3769,8 @@ function displaySinglePlayerSprees(){
 
                 if(displayedRows == 0){
                     %>
-                    <tr style="text-align: center;">
-                        <td colspan="100">None</td>    
+                    <tr>
+                        <td colspan="100" style="text-align:center;">None</td>    
                     </tr>
                     <%
                 }
