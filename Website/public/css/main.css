@@ -633,8 +633,11 @@ footer a{
     font-weight:100;
     padding:10px;
     text-align:center;
-    border:1px solid rgba(255,255,255,0.05);
     margin-top:-1px;
+    color:white;
+    display:inline-block;
+    background-color:rgb(12,12,12);
+    border:1px solid rgba(255,255,255,0.25);
 }
 
 .match-screenshot-canvas{
@@ -740,6 +743,14 @@ footer a{
     text-align:center;
     padding-top:50px;
     padding-bottom:50px;
+}
+
+.no-data-alt{
+
+    font-size:14px;
+    color:white;
+    text-align:center;
+    font-weight:300;
 }
 
 #h-a-p{

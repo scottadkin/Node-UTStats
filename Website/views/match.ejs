@@ -1066,7 +1066,8 @@ function displayPlayerWeaponStats(weaponId){
 
     <%
 
-    console.table(matchData.weaponStats);
+    let bDisplayedData = false;
+
     for(let i = 0; i < matchData.weaponStats.length; i++){
 
         d = matchData.weaponStats[i];
@@ -1086,6 +1087,8 @@ function displayPlayerWeaponStats(weaponId){
         }
         if(d.weapon_id == weaponId){
             if(d.shots > 0 || d.hits > 0 || d.kills > 0 || d.damage > 0 || d.accuracy > 0){
+
+                bDisplayedData = true;
             %>
                 <tr class="<%= getTeamColorClass(currentPlayer.team) %>">
                     <td><img src="files/flags/<%= currentPlayer.flag %>.png" alt="flag"/> <a href="/match?id=<%= matchData.id %>&amp;pid=<%= currentPlayer.player_match_id %>"><%= currentPlayer.name %></a> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(currentPlayer.name)) %>)</span></td>
@@ -1098,6 +1101,17 @@ function displayPlayerWeaponStats(weaponId){
                 <%
             }
         }
+    }
+
+    if(!bDisplayedData){
+
+        %>
+        <tr>
+            <td colspan="10" style="text-align: center;">
+                No Data
+            </td>    
+        </tr>
+        <%
     }
     %>
     </table>
@@ -1132,6 +1146,8 @@ function displayWeaponStats(){
         return;
     }
 
+    let bDisplayedData = false;
+
     if(matchData.weapons.length > 0){
 
         %>
@@ -1146,6 +1162,8 @@ function displayWeaponStats(){
         for(let i = 0; i < matchData.weapons.length; i++){
 
             if(bAnyWeaponData(matchData.weapons[i].id)){
+
+                bDisplayedData = true;
                 %>
                     <div class="weapon-box">
                         <div class="default-sub-header">
@@ -1157,6 +1175,13 @@ function displayWeaponStats(){
             }
         }
 
+        if(!bDisplayedData){
+            %>
+            <div class="no-data-alt">
+                No data to display.    
+            </div>
+            <%
+        }
         %>
         </div>
         <%
@@ -1225,7 +1250,14 @@ function displayCTFData(){
 
         //console.log("matchData.players.length = "+matchData.players.length);
         if(i < matchData.players.length){
-            d = matchData.players[i]
+            d = matchData.players[i];
+        }
+
+        if(bPlayer){
+
+            if(d.player_match_id != playerId){
+                continue;
+            }
         }
 
         if(i == 0){
@@ -1600,7 +1632,7 @@ function createFEString(input, bIgnoreValue, capPlayer){
         }
 
         if(!bIgnoreValue){
-            string += '<img src="files/flags/'+p.flag+'.png" alt="flag"/> <span class="normal yellow">'+p.name+'</span> ('+ data[i].value +') ';
+            string += '<img src="files/flags/'+p.flag+'.png" alt="flag"/> <span class="normal">'+p.name+'</span> ('+ data[i].value +') ';
         }else{
             if(capPlayer != null){
                 if(capPlayer.name != p.name){
@@ -1616,6 +1648,7 @@ function createFEString(input, bIgnoreValue, capPlayer){
 function displayFlagEvents(){
 
     let d = 0;
+    let bDisplayedData = false;
 
     if(matchData.flagCaptures.length > 0){
 
@@ -1675,8 +1708,32 @@ function displayFlagEvents(){
                     capPlayer = {"flag": "xx", "name": "Ignored Player"}
                 }
                 assists.splice(0,1);
+
+                if(bPlayer){
+
+                    if(grabPlayer.player_match_id == playerId || capPlayer.player_match_id == playerId){
+
+                    }else{
+
+                        for(let c = 0; c < covers.length; c++){
+
+                            if(covers[c][0] == playerId){
+                                break;
+                            }
+                        }
+
+                        for(let a = 0; a < assists.length; a++){
+
+                            if(assists[a][0] == playerId){
+                                break;
+                            }
+                        }
+                        //player was not involved with this cap
+                        continue;
+                    }
+                }
                 
-                console.table(grabPlayer);
+                //console.table(grabPlayer);
                 %>
                 <tr class="<%= getTeamColorClass(currentTeam) %>">
                     <td><img src="files/flags/<%= grabPlayer.flag %>.png" alt="flag"><b><%= grabPlayer.name %></b> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(grabPlayer.name)) %>)</span></td>
@@ -1697,7 +1754,7 @@ function displayFlagEvents(){
 
         ctfDisplaySaves();
 
-        if(matchData.total_teams > 1){
+        if(matchData.total_teams > 1 && !bPlayer){
             displayCTFTeamscoreGraph();
         }
 
@@ -2335,6 +2392,9 @@ function displayTeamKillsGraph(){
 
 function displayDomGraph(){
 
+    if(bPlayer){
+        return;
+    }
 
     let graphData = [];
 
@@ -2529,6 +2589,13 @@ function displayDomData(){
             player = getPlayer(d.id);
             //console.log(player);
 
+            if(bPlayer){
+
+                if(player.player_match_id != playerId){
+                    continue;
+                }
+            }
+
             %>
             <a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_id %>"><tr class="<%= getTeamColorClass( player.team ) %>">
 
@@ -2560,7 +2627,7 @@ function displayAssaultObjectives(){
 
         %>
 
-            <div class="default">
+            <div class="default text-center">
                 <div class="default-header">
                     Assault Objectives
                 </div>
@@ -2575,7 +2642,7 @@ function displayAssaultObjectives(){
 
                     %>
 
-                    <div class="data-default match-assault-objs">
+                    <div class="match-assault-objs">
                         <%=
                             d.obj_name
                         %>
@@ -2620,11 +2687,20 @@ function displayAssaultEvents(){
                 Assault Event Summary
             </div>
 
+            <table class="frag-table">
+                <tr>
+                    <th>Player</th>    
+                    <th>Object</th>    
+                    <th>Time</th>    
+                </tr>
+
             <%
 
             let d = 0;
 
             let player = 0;
+
+            let bDisplayedData = false;
 
             if(matchData.assaultEvents.length > 0){
 
@@ -2633,41 +2709,62 @@ function displayAssaultEvents(){
                     d = matchData.assaultEvents[i];
 
                     player = getPlayer(d.player_id);
+
+                    if(bPlayer){
+
+                        if(player.player_match_id != playerId){
+                            continue;
+                        }
+                    }
+                    bDisplayedData = true;
                     %>
 
-                    <div class="data-default assault-event">
-                        <div class="<%= getTeamColorClass(getPlayerTeamAt(d.time, d.player_id)) %>">
-                            <b><%= player.name %></b> captured <b><%= getAssaultObjName(d.obj_id) %></b> <span class="ranking-place">(<%= getOrdinal(getPlayerRankingPosition(player.name)) %>)</span> at <span class="date-alt yellow"> <%= d.time %></span>
-                        </div>
-                    </div>
+                    <tr>
+                        <td><img src="/files/flags/<%= player.flag %>.png" alt="flag"> <a href="/match?id=<%= matchData.id %>&amp;pid=<%= player.player_match_id %>"><%= player.name %></a></td>    
+                        <td><%= getAssaultObjName(d.obj_id) %></td>    
+                        <td><span class="date-alt-3 yellow"> <%= d.time %></span></td>    
+                    </tr>
 
                     <%
                 }
 
                 if(matchData.assaultEvents.length < matchData.assaultObjectives.length){
-
+                    bDisplayedData = true;
                     %>
-                    <div class="data-default assault-event">
-                        <div class="<%= getTeamColorClass(matchData.assaultAttackingTeam) %>">
-                            The <%= getTeamName(matchData.assaultAttackingTeam) %> team failed to take all the objectives.
-                        </div>
-                    </div>
+                    <tr>
+                        <td colspan="3">
+                            The <%= getTeamName(matchData.assaultAttackingTeam) %> team failed to take all the objectives.<br>
+                        </td>
+                    </tr>
 
                     <%
                 }
 
             }else{
+                bDisplayedData = true;
+                %>
+                <tr>
+                    <td colspan="3">
+                        The <%= getTeamName(matchData.assaultAttackingTeam) %> team failed to take any objectives.<br>
+                    </td>
+                </tr>
+                <%
+            }
+
+            if(!bDisplayedData){
 
                 %>
-                <div class="data-default assault-event">
-                    <div class="<%= getTeamColorClass(matchData.assaultAttackingTeam) %>">
-                        The <%= getTeamName(matchData.assaultAttackingTeam) %> team failed to take any objectives.
-                    </div>
-                </div>
+                <tr>
+                    <td colspan="100" style="text-align:center;">
+                        No Data    
+                    </td>    
+                </tr>
                 <%
             }
 
             %>
+
+            </table>
         </div>
         <%
     //}
@@ -2819,6 +2916,13 @@ function displayMonsterHuntFrags(){
             for(let i = 0; i < matchData.players.length; i++){
 
                 d = matchData.players[i];
+
+                if(bPlayer){
+
+                    if(d.player_match_id != playerId){
+                        continue;
+                    }
+                }
 
                 %>
                 <tr class="team-red">
@@ -3521,7 +3625,7 @@ function displayPickups(){
         
     </div>
     <script>
-        new PickupsDisplay("match-pickups",<%= matchData.id %>, <%- JSON.stringify(p) %>);
+        new PickupsDisplay("match-pickups",<%= matchData.id %>, <%- JSON.stringify(p) %>, <%= (playerId != undefined) ? playerId : -1 %>);
     </script>
     <%
 }
@@ -3624,7 +3728,9 @@ function displayPlayerFrags(){
             updateStats(d.killer, d.victim);
         }
 
-        console.table(data);
+        //console.table(data);
+
+        let bDisplayedData = false;
 
         %>
         <div class="default">
@@ -3648,6 +3754,7 @@ function displayPlayerFrags(){
 
                 for(let i = 0; i < data.length; i++){
 
+                    bDisplayedData = true;
                     enemy = getPlayer(data[i].enemy);
 
                     if(enemy == -1) enemy = {"name":"Not Found", "flag": "xx", "team": 255};
@@ -3669,6 +3776,16 @@ function displayPlayerFrags(){
                         <td><%= data[i].kills %></td>    
                         <td><%= data[i].deaths %></td>    
                         <td><%= eff.toFixed(2) %> &#37;</td>    
+                    </tr>
+                    <%
+                }
+
+                if(!bDisplayedData){
+                    %>
+                    <tr>
+                        <td colspan="100" style="text-align: center;">
+                            No Data    
+                        </td>    
                     </tr>
                     <%
                 }
