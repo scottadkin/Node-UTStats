@@ -3899,8 +3899,62 @@ function displaySinglePlayerSprees(){
     }
 }
 
+function displayInteractiveMap(){
+
+
+    const players = [];
+
+    let d = 0;
+
+    for(let i = 0; i < matchData.players.length; i++){
+
+        d = matchData.players[i];
+
+        players.push(
+            {
+                "name": d.name,
+                "id": d.player_match_id,
+                "totalId": d.player_id
+            }
+        );
+    }
+
+    %>
+    <div class="default">
+        <div class="default-header">
+            Interactive Map    
+        </div>
+
+        <div id="int-map">
+            
+        </div>
+
+        <script>
+            (() =>{
+                new InteractiveMap(
+                    'int-map', 
+                    {
+                        "name": "<%= matchData.mapName %>",
+                        "matchId": <%= matchData.id %>,
+                        "mapId": <%= matchData.map %>
+                    },
+                    <%- JSON.stringify(players) %>,
+                    <%- JSON.stringify(matchData.spawns) %>,
+                    <%- JSON.stringify(matchData.items) %>,
+                    []
+                );
+            })();    
+        </script>
+    </div>
+    <%
+}
+
 
 displayMatchSummary();
+
+displayInteractiveMap();
+
+
 
 
 if(!bPlayer){

@@ -1456,6 +1456,11 @@ function defaultServer(){
             await hits.updateMatchViews(id);
             await hits.updateHits();
             await maps.getAuthor(m.matchData.map);
+            await maps.getSpawns(m.matchData.map);
+            await maps.getPickups(id);
+
+            m.matchData.spawns = maps.spawns;
+            m.matchData.items = maps.items;
 
             if(req.query.pid != undefined){
 
@@ -1479,7 +1484,15 @@ function defaultServer(){
 
             m.matchData.mapAuthor = maps.currentAuthor;
 
-            res.render("match", {"matchData": m.matchData, "mapUrl": m.matchData.mapImage, "req": req, "faces": f.images, "config": config, "bPlayer": bPlayer, "playerId": pId});
+            res.render("match", {
+                "matchData": m.matchData, 
+                "mapUrl": m.matchData.mapImage, 
+                "req": req, 
+                "faces": f.images, 
+                "config": config, 
+                "bPlayer": bPlayer, 
+                "playerId": pId
+            });
 
         }catch(err){
             res.render("error",{"req": req, "message": err, "config": config});
@@ -2265,6 +2278,47 @@ function defaultServer(){
         }
     });
 
+    async function getFlagPositions(req, res){
+
+
+        try{
+
+            let map = 1;
+
+            if(req.query.id != undefined){
+
+                map = parseInt(req.query.id);
+
+                if(map != map){
+                    map = 1;
+                }
+
+                if(map < 1){
+                    map = 1;
+                }
+
+                const maps = new Maps();
+                
+                await maps.getFlagPositions(map);    
+                
+                res.send(maps.flagPositions);
+
+            }else{
+                res.send([]);
+            }
+
+        }catch(err){
+            console.trace(err);
+            res.send([]);
+        }
+
+    }
+
+    app.get('/json/map/flags', (req, res) =>{
+
+        getFlagPositions(req, res);
+        
+    });
 
     app.get('/json/records/',(req, res) =>{
 

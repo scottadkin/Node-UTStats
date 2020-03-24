@@ -506,7 +506,7 @@ class Match{
 
         return new Promise((resolve, reject) =>{
 
-            const query = "SELECT match_id,killer,victim,weapon,time,distance FROM nutstats_kills WHERE match_id=? ORDER BY time ASC";
+            const query = "SELECT * FROM nutstats_kills WHERE match_id=? ORDER BY time ASC";
 
             mysql.query(query, [id], (err, result) =>{
 

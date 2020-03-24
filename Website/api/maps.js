@@ -766,14 +766,92 @@ class Maps{
         });
     }
 
-    getAllImages(){
+    async getAllImages(){
 
-        return this.getAllFullsizeImages().then(() =>{
+        try{
+            await this.getAllFullsizeImages();
+            await this.getAllThumbnails();
+        }catch(err){
+            throw err;
+        }
+    }
 
-            return this.getAllThumbnails();
+    getSpawns(id){
 
+        return new Promise((resolve, reject) =>{
+
+            id = parseInt(id);
+
+            if(id != id){
+                reject("Map id must be a valid int");
+            }
+
+            const query = "SELECT name,team,x,y,z FROM nutstats_map_spawn_points WHERE map_id=?";
+
+            this.spawns = [];
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.spawns = result;
+                }
+
+                resolve();
+            });
         });
     }
+
+    getPickups(id){
+
+        return new Promise((resolve, reject) =>{
+
+            id = parseInt(id);
+
+            if(id != id){
+                reject("Match id must be a valid int");
+            }
+
+            const query = "SELECT class_name, name, x, y, z FROM nutstats_item_locations WHERE match_id=?";
+
+            this.items = [];
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+                    this.items = result;
+                }
+                resolve();
+            });
+        });
+    }
+
+
+    getFlagPositions(id){
+
+        return new Promise((resolve, reject) =>{
+
+            this.flagPositions = [];
+
+            const query = "SELECT team,x,y,z FROM nutstats_flag_positions WHERE map_id=?";
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.flagPositions = result;
+                }
+                resolve();
+            });
+        });
+    }
+
 
 }
 
