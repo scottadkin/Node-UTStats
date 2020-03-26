@@ -3941,10 +3941,13 @@ function displayInteractiveMap(){
                     <%- JSON.stringify(players) %>,
                     <%- JSON.stringify(matchData.spawns) %>,
                     <%- JSON.stringify(matchData.items) %>,
-                    []
+                    <%- JSON.stringify(matchData.flagKills) %>,
+                    <%= matchData.match_start %>
+                    
                 );
             })();    
         </script>
+        
     </div>
     <%
 }

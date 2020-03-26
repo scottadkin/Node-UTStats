@@ -2,7 +2,7 @@
 
 class InteractiveMap{
 
-    constructor(parent, details, players, spawns, items){
+    constructor(parent, details, players, spawns, items, flagKills, matchStart){
 
         this.parent = document.getElementById(parent);
         this.details = details;
@@ -12,6 +12,10 @@ class InteractiveMap{
         this.flags = [];
         this.domPoints = [];
         this.players = players;
+        this.flagKills = flagKills;
+        this.matchStart = matchStart;
+
+        console.log(this.spawns);
 
         this.spawnIcon = new Image();
         this.spawnIcon.src = "files/spawn.png";
@@ -31,9 +35,11 @@ class InteractiveMap{
 
         this.bMouseDown = false;
 
+        this.bNoData = true;
+
 
         this.bShowSpawns = true;
-        this.bShowPickups = false;
+        this.bShowPickups = true;
         this.bShowDeaths = true;
         this.bShowKills = true;
 
@@ -66,8 +72,11 @@ class InteractiveMap{
         this.createEvents();
 
 
+
         await this.loadKills();
+        
         await this.loadFlagPositions();
+     
 
 
        // console.table(this.kills);
@@ -209,7 +218,7 @@ class InteractiveMap{
         const elem = document.createElement("canvas");
         elem.height = window.innerHeight * 0.9;// * 0.5625;
         elem.width = elem.height * 1.7777;
-        
+        elem.style.cssText = "display:block;margin-left:auto;margin-right:auto;border:1px solid rgb(12,12,12);box-shadow:1px 1px 1px rgba(0,0,0,0.5)";
 
         this.parent.appendChild(elem);
 
@@ -315,11 +324,11 @@ class InteractiveMap{
 
     mmss(time){
 
-        let seconds = Math.floor(time % 60);
+        let seconds = (time % 60).toFixed(2);
         let minutes = 0;
 
         if(time > 0){
-            minutes = Math.floor(time);
+            minutes = Math.floor(time / 60);
         }
 
         if(seconds < 10){
@@ -331,6 +340,22 @@ class InteractiveMap{
         }
 
         return minutes+":"+seconds;
+    }
+
+    fixItemName(string){
+
+        const reg = /^(\D+)\d+$/i;
+
+        const result = reg.exec(string);
+
+        console.log(result);
+
+        if(result != null){
+
+            return result[1];
+        }
+
+        return string;
     }
 
     render(){
@@ -345,10 +370,11 @@ class InteractiveMap{
         let boxX = 0;
         let boxY = 0;
         let boxTitle = "title";
-        let boxText = "Potato Killed Fart flaps";
+        let boxText = "";
         let boxText2 = "";
         let bShowBox = false;
 
+        c.textBaseline = "top";
 
         const radius = this.pY(0.5);
 
@@ -359,6 +385,18 @@ class InteractiveMap{
 
         c.fillStyle = "rgba(0,0,0,0.8)";
         c.fillRect(0,0,this.canvas.width, this.canvas.height);
+
+    
+        if(this.bNoData || this.totalX == 0 || this.totalY == 0){
+
+            c.font = this.setFontSize(4)+"px Arial";
+            c.fillStyle = "white"
+            c.textAlign = "center";
+
+            c.fillText("No data to display", this.canvas.width * 0.5, this.canvas.height * 0.4);
+            c.textAlign = "left";
+            return;
+        }
         
         
         this.renderPolygon();
@@ -367,21 +405,6 @@ class InteractiveMap{
         c.font = this.setFontSize(2)+"px Arial"
 
         let d = 0;
-
-        if(this.bShowPickups){
-
-            for(let i = 0; i < this.items.length; i++){
-
-                d = this.items[i];
-
-            // console.log("StartPosition = "+d.x+","+d.y+","+d.z+" display position = "+this.x(d.x)+","+this.y(d.y));
-
-                c.fillRect(this.x(d.x), this.y(d.y), 5, 5);
-
-                c.fillText(d.name,this.x(d.x), this.y(d.y));
-            }
-        }
-
 
         c.fillStyle = "yellow";
         c.textAlign = "center";
@@ -436,64 +459,15 @@ class InteractiveMap{
         }
 
 
-
-        //console.log(this.flagPositions);
-
         
-        let flagImage = 0;
-
         
-        c.strokeStyle = "rgb(16,16,16)";
-        c.lineWidth = this.pY(0.2);
-
-        for(let i = 0; i < this.flagPositions.length; i++){
-
-            
-            d = this.flagPositions[i];
-            //console.log(d);
-
-            c.fillStyle = "red";
-            if(d.team == 1){
-                c.fillStyle = "blue";
-            }else if(d.team == 2){
-                c.fillStyle = "green";
-            }else if(d.team == 3){
-                c.fillStyle = "yellow";
-            }
-
-            //c.beginPath();
-           // c.arc(this.x(d.x), this.y(d.y), this.pY(5) * this.zoom, 0, Math.PI * 2);
-           // c.fill();            //c.closePath();
-
-            flagImage = this.redFlag;
-
-            if(d.team == 1){
-                flagImage = this.blueFlag;
-            }else if(d.team == 2){
-                flagImage = this.greenFlag;
-            }else if(d.team == 3){
-                flagImage = this.yellowFlag;
-            }
-
-           // c.drawImage(flagImage, this.x(d.x), this.y(d.y), this.pY(12) * this.zoom, this.pY(12) * this.zoom);
-
-            c.fillRect(this.x(d.x), this.y(d.y), this.pY(3) * this.zoom, this.pY(1.6) * this.zoom);
-            c.strokeRect(this.x(d.x), this.y(d.y), this.pY(3) * this.zoom, this.pY(1.6) * this.zoom);
-
-            c.fillStyle = "rgb(16,16,16)";
-
-            c.fillRect(this.x(d.x), this.y(d.y), this.pY(0.125) * this.zoom, this.pY(5) * this.zoom);
-
-
-
-        }
 
         
 
         //console.log(this.kills.length);
         c.lineWidth = this.pY(0.125) * this.zoom;
 
-        if(this.bShowKills){
+        if(this.bShowKills || this.bShowDeaths){
 
             let killerX = 0;
             let killerY = 0;
@@ -518,31 +492,33 @@ class InteractiveMap{
                         c.strokeStyle = "red";
                         bShowBox = true;
 
-                        boxTitle = "Kill Event";
+                        boxTitle = "Killer Location";
                         boxText = this.getPlayerName(d.killer)+" killed "+this.getPlayerName(d.victim);
-                        boxText2 = "Timestamp: "+this.mmss(d.time);
+                        boxText2 = "Timestamp: "+this.mmss(d.time - this.matchStart);
                     }
                 }
+
                 if(mouseX >= victimX - (radius * this.zoom) && mouseX <= victimX + (radius * this.zoom)){
                     if(mouseY >= victimY - (radius * this.zoom) && mouseY <= victimY + (radius * this.zoom)){
                         //c.fillStyle = "green";
                         c.strokeStyle = "red";
                         bShowBox = true;
 
-                        boxTitle = "Kill Event";
+                        boxTitle = "Death Location";
                         boxText = this.getPlayerName(d.killer)+" killed "+this.getPlayerName(d.victim);
-                        boxText2 = "Timestamp: "+this.mmss(d.time);
+                        boxText2 = "Timestamp: "+this.mmss(d.time - this.matchStart);
                     }
                 }
                 
                 
                 
-                c.beginPath();
-
-                c.moveTo(this.x(d.killer_x), this.y(d.killer_y));
-                c.lineTo(this.x(d.victim_x), this.y(d.victim_y));
-                c.stroke();
-                c.closePath();
+                if(this.bShowKills && this.bShowDeaths){
+                    c.beginPath();
+                    c.moveTo(this.x(d.killer_x), this.y(d.killer_y));
+                    c.lineTo(this.x(d.victim_x), this.y(d.victim_y));
+                    c.stroke();
+                    c.closePath();
+                }
 
                 //c.fillText(d.killer_x+","+d.killer_y, this.x(d.killer_x), this.y(d.killer_y));
 
@@ -550,19 +526,94 @@ class InteractiveMap{
 
                 // c.fillText(this.x(d.x).toFixed(2)+","+this.y(d.y).toFixed(2),this.x(d.x), this.y(d.y));
 
+
     
-                c.beginPath();
-                c.arc(this.x(d.killer_x), this.y(d.killer_y), radius * this.zoom, 0, Math.PI * 2);
-                c.fill();
-                c.closePath();
-                c.fillStyle = "rgba(253,171,159,0.5)";
+                if(this.bShowKills){
+                    c.fillStyle = "rgba(253,171,159,0.5)";
+                    
+                    c.beginPath();
+                    c.arc(this.x(d.killer_x), this.y(d.killer_y), radius * this.zoom, 0, Math.PI * 2);
+                    c.fill();
+                    c.closePath();
+                }
+
+               
 
 
-                c.beginPath();
-                c.arc(this.x(d.victim_x), this.y(d.victim_y), radius * this.zoom, 0, Math.PI * 2);
-                c.fill();
-                c.closePath();
+                if(this.bShowDeaths){
+                    c.fillStyle = "rgba(255,0,0,0.5)";
+                    c.beginPath();
+                    c.arc(this.x(d.victim_x), this.y(d.victim_y), radius * this.zoom, 0, Math.PI * 2);
+                    c.fill();
+                    c.closePath();
+                }
             }
+        }
+
+        if(this.bShowPickups){
+
+            const itemSize = this.pY(0.5) * this.zoom;
+
+            let itemX = 0;
+            let itemY = 0;
+
+            for(let i = 0; i < this.items.length; i++){
+
+                d = this.items[i];
+
+            // console.log("StartPosition = "+d.x+","+d.y+","+d.z+" display position = "+this.x(d.x)+","+this.y(d.y));
+                c.fillStyle = "white";
+                
+
+                itemX = -this.xOffset + this.x(d.x);
+                itemY = -this.yOffset + this.y(d.y)
+
+                if(mouseX >= itemX - itemSize && mouseX <= itemX + itemSize){
+
+                    if(mouseY >= itemY - itemSize && mouseY <= itemY + itemSize){
+
+                        boxTitle = "Pickup Location";
+                        boxText = this.fixItemName(d.name);
+                        bShowBox = true;
+                        c.fillStyle = "yellow";
+                    }
+                }
+
+                c.beginPath();
+                c.arc(this.x(d.x), this.y(d.y), itemSize, 0, Math.PI * 2);
+                c.fill();
+                c.closePath();
+
+                //c.fillText(d.name,this.x(d.x), this.y(d.y));
+            }
+        }
+
+
+        c.strokeStyle = "rgb(16,16,16)";
+        c.lineWidth = this.pY(0.2);
+
+        for(let i = 0; i < this.flagPositions.length; i++){
+         
+            d = this.flagPositions[i];
+
+            c.fillStyle = "red";
+            if(d.team == 1){
+                c.fillStyle = "blue";
+            }else if(d.team == 2){
+                c.fillStyle = "green";
+            }else if(d.team == 3){
+                c.fillStyle = "yellow";
+            }
+
+            c.fillRect(this.x(d.x), this.y(d.y), this.pY(3) * this.zoom, this.pY(1.6) * this.zoom);
+            c.strokeRect(this.x(d.x), this.y(d.y), this.pY(3) * this.zoom, this.pY(1.6) * this.zoom);
+
+            c.fillStyle = "rgb(16,16,16)";
+
+            c.fillRect(this.x(d.x), this.y(d.y), this.pY(0.125) * this.zoom, this.pY(5) * this.zoom);
+
+
+
         }
 
 
@@ -643,8 +694,8 @@ class InteractiveMap{
 
 
 
-        c.fillText("OffsetX: "+this.xOffset.toFixed(2), this.pX(99), this.pY(1));
-        c.fillText("OffsetY: "+this.yOffset.toFixed(2), this.pX(99), this.pY(5));
+        c.fillText("X: "+this.xOffset.toFixed(2), this.pX(99), this.pY(1));
+        c.fillText("Y: "+this.yOffset.toFixed(2), this.pX(99), this.pY(5));
 
         c.textAlign = "left";
 
@@ -740,6 +791,15 @@ class InteractiveMap{
 
         renderButton("Show Kills", this.bShowKills, x, y);
 
+        y = row2;
+
+        if(bClickInRange(x, y)){
+            this.bShowDeaths = !this.bShowDeaths;
+            this.resetClick();
+        }
+
+        renderButton("Show Deaths", this.bShowDeaths, x, y);
+
         
         c.textAlign = "left";
 
@@ -796,6 +856,7 @@ class InteractiveMap{
 
         let d = 0;
 
+
         for(let i = 0; i < this.spawns.length; i++){
 
             d = this.spawns[i];
@@ -818,6 +879,10 @@ class InteractiveMap{
 
         }
 
+        if(this.spawns.length > 0 || this.items.length > 0 || this.kills.length > 0){
+            this.bNoData = false;
+        }
+
         const totalX = Math.abs(maxX - minX);
         const totalY = Math.abs(maxY - minY);
 
@@ -832,7 +897,7 @@ class InteractiveMap{
         this.xBit = 100 / totalX;
         this.yBit = 100 / totalY;
 
-        console.log(this.xBit * totalX);
+        //console.log(this.xBit * totalX);
 
         this.totalX = totalX;
         this.totalY = totalY;
@@ -878,6 +943,47 @@ class InteractiveMap{
     }
 
 
+    updateFlagKillData(){
+
+
+        const getMatchingKill = (time, killer, victim) =>{
+
+            let d = 0;
+
+            for(let i = 0; i < this.kills.length; i++){
+
+                d = this.kills[i];
+
+                if(d.time > time){
+                    return null;
+                }
+
+                if(d.time == time && d.killer == killer && d.victim == victim){
+                    return d;
+                }
+            }
+
+            return null;
+        }
+
+        let d = 0;
+        let currentKill = null;
+
+        for(let i = 0; i < this.flagKills.length; i++){
+
+            d = this.flagKills[i];
+
+            currentKill = getMatchingKill(d.time, d.killer, d.victim);
+
+            if(currentKill != null){
+
+                this.flagKills[i].x = currentKill.victim_x;
+                this.flagKills[i].y = currentKill.victim_y;
+                this.flagKills[i].z = currentKill.victim_z;
+            }
+        }
+    }
+
     loadKills(){
 
         return new Promise((resolve, reject) =>{
@@ -890,6 +996,20 @@ class InteractiveMap{
                     //alert('fuck');
                     this.kills = JSON.parse(x.responseText);
                     //console.log(x.responseText);
+
+                   // console.table(this.kills);
+
+                    if(this.kills.length > 0){
+
+                        //check if the kill data is older version(no distance data)
+                        for(let i = 0; i < this.kills.length; i++){
+
+                            if(this.kills[i].distance > 0){
+                                this.bNoData = false;
+                            }
+                        }
+                    }
+                    
                     resolve();
                 }
             }
@@ -923,6 +1043,12 @@ class InteractiveMap{
                     console.log(x.responseText);
 
                     this.flagPositions = JSON.parse(x.responseText);
+
+                    if(this.flagPositions.length > 0){
+                        this.bNoData = false;
+
+                        this.updateFlagKillData();
+                    }
                     resolve();
                 }
             }
