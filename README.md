@@ -50,6 +50,7 @@ Node UTStats uses the already exisiting UTStats mutator as a base and extends it
 - While in the the UnrealTournament System folder, open the file UnrealTournament.ini
 - Now look for a block called **[Engine.GameEngine]** or **[XC_Engine.XC_GameEngine]** if you are using XC_Engine.
 - Now add the following line at the bottom of the block **ServerActors=NodeUTStats.NodeUTStatsServerActor**
+- **Note:** In UnrealTournament build 469 and above in Engine.GameInfo in UnrealTournament.log bWorldLog now has to be set to false.
 
 # Connecting to FTP servers
 
