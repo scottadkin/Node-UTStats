@@ -3919,6 +3919,14 @@ function displayInteractiveMap(){
         );
     }
 
+    if(matchData.flagKills == undefined){
+        matchData.flagKills = [];
+    }
+
+    if(matchData.flagEvents == undefined){
+        matchData.flagEvents = [];
+    }
+
     %>
     <div class="default">
         <div class="default-header">
@@ -3942,6 +3950,7 @@ function displayInteractiveMap(){
                     <%- JSON.stringify(matchData.spawns) %>,
                     <%- JSON.stringify(matchData.items) %>,
                     <%- JSON.stringify(matchData.flagKills) %>,
+                    <%- JSON.stringify(matchData.flagEvents) %>,
                     <%= matchData.match_start %>
                     
                 );
@@ -3955,14 +3964,13 @@ function displayInteractiveMap(){
 
 displayMatchSummary();
 
-displayInteractiveMap();
-
-
 
 
 if(!bPlayer){
     displayScreenshot();
 }
+
+displayInteractiveMap();
 
 
 

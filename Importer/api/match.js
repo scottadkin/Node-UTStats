@@ -28,7 +28,7 @@ class Match{
 
     constructor(fileName, gameData, serverData, mapData, killData, weaponData, weaponStats, playerData, playerNames, teamScores, headshots, connectData,
                 teamChangeData, pickupData, ctfData, domData, assaultData, nodeStatsData, bunnyTrackData, totalHumans, totalBots, distanceData,
-                flagKillData, spawnData, flagPositionData, domPositionData, itemPositionData){
+                flagKillData, spawnData, flagPositionData, domPositionData, itemPositionData, spawnLocationData){
 
 
         this.fileName = fileName;
@@ -85,6 +85,7 @@ class Match{
         this.flagPositionData = flagPositionData;
         this.domPositionData = domPositionData;
         this.itemPositionData = itemPositionData;
+        this.spawnLocationData = spawnLocationData;
 
       //  console.table(this.distanceData);
 
@@ -215,6 +216,7 @@ class Match{
                 await this.insertKillData();
                 await this.insertMatchData();
                 await this.insertWeaponStats();
+                await this.insertSpawnLocationData();
 
 
                 new Message("pass", "Import complete");
@@ -1279,6 +1281,33 @@ class Match{
     }
 
 
+    insertPlayerSpawnPosition(data){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "INSERT INTO nutstats_spawns VALUES(NULL,?,?,?,?,?,?)";
+
+            mysql.query(query, [this.matchId,this.map.mapId, data.player, data.x, data.y, data.z], (err) =>{
+
+                if(err) reject(err);
+
+                resolve();
+            });
+        });
+    }
+
+    async insertSpawnLocationData(){
+
+        let d = 0;
+
+        for(let i = 0; i < this.spawnLocationData.length; i++){
+
+            d = this.spawnLocationData[i];
+
+            await this.insertPlayerSpawnPosition(d);
+
+        }
+    }
 }
 
 

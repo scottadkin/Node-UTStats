@@ -108,6 +108,22 @@ const queries = [
       ADD PRIMARY KEY (id);`,
 
       `ALTER TABLE nutstats_dom_positions
+      MODIFY id int(11) NOT NULL AUTO_INCREMENT;`,
+
+      `CREATE TABLE nutstats_spawns (
+        id int(11) NOT NULL,
+        match_id int(11) NOT NULL,
+        map_id int(11) NOT NULL,
+        player int(11) NOT NULL,
+        x float NOT NULL,
+        y float NOT NULL,
+        z float NOT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
+
+      `ALTER TABLE nutstats_spawns
+      ADD PRIMARY KEY (id);`,
+
+      `ALTER TABLE nutstats_spawns
       MODIFY id int(11) NOT NULL AUTO_INCREMENT;`
 
 

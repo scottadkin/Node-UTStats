@@ -47,6 +47,7 @@ class LogParser{
         this.distanceData = [];
         this.flagKillData = [];
         this.maps = [];
+        this.spawnLocData = [];
 
         this.ace = new ACE();
 
@@ -107,6 +108,8 @@ class LogParser{
         this.distanceData = [];
         this.flagKillData = [];
         this.maps = [];
+        this.spawnData = [];
+        this.spawnLocData = [];
 
     }
 
@@ -375,7 +378,8 @@ class LogParser{
                         this.spawnData,
                         this.flagPositionData,
                         this.domPositionData,
-                        this.itemPositionData
+                        this.itemPositionData,
+                        this.spawnLocData
                     );
 
                     await m.import();
@@ -488,6 +492,7 @@ class LogParser{
         const flagPositionReg = /^\d+\.\d+\tnstats\tflag_location\t.+$/i;
         const domPositionReg = /^\d+\.\d+\tnstats\tdom_point\t.+$/i;
         const itemPositionReg = /^\d+\.\d+\tnstats\t(ammo|pickup|weapon)_location\t.+$/i;
+        const spawnLocReg = /^\d+\.\d+\tnstats\tspawn_loc\t.+?\t.+?,.+?,.+?$/i;
 
 
         const lines = file.match(lineReg);
@@ -513,6 +518,7 @@ class LogParser{
         let flagPositionData = [];
         let domPositionData = [];
         let itemPositionData = [];
+        let spawnLocData = [];
 
 
         for(let i = 0; i < lines.length; i++){
@@ -605,6 +611,10 @@ class LogParser{
 
                 itemPositionData.push(lines[i]);
 
+            }else if(spawnLocReg.test(lines[i])){
+
+                spawnLocData.push(lines[i]);
+
             }else if(nodeStatsReg.test(lines[i])){
        
                 nodeStatsData.push(lines[i]);
@@ -638,7 +648,9 @@ class LogParser{
         this.weaponData = weaponData;
         this.nodeStatsData = nodeStatsData;
         this.bunnyTrackData = bunnyTrackData;
+        this.spawnLocData = spawnLocData;
 
+        this.parseSpawnPositionData();
         this.parseItemLocationData();
         //this.parsePickupPositionData();
        // this.parseAmmoPositionData();
@@ -670,6 +682,40 @@ class LogParser{
             return false;
         }
 
+    }
+
+    parseSpawnPositionData(){
+
+
+        const reg = /^(\d+\.\d+)\tnstats\tspawn_loc\t(.+?)\t(.+?),(.+?),(.+?)$/i;
+
+        const data = [];
+
+        let d = 0;
+        let result = null;
+
+        for(let i = 0; i < this.spawnLocData.length; i++){
+
+            d = this.spawnLocData[i];
+
+            result = reg.exec(d);
+
+            if(result != null){
+
+                data.push({
+                    "time": parseFloat(result[1]),
+                    "player": parseInt(result[2]),
+                    "x": parseFloat(result[3]),
+                    "y":parseFloat(result[4]),
+                    "z":parseFloat(result[5])
+                });
+            }
+        }
+
+
+        console.table(data);
+
+        this.spawnLocData = data;
     }
 
     parseItemLocationData(){

@@ -449,7 +449,7 @@ class FTPImporter{
                 this.client.get(dir + file.name, (err, stream) =>{
 
                     if(err) {
-                        console.trace(err);
+                       // console.trace(err);
                         new Message("error",err);
                         resolve();
                        // return;
@@ -601,17 +601,30 @@ class FTPImporter{
                     this.readMapsDir();
                 }
 
+                //resolve();
+
             });
 
 
             this.client.on('end', (err) =>{
 
-                if(err) reject(err);
+                if(err) throw (err);
 
                 new Message("pass", "Finished downloading files from "+this.host+":"+this.port);
                 new Message("pass", "Disconnected from "+this.host+":"+this.port);
 
                 resolve();
+
+            });
+
+            this.client.on('error', (err) =>{
+
+                if(err){
+                    console.trace(err);
+                    new Message("error",err);
+                    reject(err);
+                }
+
 
             });
 
@@ -708,6 +721,8 @@ class FTPImporter{
 
             //console.table(this.previousImports);
         }catch(err){
+            new Message("error", err);
+            console.trace(err);
             throw err;
         }
         
