@@ -12,6 +12,7 @@ const Message = require('./message');
 const MonsterHunt = require('./monsterhunt');
 const Bunnytrack = require('./bunnytrack');
 const Rankings = require('./rankings');
+const Domination = require('./dom');
 
 
 
@@ -549,10 +550,27 @@ class Match{
 
                 resolve();
             });
-
-        });
-        
+        });   
     }
+
+    
+
+    async getDomCaps(id){
+
+        id = parseInt(id);
+
+        if(id != id){
+            id = 1;
+        }
+
+        const d = new Domination(id);
+
+        await d.getTotalCaps();
+
+        this.domCapTotals = d.capTotals;
+    
+    }
+    
 }
 
 

@@ -1458,6 +1458,7 @@ function defaultServer(){
             await maps.getAuthor(m.matchData.map);
             await maps.getSpawns(m.matchData.map);
             await maps.getPickups(id);
+            await maps.getDomPositions(m.matchData.map);
 
             m.matchData.spawns = maps.spawns;
             m.matchData.items = maps.items;
@@ -1483,6 +1484,7 @@ function defaultServer(){
 
 
             m.matchData.mapAuthor = maps.currentAuthor;
+            m.matchData.domPositions = maps.domPositions;
 
             res.render("match", {
                 "matchData": m.matchData, 
@@ -2301,6 +2303,28 @@ function defaultServer(){
             res.send("[]");
         }
 
+    });
+
+    app.get("/json/match/domcaps", (req, res) =>{
+
+        if(req.query.id != undefined){
+
+            const m = new Match();
+
+            m.getDomCaps(req.query.id).then(() =>{
+
+                res.send(m.domCapTotals);
+
+            }).catch((err) =>{
+
+                console.trace(err);
+                res.send("[]");
+            });
+
+        }else{
+
+            res.send("[]");
+        }
     });
 
     async function getFlagPositions(req, res){

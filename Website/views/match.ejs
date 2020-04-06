@@ -3927,6 +3927,9 @@ function displayInteractiveMap(){
         matchData.flagEvents = [];
     }
 
+    if(matchData.domPositions == undefined){
+        matchData.domPositions = [];
+    }
     %>
     <div class="default">
         <div class="default-header">
@@ -3952,6 +3955,7 @@ function displayInteractiveMap(){
                     <%- JSON.stringify(matchData.items) %>,
                     <%- JSON.stringify(matchData.flagKills) %>,
                     <%- JSON.stringify(matchData.flagEvents) %>,
+                    <%- JSON.stringify(matchData.domPositions) %>,
                     <%= matchData.match_start %>
                     
                 );

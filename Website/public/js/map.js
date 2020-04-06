@@ -2,7 +2,7 @@
 
 class InteractiveMap{
 
-    constructor(parent, details, players, spawns, items, flagKills, flagEvents, matchStart){
+    constructor(parent, details, players, spawns, items, flagKills, flagEvents, domPositions, matchStart){
 
         this.parent = document.getElementById(parent);
         this.details = details;
@@ -14,6 +14,7 @@ class InteractiveMap{
         this.players = players;
         this.flagKills = flagKills;
         this.flagEvents = flagEvents;
+        this.domPositions = domPositions;
         this.matchStart = matchStart;
 
        // console.log(this.spawns);
@@ -28,11 +29,13 @@ class InteractiveMap{
         this.blueFlag = new Image();
         this.greenFlag = new Image();
         this.yellowFlag = new Image();
+        this.domIcon = new Image();
 
         this.redFlag.src = "files/redflag.png";
         this.blueFlag.src = "files/blueflag.png";
         this.greenFlag.src = "files/greenflag.png";
         this.yellowFlag.src = "files/yellowflag.png";
+        this.domIcon.src = "files/domicon.png";
 
         this.bMouseDown = false;
 
@@ -83,6 +86,8 @@ class InteractiveMap{
             await this.loadFlagPositions();
 
             await this.loadSpawnData();
+
+            await this.loadDomTotalCaps();
         
         }catch(err){
             console.trace(err);
@@ -694,6 +699,7 @@ class InteractiveMap{
             let flagDropY = 0;
 
             if(this.flagDrops != undefined){
+                //console.table(this.flagDrops);
                 for(let i = 0; i < this.flagDrops.length; i++){
 
                     d = this.flagDrops[i];
@@ -712,12 +718,43 @@ class InteractiveMap{
                             updateTextBox(
                                 "Flag Drop Location", 
                                 this.getPlayerName(d.player_id)+" dropped the flag.", 
-                                ""
+                                "Timestamp: "+this.mmss(d.time - this.matchStart)
                             );
                         }
                     }
                 }
             }
+        }
+
+        c.fillStyle = "yellow";
+
+        //console.table(this.domPositions);
+
+        let domX = 0;
+        let domY = 0;
+        const domSize = this.pY(4) * this.zoom;
+
+        for(let i = 0; i < this.domPositions.length; i++){
+
+            d = this.domPositions[i];
+
+            domX = -this.xOffset + this.x(d.x);
+            domY = -this.yOffset + this.y(d.y);
+
+            if(mouseX >= domX && mouseX <= domX + domSize){
+
+                if(mouseY >= domY && mouseY <= domY + domSize){
+
+                    updateTextBox(
+                        "Domination Point", 
+                        d.name,
+                        "Capped a total of "+d.count+" times."
+                    );
+                }
+            }
+
+            c.drawImage(this.domIcon, this.x(d.x), this.y(d.y), domSize, domSize);
+
         }
 
         if(bShowBox){
@@ -948,34 +985,34 @@ class InteractiveMap{
         this.yOffset = 0;
         this.zOffset = 0;
 
-        let minX = 0;
-        let minY = 0;
+        let minX = null;
+        let minY = null;
         let minZ = 0;
 
-        let maxX = 0;
-        let maxY = 0;
+        let maxX = null;
+        let maxY = null;
         let maxZ = 0;
 
 
-        const updateMinMax = (d,i) =>{
+        const updateMinMax = (d) =>{
 
-            if(d.x < minX || i == 0){
+            if(d.x < minX || minX == null){
                 minX = d.x;
             }
 
-            if(d.x > maxX || i == 0){
+            if(d.x > maxX || maxX == null){
                 maxX = d.x;
             }
 
-            if(d.y < minY || i == 0){
+            if(d.y < minY || minY == null){
                 minY = d.y;
             }
 
-            if(d.y > maxY || i == 0){
+            if(d.y > maxY || maxY == null){
                 maxY = d.y;
             }
 
-            if(d.z != undefined){
+            /*if(d.z != undefined){
 
                 if(d.z < minZ || i == 0){
                     minZ = d.z;
@@ -984,33 +1021,41 @@ class InteractiveMap{
                 if(d.z > maxZ || i == 0){
                     maxZ = d.z;
                 }
-            }
+            }*/
 
         }
 
         let d = 0;
 
 
+       // console.table(this.spawns);
         for(let i = 0; i < this.spawns.length; i++){
 
             d = this.spawns[i];
 
-            updateMinMax(d, i);
+            updateMinMax(d);
         }
 
         for(let i = 0; i < this.items.length; i++){
 
             d = this.items[i];
 
-            updateMinMax(d, i);
+            updateMinMax(d);
         }
 
         for(let i = 0; i < this.kills.length; i++){
 
             d = this.kills[i];
-            updateMinMax({"x": d.victim_x, "y":d.victim_y}, 999);
-            updateMinMax({"x": d.killer_x, "y":d.killer_y}, 999);
+            updateMinMax({"x": d.victim_x, "y":d.victim_y});
+            updateMinMax({"x": d.killer_x, "y":d.killer_y});
 
+        }
+
+        for(let i = 0; i < this.domPositions.length; i++){
+
+            d = this.domPositions[i];
+
+            updateMinMax(d);
         }
 
         if(this.spawns.length > 0 || this.items.length > 0 || this.kills.length > 0){
@@ -1313,6 +1358,61 @@ class InteractiveMap{
             x.send();
 
         });
+    }
+
+
+    updateDomPositions(){
+
+
+        for(let i = 0; i < this.domPositions.length; i++){
+
+            this.domPositions[i].count = 0;
+        }
+
+        console.table(this.domPositions);
+
+        const updateCount = (name, value) =>{
+
+            for(let i = 0; i < this.domPositions.length; i++){
+
+                if(this.domPositions[i].name == name){
+                    this.domPositions[i].count = value;
+                    return;
+                }
+            }
+        }
+
+        for(let i = 0; i < this.domTotalCaps.length; i++){
+
+            updateCount(this.domTotalCaps[i].point_name, this.domTotalCaps[i].total_caps);
+
+        }
+
+        console.table(this.domPositions);
+    }
+
+
+    loadDomTotalCaps(){
+
+        return new Promise((resolve, reject) =>{
+
+            const x = new XMLHttpRequest();
+
+            x.onreadystatechange = () =>{
+
+                if(x.status == 200 && x.readyState == 4){
+
+                    this.domTotalCaps = JSON.parse(x.responseText);
+
+                    this.updateDomPositions();
+                    resolve();
+                }
+            }
+
+            x.open("get", "/json/match/domcaps?id="+this.details.matchId);
+            x.send();
+        });
+
     }
 
     tick(){

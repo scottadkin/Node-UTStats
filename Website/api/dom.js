@@ -123,6 +123,29 @@ class Dom{
             });
         });
     }
+
+
+    getTotalCaps(){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT point_name,COUNT(*) as total_caps FROM nutstats_dom_captures WHERE match_id=? GROUP BY point_name";
+
+            this.capTotals = [];
+
+            mysql.query(query, [this.matchId], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.capTotals = result;
+                }
+
+                resolve();
+            });
+        });
+    }
 }
 
 

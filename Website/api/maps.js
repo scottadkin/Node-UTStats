@@ -853,6 +853,39 @@ class Maps{
     }
 
 
+
+    getDomPositions(id){
+
+        id = parseInt(id);
+
+        if(id != id){
+            id = 1;
+        }
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT name,x,y,z FROM nutstats_dom_positions WHERE map_id=?";
+
+            this.domPositions = [];
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.domPositions = result;
+                }
+
+                resolve();
+
+            });
+
+        });
+
+        
+    }
+
 }
 
 
