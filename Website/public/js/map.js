@@ -16,7 +16,7 @@ class InteractiveMap{
         this.flagEvents = flagEvents;
         this.matchStart = matchStart;
 
-        console.log(this.spawns);
+       // console.log(this.spawns);
 
         this.spawnIcon = new Image();
         this.spawnIcon.src = "files/spawn.png";
@@ -77,10 +77,16 @@ class InteractiveMap{
 
 
 
-        await this.loadKills();
+        try{
+            await this.loadKills();
+            
+            await this.loadFlagPositions();
+
+            await this.loadSpawnData();
         
-        await this.loadFlagPositions();
-     
+        }catch(err){
+            console.trace(err);
+        }
 
 
        // console.table(this.kills);
@@ -449,19 +455,24 @@ class InteractiveMap{
 
                         
 
-                        if(d.team == 0){
-                            teamString = "Red";
-                        }else if(d.team == 1){
-                            teamString = "Blue";
-                        }else if(d.team == 2){
-                            teamString = "Green";
-                        }else if(d.team == 3){
-                            teamString = "Yellow";
+                        if(this.details.totalTeams >= 2){
+
+                            if(d.team == 0){
+                                teamString = "Red team";
+                            }else if(d.team == 1){
+                                teamString = "Blue team";
+                            }else if(d.team == 2){
+                                teamString = "Green team";
+                            }else if(d.team == 3){
+                                teamString = "Yellow team";
+                            }else{
+                                teamString = "Any team";
+                            }
                         }else{
-                            teamString = "Any";
+                            teamString = "Any Team";
                         }
 
-                        updateTextBox("Spawn Point", teamString+" team spawn.", d.name);
+                        updateTextBox("Spawn Point", teamString, d.count+" spawns during match.");
                     }
 
                 }
@@ -1156,6 +1167,52 @@ class InteractiveMap{
     }
 
 
+    updateSpawnCount(){
+
+
+        console.table(this.spawns);
+
+        for(let i = 0; i < this.spawns.length; i++){
+
+            this.spawns[i].count = 0;
+        }
+
+        console.table(this.spawns);
+
+
+        const updateSpawnCount = (x, y, z) =>{
+
+            let d = 0;
+
+            for(let i = 0; i < this.spawns.length; i++){
+
+                d = this.spawns[i];
+
+                if(d.x == x && d.y == y && d.z == z){
+                    this.spawns[i].count++;
+                    return;
+                }
+            }
+
+            console.log("spawn point not found for this spawn");
+        }
+
+        let d = 0;
+
+        for(let i = 0; i < this.spawnData.length; i++){
+
+            d = this.spawnData[i];
+
+            updateSpawnCount(d.x, d.y, d.z);
+
+        }
+
+
+        console.log(this.details);
+
+        //console.table(this.spawns);
+    }
+
     loadKills(){
 
         return new Promise((resolve, reject) =>{
@@ -1212,7 +1269,7 @@ class InteractiveMap{
 
                 if(x.status == 200 && x.readyState == 4){
 
-                    console.log(x.responseText);
+                    //console.log(x.responseText);
 
                     this.flagPositions = JSON.parse(x.responseText);
 
@@ -1231,6 +1288,32 @@ class InteractiveMap{
         });
     }
 
+    loadSpawnData(){
+
+        return new Promise((resolve, reject) =>{
+
+            const x = new XMLHttpRequest();
+
+            this.spawnData = [];
+
+            x.onreadystatechange = () =>{
+
+                if(x.status == 200 && x.readyState == 4){
+
+                    this.spawnData = JSON.parse(x.responseText);
+
+                    //console.table(this.spawnData);
+
+                    this.updateSpawnCount();
+                    resolve();
+                }
+            }
+
+            x.open("get", "/json/match/spawns?id="+this.details.matchId);
+            x.send();
+
+        });
+    }
 
     tick(){
 

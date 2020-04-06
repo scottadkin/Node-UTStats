@@ -520,8 +520,38 @@ class Match{
                 resolve();
             });
         });
+    }
 
 
+    getSpawns(id){
+
+        return new Promise((resolve, reject) =>{
+            
+            id = parseInt(id);
+
+            if(id != id){
+                id = 1;
+            }
+
+
+            const query = "SELECT id,player,x,y,z FROM nutstats_spawns WHERE match_id=?";
+
+            this.spawns = [];
+
+            mysql.query(query, [id], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != null){
+                    
+                    this.spawns = result;
+                }
+
+                resolve();
+            });
+
+        });
+        
     }
 }
 

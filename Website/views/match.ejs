@@ -3944,7 +3944,8 @@ function displayInteractiveMap(){
                     {
                         "name": "<%= matchData.mapName %>",
                         "matchId": <%= matchData.id %>,
-                        "mapId": <%= matchData.map %>
+                        "mapId": <%= matchData.map %>,
+                        "totalTeams": <%= matchData.total_teams %>
                     },
                     <%- JSON.stringify(players) %>,
                     <%- JSON.stringify(matchData.spawns) %>,

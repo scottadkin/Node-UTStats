@@ -2278,6 +2278,31 @@ function defaultServer(){
         }
     });
 
+
+
+
+    app.get("/json/match/spawns", (req, res) =>{
+
+        if(req.query.id != undefined){
+
+            const m = new Match();
+
+            m.getSpawns(req.query.id).then(() =>{
+
+                res.send(m.spawns);
+
+            }).catch((err) =>{
+                console.trace(err);
+                res.send("[]");
+            })
+
+        }else{
+
+            res.send("[]");
+        }
+
+    });
+
     async function getFlagPositions(req, res){
 
 
