@@ -1,0 +1,255 @@
+- Build 11 release notes(09/04/20)
+- The Website, Importer and Mutator are now combined into one package, you no longer need to install the server/importer module to each ut server now just add the server ftp details to the ftpServers array in Importer/api/config.js.
+- Added FTP support, you can now have an array of servers for the importer to download the logs from the utservers.
+- Added ACE logs importer to ftp.
+- Added ACE screenshot importer to ftp.
+- Added BTPlusPlus.ini importer to ftp.
+- Added BTGame.ini importer to ftp.
+- Ace screenshots are now moved after import to Logs/Imported/Ace-Shots/<month>-<year>.
+- BT record inis are now backed up daily via the latest import of that day to BT/Imported/<day>-<month>-<year> after being imported.
+- Already Imported .log/.jpg/.tmp files will not be downloaded from ftp servers.
+- Imported files from utservers are now backed up by default to another local folder to speed up the later imports(.log, .tmp, .jpg). If bDeleteFilesFromFTP is set to true they will be deleted locally.
+- Fixed crash while trying to import bt records.
+- Fixed headshots import.
+- Fixed team kills for non team games.
+- Fixed some logs failing to import after a bt log.
+- Fixed server MOTD lines not importing.
+- Fixed player pickups count being wrong if they reconnect.
+- Fixed player best spree & multi not resetting after death. (I'm an idiot :) )
+- Fixed grabbed and capped player being counted as assists in the flag captures area.
+- Fixed javascript error trying to access teams that don't exist for the kill graphs.
+- Fixed headshots not being merged if a player reconnects.
+- Fixed broken flag images on records page.
+- Fixed broken flag images on player page under possible aliases.
+- Fixed error message displayed if a map has had 0 matches played.
+- Fixed crash on website on players page when searching by first match.
+- Fixed domination point graph showing team colours that were not in the match.
+- Fixed Serbia flag being missing from package.
+- Added BTGame.ini records import, now both BTPlusPlus.ini and BTGame.ini records are imported via the btimport.js on the server module.
+- Added upgrade.js to website module that admins can run instead of making a fresh database from upgrading from version 9 and above.
+- Added a warning message if a log is a large size, so users know the difference between a crash/infinite loop and a large file.
+- Added mapList import, if you run "node mapimport" in the server module it will import every single map in your servers ./Maps/ folder. It will also set the file size of maps that have been imported from logs.
+- Added kill distance to the mutator, now the distance between kills are saved to the log.
+- Added shortest kill distance to matches and profiles for every player.
+- Added longest kill distance to matches and profiles for every player.
+- Added flag base locations to the mutator, now the flag base locations are saved to the log.
+- Added spawn point locations to the mutator.
+- Added weapon locations to the mutator.
+- Added pickup locations to the mutator.
+- Added Domination point locations to the mutator.
+- Added shortest and longest time between kills to the mutator.
+- Added player spawn locations to mutator.
+- Added extended flag kill data logging, now killer, victim, kill distance, distance to cap, and distance to base are now saved.
+- Added filename to match database, this will be used to delete duplicates from the admin panel.
+- Added extended flag kills information to match reports.
+- Added extended kill data to match pages, once the button is clicked the page will load all kill data that includes time, killer, victim, distance, weapon.
+- Added clickable headers to match sections, now you can link directly to the area you want to share.
+- Added headshots to frag performance if there was a headshot in the match.
+- Added player record imports to btimport, now players will have their records saved to their pages.
+- Added map bt records to map pages.
+- Updated style of pickup summary on match pages.
+- Updated style of player serach page, removed ugly search form and replaced it with clickable arrows next to table headers to specify sort order.
+- Updated style of maps serach page, added clickable arrows next to table headers to specify sort order instead of stupid dropdown box.
+- Merged Best multi kills and sprees in match pages to their respected areas instead of having separate areas.
+- Added match player individual stats, now if you click on a players name in a match report it will take you to their match performance page with extended data displayed.
+- Added player specific kills and deaths to match player individual stats.
+- Added player Killing Sprees Information to match player individual stats, this will show how long the spree was in kills, time, and how the spree ended.
+- Added clickable player match links to match weapon stats.
+- Added clickable player match links to domination point capture summary.
+- Added clickable player match links to pickups summary.
+- Added clickable player match links to ranking summary.
+- Added clickable player match links to team change summary.
+- Added clickable player match links to player connections summary.
+- Match pickup data now only displays players that have picked up 1 or more items to save scrolling time.
+- Updated style of match assault captured objectives.
+- Removed player connection history from match pages.
+
+- Build 10D release notes(09/01/20)
+- BT import now creates player profiles if the record owner doesn't exist.
+
+- Build 10C release notes(08/01/20)
+- Added BTPlusPlus.ini record importer.
+
+- Build 10B release notes(08/01/20)
+- Fixed broken flag images on bunnytrack pages.
+- Added merge player with ips to admin area.
+- Fixed player pages not responding if a player has no data.
+
+- Build 10 release notes(05/01/20)
+- Fixed efficiency displaying too many digits
+- Fixed gametype name being set to unknown gametype if the gametype is set to hidden for the ranking page.
+- Added scores to player search page.
+- Added kills to player search page.
+- Added deaths to player search page.
+- Added First Match to player search page.
+- Added sort by Score to player search page.
+- Added sort by Kills to player search page.
+- Added sort by Deaths to player search page.
+- Added sort by First Match to player search page.
+- Updated style of most played gametypes on homepage.
+- Updated style of most popular countries on homepage.
+- Updated style on rankings page.
+- Updated style on player search page.
+- Updated style on records page.
+- Updated style on match page.
+- Updated style on bunnytrack page.
+- New monster images, big thanks to Krull0r.
+- Added gametype search to records pages, this includes the main page, all time, and match record versions.
+- Fixed crash while importing some bunnytrack matches.
+- Fixed data not being displayed in bunnytrack matches.
+- Added Grab to Cap Ratio to player page.
+
+- Build 9d release notes(09/12/19)
+- Added best multi kill for each player to match pages.
+- Added best killing spree for each player to match pages.
+
+- Build 9c release notes(09/12/19)
+- Added flag returns table to ctf matches.
+
+- Build 9b release notes(07/12/19)
+- Fixed special events not being counted.
+- Removed readme.mds
+
+- Build 9 release notes(07/12/19):
+- REQUIRES NEW DATABASE INSTALL
+- Moved database install to the website module, thanks to ue for pointing how stupid that was. You now have to run "node install" for both modules to install the database(website module), and directories(server module).
+- Changed time strings to my new EpochToString module, will now display years - weeks - days - minutes - seconds, it will also not display just 1 day, it will display 1 day and 32 seconds ect.
+- Added tool to the admin area that creates thumbnails of all images current stored on server.
+- Added bulk image upload to admin area, this can be used to easily upload map screenshot packs(all files are converted and resized to 1920x1080).
+- Added single image file upload form next to each missing map name in admin panel, the image name is automatically changed to match the current selected map, and file type is converted to a jpg image.
+- Added config options to hide navigation options, Bunnytrack tab is now hidden by default. You can find these in config.js by the bNavDisplay<type>: true/false, restart is required for there settings to take effect.
+- Added face image upload in admin area, name is automatically set.
+- Changed how monster images are displayed, each different monster needs it's own file now.
+- Added monster image upload to admin area.
+- Fixed error caused by no frag data in ut server query.
+- Added option to merge players to admin area.
+- Added option to rename players to admin area.
+- Added option to delete players to admin area.
+- Gametype class is now saved to database from each match, this should help badly named gametypes to be imported and rendered correctly.
+- Fixed CTF events not being loaded in match page if the gametype has a custom name.
+- Added ACE support, now ACE logs and screenshots will be imported to the database.
+- Added alternative database install script, this can be used if your mysql user doesn't have permission to create databases.
+- Fixed empty server query box displaying on home page if no servers are set to be queried.
+- Added ACE kick log search to admin area.
+- Added basic site analytics to admin area.
+- Changed dm scoreboard if the gametype is battle royal.
+- Updated the kills match up data on match reports to fit better and bee easier to read.
+- Fixed missing mysql queries for installer.
+- Fixed weapon stats importing, weapon names are correctly imported now.
+- Fixed player profile best multi kill being 1 more than it should be.
+- Added option to admin area that allows admin to choose what gametypes are displayed on the rankings page.
+- Fixed green and yellow teams being displayed in the team kill graphs even if they were not in the match.
+- Added option to admin area that allows admin to choose what record types to display.
+- Fixed playtime record not being displayed on the records page.
+- Fixed players being on wrong team on match screenshots.
+- Added time and efficiency to players on smart ctf scoreboard.
+- Fixed duplicate weapon stats data for reconnected players in matches.
+- Fixed kills being wrong in matches.
+- Fixed weapon totals not being displayed on player pages.
+- Added total accuracy stat to player frag performance bar.
+- Map images on many parts of the site will now be thumbnail size instead of fullsize when available.
+
+- Build 8 release notes(10/11/19):
+
+- Added Nexgen Stats Viewer support.
+- Made the mutator log a random face texture if PlayerReplicationInfo.TalkTexture == None
+
+
+- Build 7c release notes(09/11/19):
+
+- Fixed installer script.
+
+- Build 7b release notes(08/11/19):
+
+- Fixed logic error for inserting kills into the database.
+
+- Build 7 release notes(08/11/19):
+
+- Fixed broken flag image links on rankings, records, and match pages.
+- Added view image option to admin area for map images.
+- Added view image option to admin area for monster images.
+- Added face images to admin faces area.
+- Added users can now connect directly to a utserver by clicking the server ip link on a server box on the homepage.
+- Fixed country flag size on rankings page.
+- Fixed country flag size and position on match frag performance area.
+- Fixed country flag size and position on match Multi kills and sprees area.
+- Fixed country flag size and position on match weapon stats area.
+- Fixed country flag size and position on match ranking change area.
+- Fixed country flag size and position on match connections area.
+- Fixed country flag size and position on match kills match up area.
+- Fixed country flag size and position on player search page.
+- Fixed country flag size and position on records main page.
+- Updated recent match boxes to include the server name (Every page).
+- Fixed text overflow on gametype boxes on player pages.
+- Updated the style of match pickups.
+
+- Build 6e release notes(07/11/19):
+
+- Fixed broken flag image links on ranking, records, and match pages.
+
+- Build 6d release notes(06/11/19):
+
+- Fixed broken flag image links on Linux machines.
+
+- Build 6c release notes(05/11/19):
+
+- Fixed match import if killer is empty in log.
+
+- Build 6b release notes(05/11/19):
+
+- Fixed "Can't find package Promise" even when it was installed.
+- Fixed crash when no UT Servers are set to be queried.
+
+- Build 6 release notes(04/11/19):
+
+- Added order types to player searches, you can now order by total matches, total time, last seen, and name. This includes ASC and DESC order.
+- Fixed searches not returning more that the first page or data for player searches.
+- Added more options to map search, you can now search for map name, map title, and map author. You can order the search by map name, map title, map author, total matches, total playtime, last match, and first match in ASC and DESC order.
+- Updated style of map search page.
+- Updated style of map page.
+- Updated style of player search page.
+- Updated style of player profile pages.
+- Updated the colours for teams throughout the site.
+- Added mouse over event for every flag image that displays the country name.
+- Fixed client side javascript accessed null on match page.
+
+- Build 5 release notes:
+
+- Fixed crash if a server is added to the query list if the server address is not a valid ip or address (Website).
+- Added reimport script, if you upgrade to a new build(that requires a new database) and want to import all previous logs imported, you can
+use the command "node reimport" to import all valid logs from ../Logs/imported/
+
+- Build 4 release notes:
+
+- Added player connection events to match pages.
+- Added last import time at bottom of home page.
+
+
+- Build 3 release notes:
+
+- Added UT server queries, you can now specify a number of ut servers you want to query every X minutes. 
+These will then be displayed on the homepage displaying the map image, current player count, server ip:port, and when the server was last queried.
+Servers that use a dynamic dns will still work without problem whenever the server ip changes, and the correct ip:port will be displayed.
+
+- Added a new admin area for managing ut server queries.
+
+- Fixed monster file image status in admin area.
+
+- Added pickups data to match pages, this displays every single weapon, ammo, and powerups for every player.
+
+- Added site hits counter at the bottom of the home page.
+
+
+- Build 2 release notes
+
+Upgrading from beta build 1:
+- The only package that has changed is the website module so there is no need to replace the other packages, or reinstall the databases.
+
+Change Log:
+
+- Added views counter to match pages.
+- Added views counter to profile pages.
+- Updated the style so data is easier to read.
+- Changed the DM scoreboard so it is the same order as in-game.
+
+

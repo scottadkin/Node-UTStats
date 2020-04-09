@@ -61,7 +61,7 @@ class InteractiveMap{
         };
 
 
-        this.zoom = 1;
+        this.zoom = 0.5;
 
 
         this.xOffset = 0;
@@ -163,8 +163,8 @@ class InteractiveMap{
                // console.log(e);
                // this.xOffset += Math.random() * 5;
 
-               this.xOffset += (e.movementX * 4);
-               this.yOffset += (e.movementY * 6);
+               this.xOffset += (e.movementX * 3);
+               this.yOffset += (e.movementY * 3);
             }
         });
 
@@ -233,7 +233,7 @@ class InteractiveMap{
         const elem = document.createElement("canvas");
         elem.height = window.innerHeight * 0.8;// * 0.5625;
         elem.width = elem.height * 1.7777;
-        elem.style.cssText = "display:block;margin-left:auto;margin-right:auto;border:1px solid rgb(12,12,12);box-shadow:1px 1px 1px rgba(0,0,0,0.5)";
+        elem.style.cssText = "display:block;margin-left:auto;margin-right:auto;border:1px solid rgb(12,12,12);box-shadow:1px 1px 1px rgba(0,0,0,0.5);user-select:none;";
 
         this.parent.appendChild(elem);
 
@@ -1089,6 +1089,10 @@ class InteractiveMap{
         this.maxX = maxX;
         this.minY = minY;
         this.maxY = maxY;
+
+        this.xOffset = maxX * 0.5;
+        this.yOffset = maxY * 0.5;
+
         this.render();
        
     }

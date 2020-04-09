@@ -274,6 +274,7 @@ class FTPImporter{
                     await this.insertMap([this.maps[i].name, this.maps[i].size]);
                 }
             }
+            
         }catch(err){
             console.trace(err);
 

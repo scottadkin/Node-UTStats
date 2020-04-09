@@ -2548,3 +2548,19 @@ caption{
 .white{
     color:white;
 }
+
+.goto-player{
+    text-Align:center;
+    display:inline-block;
+    font-weight:300;
+    font-size:24px;
+    padding:25px 5px;
+    background-color:rgb(6,6,6);
+    border:1px solid rgba(255,255,255,0.25);
+    box-shadow:1px 1px 1px rgba(0,0,0,0.5);
+    transition:all 0.5s;
+}
+
+.goto-player:hover{
+    background-color:rgb(12,12,12);
+}

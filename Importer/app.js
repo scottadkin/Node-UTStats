@@ -6,8 +6,8 @@ const config = require('./api/config');
 new Message("startup","--------------------------------------------------");
 new Message("startup","--------------------------------------------------");
 new Message("startup","------- Node UTStats Import Module Started -------");
-new Message("startup","---------- Created by Scott Adkin -----------------");
-new Message("startup","---------- Build February 2020 --------------------");
+new Message("startup","---------- Created by Scott Adkin ----------------");
+new Message("startup","---------- Build April 2020 ----------------------");
 new Message("startup","---- To change settings go to /api/config.js -----");
 new Message("startup","--------------------------------------------------");
 

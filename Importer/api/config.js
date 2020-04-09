@@ -4,7 +4,7 @@ const Config = {
     host:"localhost", //database host
     user:"root",    //database user
     password:"", // database password
-    database:"node_utstats", // database name
+    database:"1337node_utstats", // database name
     port: "3306",   //database port
 
     ftpServers: [
@@ -15,8 +15,8 @@ const Config = {
 
     bDeleteFilesFromFTP: false, //set to false if you want them to be backed up on the utserver as well
     backupFolder: "Logs/imported/",
-    bImportBTRecords: true,
-    bImportMaps: true,
+    bImportBTRecords: false,
+    bImportMaps: false,
 
     bIgnoreBots: false,
     bIgnoreDuplicates: false,

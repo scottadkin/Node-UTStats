@@ -141,7 +141,8 @@ function updateQuery(q){
         mysql.query(q, (err) =>{
 
             if(err){
-                reject(err);
+                //console.trace(err);
+                new Message("error", err);
             }else{
 
                 new Message("pass", q);

@@ -186,6 +186,7 @@ class Countries{
             {"name": "Qatar", "code": "QA"},
             {"name": "Reunion", "code": "RE"},
             {"name": "Romania", "code": "RO"},
+            {"name": "Serbia", "code": "RS"},
             {"name": "Russian Federation", "code": "RU"},
             {"name": "RWANDA", "code": "RW"},
             {"name": "Saint Helena", "code": "SH"},
