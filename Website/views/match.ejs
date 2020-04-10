@@ -165,13 +165,13 @@ function getWinningTeamHeader(){
             winningScore = matchData.teamscore_3;
         }
 
-        string = teamName + " Team wins the match with "+winningScore+" points.";
+        string = teamName + " Team wins the match with "+winningScore+" points";
 
 
 
     }else{
 
-        string = matchData.dm_winner+" wins the match with "+matchData.dm_winner_score+" frags."
+        string = matchData.dm_winner+" wins the match with "+matchData.dm_winner_score+" frags"
     }
 
 
@@ -226,11 +226,37 @@ function getMonthName(m){
         case 11: {   return "December"; } break;
     }
 }
+
+let ogTitle = matchData.mapName+" ("+matchData.gametypeName+") at "+hours+":"+minutes+" "+getDayName(dayOfWeek)+" "+day+" "+getMonthName(month)+" "+year+" match report";
+let ogDescription =  matchData.gametypeName + " on "+matchData.mapName +" Match length was "+getMMSS()+", date of match "+hours+":"+minutes+" "+getDayName(dayOfWeek)+" "+day+" "+getMonthName(month)+" "+year+", "+getWinningTeamHeader() +", total players "+matchData.total_players+".";
+
+
+if(bPlayer){
+
+    const ogPlayer = getPlayer(playerId);
+
+    if(ogPlayer != null){
+
+       // console.log(ogPlayer);
+
+        ogTitle = ogPlayer.name+" individual report for "+ogTitle;
+        ogDescription = ogPlayer.name+" individual report for "+ogDescription;
+    }
+
+}
+
 %>
+
 
 <%-
 
-    include("../partials/header.ejs", {"title": matchData.mapName+" ("+matchData.gametypeName+") at "+hours+":"+minutes+" "+getDayName(dayOfWeek)+" "+day+" "+getMonthName(month)+" "+year+" match report", "ogImage": ogImageUrl, "description": getWinningTeamHeader() + " " + matchData.gametypeName + " on "+matchData.mapName + ". "+matchData.total_players+" players played this match. Match length was "+getMMSS()});
+
+    include("../partials/header.ejs", 
+        {
+        "title": ogTitle, 
+        "ogImage": ogImageUrl, 
+        "description": ogDescription
+        });
 %>
 
 
@@ -1360,7 +1386,7 @@ function displayMatchSummary(){
                 player = {"name": "Not Found", "flag": "xx"}
             }
             %>
-            <div class="default-header">Individual Game Stats For <img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %></div>
+            <div class="default-header">Individual Game Stats For <a style="color:yellow;" href="/player?id=<%= player.player_id %>"><img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %></a></div>
             <%
         }else{
 
@@ -4007,23 +4033,6 @@ function displayInteractiveMap(){
 
 displayMatchSummary();
 
-if(bPlayer){
-
-    const player = getPlayer(playerId, 0);
-
-    console.table(player);
-
-    %>
-    <div class="default text-center">
-        <a class="white" href="/player?id=<%= player.player_id %>">
-            <div class="goto-player">
-                Go to <img src="files/flags/<%= player.flag %>.png" alt="flag"> <%= player.name %> Profile Page
-            </div>
-        </a>    
-    </div>
-    <%
-
-}
 
 
 

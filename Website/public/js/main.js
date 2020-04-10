@@ -1151,6 +1151,10 @@ class PickupsDisplay{
         console.table(this.pickupData);
         console.table(this.players);
 
+        if(this.pickupTypes.length <= 0){
+            return;
+        }
+
         string += `<a href="#pickups"><div class="default-header" id="pickups">
                 Pickup Summary
             </div></a>
