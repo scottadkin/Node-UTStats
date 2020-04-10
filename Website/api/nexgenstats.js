@@ -162,7 +162,29 @@ class NexgenStats{
         }).catch((err) =>{
             console.log(err);
         });*/
+    }
 
+
+    getSettings(){
+
+
+        return new Promise((resolve, reject) =>{
+        
+            this.settings = [];
+
+            const query = "SELECT * FROM nutstats_nexgen_stats ORDER BY order_position";
+
+            mysql.query(query, (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+                    this.settings = result;
+                }
+
+                resolve();
+            });
+        });
     }
 }
 

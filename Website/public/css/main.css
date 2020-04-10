@@ -2351,21 +2351,21 @@ svg{
 .admin-gametypes{
     display:grid;
     grid-template-columns: 50% 20% auto;
-    line-height:48px;
+    line-height:32px;
     max-width:750px;
 }
 
 .admin-records{
     display:grid;
     grid-template-columns: 50% 50%;
-    line-height:48px;
+    line-height:32px;
     max-width:750px;
 }
 
 .admin-gametypes div, .admin-records div{
-    height:48px;
+    height:32px;
     text-align:center;
-    font-size:18px;
+    font-size:16px;
 }
 
 .admin-gametypes div:nth-child(1), .admin-records div:nth-child(1){
@@ -2373,8 +2373,9 @@ svg{
     text-align:left;
 }
 .admin-gametypes img, .admin-records img{
-    height:64px;
-    margin-top:-8px;
+    height:46px;
+    margin-top:-7px;
+
 }
 
 .admin-gametypes img:hover, .admin-records img:hover{

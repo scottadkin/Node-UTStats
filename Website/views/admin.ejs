@@ -1626,6 +1626,18 @@ function displayRecords(){
     <%
 }
 
+function displayNexgenStats(){
+
+    %>
+    <div class="admin-info">
+        <div class="default-header">Nexgen Stats</div>    
+        <div class="admin-info-text">
+            Here you can set up your what data your Unreal Tournament server can fetch for the Nexgen Stats plugin, there are a max of 30 players in total from all the categories you have selected. 
+        </div>
+    </div>
+    <%
+}
+
 if(req.session.userId == undefined && req.session.bLoggedIn == undefined){
 
     displayLoginArea();
@@ -1694,6 +1706,12 @@ if(req.session.userId == undefined && req.session.bLoggedIn == undefined){
                         Manage Ace Kick Logs
                     </div>
                 </a> 
+                <a href="/admin?mode=nexgen-stats">
+                    <div class="admin-options">
+                        <img src="files/worldwide.png" alt="icon"/>
+                        Nexgen Stats Viewer
+                    </div>
+                </a>
                 <a href="/admin?mode=stats">
                     <div class="admin-options">
                         <img src="files/worldwide.png" alt="icon"/>
@@ -1729,6 +1747,8 @@ if(req.session.userId == undefined && req.session.bLoggedIn == undefined){
         displayRankings();
     }else if(mode == "records"){
         displayRecords();
+    }else if(mode == "nexgen-stats"){
+        displayNexgenStats();
     }else{
 
         displayStats();

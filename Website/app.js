@@ -28,6 +28,7 @@ const Stats = require('./api/stats');
 const ACE = require('./api/ace');
 const Jimp = require('jimp');
 const fs = require('fs');
+const NexgenStats = require('./api/nexgenstats');
 
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
@@ -903,10 +904,7 @@ function defaultServer(){
 
                 const c = new Countries();
 
-                console.log(req.body);
-                console.log(req.body);
-                console.log(req.body);
-                console.log(req.body);
+
                 console.log(req.body);
 
                 players.getPlayerNames().then(() =>{
@@ -1010,6 +1008,19 @@ function defaultServer(){
                 });
                
                
+            }else if(mode == "nexgen-stats"){
+                
+                const n = new NexgenStats(res);
+
+                n.getSettings().then(() =>{
+
+                   res.render("admin", {"req": req, "config": config, "nexgenSettings": n.settings});
+                   
+                }).catch((err) =>{
+
+                    res.render("error",{"message": "There was a problem loading nexgen stats: ("+err+")","req": req, "config": config});
+                });
+
             }else{
 
 
