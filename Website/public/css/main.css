@@ -2196,8 +2196,7 @@ svg{
 
 .admin-servers{
     display:grid;
-    grid-template-columns: 30% 15% 15% 20% 20%;
-    
+    grid-template-columns: 30% 15% 13% 12% 18% 12%;
 }
 
 .admin-servers div{

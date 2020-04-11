@@ -156,13 +156,13 @@ class Servers{
 
 
 
-    addServer(ip, port){
+    addServer(ip, port, hostname){
 
         return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nutstats_server_query_servers VALUES(NULL,'',?,?,'',0,0,0)";
+            const query = "INSERT INTO nutstats_server_query_servers VALUES(NULL,'',?,?,?,'',0,0,0)";
 
-            mysql.query(query, [ip, port], (err) =>{
+            mysql.query(query, [ip, port, hostname], (err) =>{
 
                 if(err) reject(err);
 
