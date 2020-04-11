@@ -138,7 +138,10 @@ const queries = [
       ADD PRIMARY KEY (id);`,
 
       `ALTER TABLE nutstats_nexgen_stats
-      MODIFY id int(11) NOT NULL AUTO_INCREMENT;`
+      MODIFY id int(11) NOT NULL AUTO_INCREMENT;`,
+
+      `ALTER TABLE nutstats_server_query_servers
+      ADD hostname varchar(100) NOT NULL AFTER port`
 
 
 
