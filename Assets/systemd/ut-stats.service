@@ -1,0 +1,17 @@
+[Unit]
+Description=UnrealTournament Stats WebSite
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ut-stats/Website
+ExecStart=/usr/bin/node app
+RemainAfterExit=yes
+StandardOutput=syslog
+StandardError=syslog
+#User=ut-stats
+#Group=ut-stats
+SyslogIdentifier=ut-stats
+
+[Install]
+WantedBy=multi-user.target
