@@ -827,6 +827,7 @@ class Installer{
                   name varchar(100) NOT NULL,
                   ip varchar(100) NOT NULL,
                   port int(11) NOT NULL,
+                  hostname varchar(100) NOT NULL,
                   map varchar(100) NOT NULL,
                   current_players int(11) NOT NULL,
                   max_players int(11) NOT NULL,

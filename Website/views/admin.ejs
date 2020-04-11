@@ -894,7 +894,8 @@ function displayServers(){
 
             <div class="data-default yellow admin-servers">
                 <div>Server Name</div>    
-                <div>Server IP</div>   
+                <div>Server IP</div>
+                <div>Server hostname</div>
                 <div>Current Players</div>  
                 <div>Current Map</div>
                 <div>Last Query</div>
@@ -906,7 +907,8 @@ function displayServers(){
                 %>
                 <div class="data-default admin-servers">
                     <div><%= servers[i].name %></div>    
-                    <div><%= servers[i].ip %>:<span class="yellow"><%= servers[i].port %></span></div>   
+                    <div><%= servers[i].ip %>:<span class="yellow"><%= servers[i].port %></span></div>
+                    <div><%= servers[i].hostname ? servers[i].hostname : '-'  %></div>
                     <div><%= servers[i].current_players %> / <%= servers[i].max_players %></div>  
                     <div><%= servers[i].map %></div>
                     <div class="date"><%= servers[i].fetched %></div>
@@ -928,6 +930,10 @@ function displayServers(){
                     <div class="form-row-admin">
                         <div>Server Port</div>
                         <div><input type="text" class="default-textbox" name="port" placeholder="Server Port"/></div>
+                    </div>
+                    <div class="form-row-admin">
+                        <div>Server Hostname (optional)</div>
+                        <div><input type="text" class="default-textbox" name="hostname" placeholder="Server Hostname"/></div>
                     </div>
                     <input type="hidden" name="type" value="add"/>
                     <input type="submit" class="form-button" value="Finish"/>  

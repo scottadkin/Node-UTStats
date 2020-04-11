@@ -639,7 +639,7 @@ function displayServers(){
                     %><div class="home-servers">
                         <div><img src="files/logo1.png" alt="icon"></div>
                         <div><%= d.server_name %></div>
-                        <div class="yellow"><%= d.ip %>:<%= d.port %></div>
+                        <div class="yellow"><%= d.hostname ? d.hostname : d.ip %>:<%= d.port %></div>
                         <div>Last <span class="date"><%= d.last %></span></div>
                         <div><%= d.matches %> Matches</div>
                         <div><%= hours %> Hours</div>
@@ -752,7 +752,7 @@ function displayQueryServers(){
                     <%= d.name %>
                 </div>
                 <div>
-                    <a style="color:yellow" href="unreal://<%= d.ip+":"+d.port %>"> <%= d.ip+":"+d.port %></a>
+                    <a style="color:yellow" href="unreal://<%= (d.hostname ? d.hostname : d.ip)+":"+d.port %>"> <%= (d.hostname ? d.hostname : d.ip)+":"+d.port %></a>
                 </div>
                 <div class="m-o" data-title="Players currently on server" data-content="<%=  currentPlayerString %>">
                     <%= d.current_players+"/"+d.max_players %> Players

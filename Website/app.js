@@ -332,7 +332,7 @@ function defaultServer(){
 
                 if(req.body.type == "add" && req.body.ip != undefined && req.body.port != undefined){
 
-                    servers.addServer(req.body.ip, req.body.port).then(() =>{
+                    servers.addServer(req.body.ip, req.body.port, req.body.hostname).then(() =>{
                 
                         return servers.getQueryServers(true);        
     
