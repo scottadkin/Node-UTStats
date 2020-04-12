@@ -1652,11 +1652,65 @@ function displayNexgenStats(){
             Current Nexgen Stats Display
         </div>
 
-        <pre>
-        <%=
-            dataString
+
+        <%
+            //dataString
+            (() =>{
+
+                const lineReg = /(.+?)\n/ig;
+
+                const playerReg = /addplayer "(.+?)" (.+?) (.+?) (.+)/i;
+                const headerReg = /beginlist "(.+)"/i;
+
+                let result = 1;
+                let subResult  = 1;
+                let iconImage = "";
+
+                
+                do{
+                    result = lineReg.exec(dataString);
+                    if(result != null){
+                        console.log(result[1]);
+
+           
+
+                        subResult = playerReg.exec(result[1]);
+                        //console.log(playerReg.exec(result[1]));
+
+                        if(subResult != null){
+
+                            iconImage = subResult[4];
+
+                            if(iconImage == "nc"){
+                                iconImage = "nochange";
+                            }
+                            %>
+                            <div class="nexgen-player">
+                                <div>
+                                    <img src="files/flags/<%= subResult[3] %>.png" alt="flag"> <%= subResult[1] %>    
+                                </div>  
+                                <div>
+                                    <%= subResult[2] %> <img src="files/<%= iconImage %>.png" alt="icon">
+                                </div>
+                            </div>
+                            <%
+                        }else{
+
+                            subResult = headerReg.exec(result[1]);
+                            %>
+                            <div class="nexgen-header">
+                                <%= subResult[1] %>    
+                            </div>
+                            <%
+                        }
+                    }
+
+
+                }while(result != null);
+
+            })();
         %>
-        </pre>
+  
     </div>
 
     <div class="default">

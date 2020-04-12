@@ -333,7 +333,7 @@ class NexgenStats{
                     arrowString = "nc";
                 }
                 
-                string += 'addplayer "'+d.name+'"  '+d.value+' '+d.flag+' '+arrowString+'\n';
+                string += 'addplayer "'+d.name+'" '+d.value+' '+d.flag+' '+arrowString+'\n';
                 //string += 'addplayer "'+d.data[x].name+'" '+d.data[x].ranking+' '+d.data[x].flag+' '+arrowString+'\n';
             }
 

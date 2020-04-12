@@ -1024,7 +1024,7 @@ function defaultServer(){
 
                 }).then(() =>{
 
-                    return n.displayDataAlt();
+                    return n.setDataString();
 
                 }).then(() =>{
 
