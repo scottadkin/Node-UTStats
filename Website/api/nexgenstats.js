@@ -2,6 +2,7 @@ const mysql = require('./database');
 const Promise = require('promise');
 const Rankings = require('./rankings');
 const Players = require('./players');
+const Gametype = require('./gametype');
 const config = require('./config');
 
 
@@ -13,6 +14,8 @@ class NexgenStats{
         this.res = res;
 
         this.playerIds = [];
+
+        this.topPlayers = [];
 
         this.rankings = new Rankings();
         this.players = new Players();
@@ -107,7 +110,7 @@ class NexgenStats{
 
     
 
-    getData(){
+    getData_old(){
 
 
         const promises = [];
@@ -162,6 +165,182 @@ class NexgenStats{
         }).catch((err) =>{
             console.log(err);
         });*/
+    }
+
+
+    /*getRankingCategory(category, players){
+
+        return new Promise((resolve, reject) =>{
+
+            return this.rankings.getTopPlayersGametype(category, players)
+        });
+    }*/
+
+
+    getTopPlayers(gametype, category, players, name){
+
+        gametype = parseInt(gametype);
+
+        switch(category){
+
+            case 2: { category = "kills"; } break;
+            case 3: { category = "deaths"; } break;
+            case 4: { category = "flag_caps"; } break;
+            case 5: { category = "flag_kills"; } break;
+            case 6: { category = "flag_covers"; } break;
+            case 7: { category = "flag_grabs"; } break;
+            case 8: { category = "flag_assists"; } break;
+            default: { category = "kills" } break;
+        }
+        
+
+        const query = "SELECT name,flag,"+category+" as value FROM nutstats_player_totals WHERE gametype=? ORDER BY "+category+" DESC LIMIT ?";
+
+
+        return new Promise((resolve, reject) =>{
+
+            mysql.query(query, [gametype, players], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+
+                    this.topPlayers.push(
+                        {
+                            "name": name,
+                            "type:": category,
+                            "gametype": gametype,
+                            "data": result
+                        }
+                    );
+                    console.log(this.topPlayers);
+                }
+
+                resolve();
+            });
+        });
+    }
+
+    getGametypeName(g,id){
+
+        for(let i = 0; i < g.gametypeNames.length; i++){
+
+            if(g.gametypeNames[i].id == id){
+                return g.gametypeNames[i].name;
+            }
+        }
+
+        return null;
+    }
+
+    getTopRankings(gametype, players, name){
+
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "SELECT id,name,flag,ranking as value,ranking_diff FROM nutstats_player_totals WHERE gametype=? ORDER BY ranking DESC LIMIT ?";
+
+            mysql.query(query, [gametype, players], (err, result) =>{
+
+                if(err) reject(err);
+
+                if(result != undefined){
+                    this.topPlayers.push(
+                        {
+                        "name": name,
+                        "data": result
+                        }
+                    );
+                }
+                resolve();
+            });
+        });
+    }
+
+    async getData(){
+
+        const g = new Gametype();
+
+        await g.getGametypeNames();
+        await this.getSettings();
+
+         
+
+        let d = 0;
+        let currentGametypeName = "";
+
+        for(let i = 0; i < this.settings.length; i++){
+
+            d = this.settings[i];
+
+            console.log("type = "+d.type);
+            if(parseInt(d.type) == 1){
+
+                currentGametypeName = this.getGametypeName(g, d.gametype_id)
+
+                if(currentGametypeName != null){
+                    await this.getTopRankings(d.gametype_id, d.players, d.name);
+                }else{
+                    console.log("currentGametypeName is NULL");
+                }
+               // console.log("this.rankings.data");
+               // console.table(this.rankings.currentData[0].data);
+
+            }else{
+
+                await this.getTopPlayers(d.gametype_id, d.type, d.players, d.name)
+
+            }
+
+        }
+
+    }
+
+    async setDataString(){
+        
+        let string = "";
+        let arrowString = "nc";
+
+        let d = 0;
+
+
+       //console.table(this.topPlayers);
+
+        let currentRankingDiff = 0;
+
+        for(let i = 0; i < this.topPlayers.length; i++){
+
+            for(let x = 0; x < this.topPlayers[i].data.length; x++){
+
+                d = this.topPlayers[i].data[x];
+
+                if(x == 0){
+                    string += 'beginlist "'+this.topPlayers[i].name+'"\n';
+                }
+
+                if(d.ranking_diff != undefined){
+
+                    currentRankingDiff = parseInt(d.ranking_diff);
+
+                    if(currentRankingDiff == 0){
+                        arrowString = "nc";
+                    }else if(currentRankingDiff > 0){
+                        arrowString = "up";
+                    }else{
+                        arrowString = "down";
+                    }
+                }else{
+                    arrowString = "nc";
+                }
+                
+                string += 'addplayer "'+d.name+'"  '+d.value+' '+d.flag+' '+arrowString+'\n';
+                //string += 'addplayer "'+d.data[x].name+'" '+d.data[x].ranking+' '+d.data[x].flag+' '+arrowString+'\n';
+            }
+
+        }
+
+
+        this.dataString = string;
     }
 
 

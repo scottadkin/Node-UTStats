@@ -234,6 +234,9 @@ class Gametype{
 
     getGametypeId(name){
 
+       // console.log("name = "+name);
+
+
         name = name.toLowerCase();
 
         
@@ -257,8 +260,32 @@ class Gametype{
     }
 
 
+    getName(id){
+
+        id = parseInt(id);
+
+        if(id != id){
+            id = -1;
+        }
+
+        for(let i = 0; i < this.names.length; i++){
+
+            if(this.names[i].id == id){
+                return this.names[i].name;
+            }
+        }
+        return null;
+    }
+
     getCurrentGametype(name){
 
+        //if(Number.isInteger(name)){
+
+          //  name = this.getName(name);
+        //}
+
+       // console.log("is interger = ");
+       // console.log("name = "+name);
         name = name.toLowerCase();
 
         if(this.currentGametypes.length > 0){
@@ -327,6 +354,7 @@ class Gametype{
 
         });
     }
+
 
 }
 

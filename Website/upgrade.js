@@ -130,6 +130,7 @@ const queries = [
         id int(11) NOT NULL,
         gametype_id int(11) NOT NULL,
         name varchar(50) NOT NULL,
+        type int(11) NOT NULL,
         players int(11) NOT NULL,
         order_position int(11) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
@@ -141,7 +142,20 @@ const queries = [
       MODIFY id int(11) NOT NULL AUTO_INCREMENT;`,
 
       `ALTER TABLE nutstats_server_query_servers
-      ADD hostname varchar(100) NOT NULL AFTER port`
+      ADD hostname varchar(100) NOT NULL AFTER port`,
+
+      `CREATE TABLE nutstats_settings (
+        id int(11) NOT NULL,
+        type varchar(100) NOT NULL,
+        name varchar(50) NOT NULL,
+        value varchar(500) NOT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
+
+      `ALTER TABLE nutstats_settings
+      ADD PRIMARY KEY (id);`,
+
+      `ALTER TABLE nutstats_settings
+      MODIFY id int(11) NOT NULL AUTO_INCREMENT;`
 
 
 

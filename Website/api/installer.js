@@ -1052,6 +1052,7 @@ class Installer{
                   id int(11) NOT NULL,
                   gametype_id int(11) NOT NULL,
                   name varchar(50) NOT NULL,
+                  type int(11) NOT NULL,
                   players int(11) NOT NULL,
                   order_position int(11) NOT NULL
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
@@ -1060,6 +1061,19 @@ class Installer{
                 ADD PRIMARY KEY (id);`,
           
                 `ALTER TABLE nutstats_nexgen_stats
+                MODIFY id int(11) NOT NULL AUTO_INCREMENT;`,
+
+                `CREATE TABLE nutstats_settings (
+                  id int(11) NOT NULL,
+                  type varchar(100) NOT NULL,
+                  name varchar(50) NOT NULL,
+                  value varchar(500) NOT NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
+          
+                `ALTER TABLE nutstats_settings
+                ADD PRIMARY KEY (id);`,
+          
+                `ALTER TABLE nutstats_settings
                 MODIFY id int(11) NOT NULL AUTO_INCREMENT;`
 
   

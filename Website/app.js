@@ -1010,12 +1010,26 @@ function defaultServer(){
                
             }else if(mode == "nexgen-stats"){
                 
+                const g = new Gametype();
                 const n = new NexgenStats(res);
 
                 n.getSettings().then(() =>{
 
-                   res.render("admin", {"req": req, "config": config, "nexgenSettings": n.settings});
+                    return g.getGametypeNames();
+                    
                    
+                }).then(() =>{
+
+                    return n.getData();
+
+                }).then(() =>{
+
+                    return n.displayDataAlt();
+
+                }).then(() =>{
+
+                    res.render("admin", {"req": req, "config": config, "nexgenSettings": n.settings, "gametypes": g.gametypeNames, "dataString": n.dataString});
+
                 }).catch((err) =>{
 
                     res.render("error",{"message": "There was a problem loading nexgen stats: ("+err+")","req": req, "config": config});
@@ -2485,14 +2499,33 @@ function defaultServer(){
         }
     });
 
+    async function displayNexgenStats(res){
+
+        const n = new NexgenStats(res);
+        
+        try{
+            await n.getData();
+            await n.setDataString();
+            res.send(n.dataString);
+        }catch(err){
+            console.trace(err);
+            console.log(err);
+        }
+    }
 
     app.get('/nexgenstats', (req, res) =>{
 
-        const n = require('./api/nexgenstats');
+        
 
-        const test = new n(res);
-        test.getData();
 
+        displayNexgenStats(res);
+        
+
+    });
+
+    app.post('/admin/nexgen/', (req, res) =>{
+
+        res.send("meow");
     });
 
     app.post('/admin/json/', (req, res) =>{

@@ -1634,12 +1634,94 @@ function displayRecords(){
 
 function displayNexgenStats(){
 
+    console.table(nexgenSettings);
+    console.table(gametypes);
     %>
     <div class="admin-info">
         <div class="default-header">Nexgen Stats</div>    
+
         <div class="admin-info-text">
-            Here you can set up your what data your Unreal Tournament server can fetch for the Nexgen Stats plugin, there are a max of 30 players in total from all the categories you have selected. 
+            Here you can set up your what data your Unreal Tournament server can fetch for the Nexgen Stats plugin, there are a max of 30 players(mutator limit) in total from all the categories you have selected. 
         </div>
+
+    </div>
+
+    <div class="default">
+    
+        <div class="default-header">
+            Current Nexgen Stats Display
+        </div>
+
+        <pre>
+        <%=
+            dataString
+        %>
+        </pre>
+    </div>
+
+    <div class="default">
+        <div class="default-header">Add Gametype to Nexgen list</div>
+        <form method="POST" action="">
+            <div class="form-row-admin">
+                <div>
+                    Select Gametype
+                </div>
+                <div>
+                    <select id="add-gametype" class="default-select" name="add-gametype">
+                        <option value="0">Select Gametype</option>
+                        <%
+
+                            (() =>{
+                                const g = gametypes;
+
+
+                                for(let i = 0; i < g.length; i++){
+
+                                    %>
+                                        <option value="<%= g[i].id %>"><%= g[i].name %></option>
+                                    <%
+                                }
+                            })();
+                        %>
+                    </select>
+                </div>
+          
+            </div>
+
+            <div class="form-row-admin">
+                <div>Max Players</div>
+                <div>
+                    <select id="add-gametype-players" name="add-gametype-players" class="default-select">
+                        <%
+                            (() =>{
+                                for(let i = 1; i <= 30; i++){
+                                    %>
+                                    <option value="<%= i %>"><%= i %> players</option>
+                                    <%
+                                }
+                            })();
+                        %>
+                    </select>
+                </div>    
+            </div>
+            <div class="form-row-admin">
+                <div>Order Type</div>
+                <div>
+                    <select id="add-gametype-type" name="add-gametype-type" class="default-select">
+                        <option value="1">Ranking Points</option>    
+                        <option value="2">Total Kills</option>    
+                        <option value="3">Total Deaths</option>    
+                        <option value="4">Total Flag Captures</option>    
+                        <option value="5">Total Flag Kills</option>    
+                        <option value="6">Total Flag Covers</option>    
+                        <option value="7">Total Flag Grabs</option>    
+                        <option value="8">Total Flag Assists</option>    
+                    </select>    
+                </div>    
+            </div>
+            <input type="submit" id="add-server" class="form-button" value="Add Category">
+        </form>
+
     </div>
     <%
 }
