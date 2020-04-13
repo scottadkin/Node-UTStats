@@ -1632,10 +1632,109 @@ function displayRecords(){
     <%
 }
 
+function getGametype(id){
+
+    if(gametypes != undefined){
+
+        for(let i = 0; i < gametypes.length; i++){
+
+            if(gametypes[i].id == id){
+                return gametypes[i];
+            }
+        }
+
+    }
+
+    return {
+        "name": "Not Found"
+    };
+}
+
+const nexgenCategories = [
+    {"name": "Ranking Points", "value": 1},
+    {"name": "Total Kills", "value": 2},
+    {"name": "Total Deaths", "value": 3},
+    {"name": "Total Headshots", "value": 4},
+    {"name": "Total Flag Captures", "value": 5},
+    {"name": "Total Flag Kills", "value": 6},
+    {"name": "Total Flag Covers", "value": 7},
+    {"name": "Total Flag Grabs", "value": 8},
+    {"name": "Total Flag Assists", "value": 9},
+    {"name": "Total Flag Saves", "value": 10},
+    {"name": "Total Flag Returns", "value": 11},
+    {"name": "Total Time", "value": 12},
+    {"name": "Total Matches", "value": 13},
+    {"name": "Total Spawn Kills", "value": 14},
+    {"name": "Domination Caps", "value": 15},
+    {"name": "Assault Caps", "value": 16},
+    {"name": "Monster Kills(MH)", "value": 17},
+];
+
+
+function getNexgenCategoryName(id){
+
+    for(let i = 0; i < nexgenCategories.length; i++){
+
+        if(nexgenCategories[i].value == id){
+            return nexgenCategories[i].name;
+        }
+    }
+    return "Not Found";
+}
+
+
+function displayNexgenGametypesDropDown(id, value){
+
+    let string = '<select class="nexgen-dropdown" id="nexgen-settings-gametype-'+id+'" name="nexgen-settings-gametype-'+id+'">';
+
+    let d = 0;
+    let selectedString = "";
+
+    for(let i = 0; i < gametypes.length; i++){
+
+        d = gametypes[i];
+
+        if(i == 0){
+            selectedString = 'selected';
+            string += '<option value="0" '+selectedString+'>All Gametypes</option>';
+        }
+
+        selectedString = '';
+        if(d.id == value){
+            selectedString = 'selected';
+        }
+        string += '<option value="'+d.id+'" '+selectedString+'>'+d.name+'</option>';
+
+    }
+
+    return string+"</select>";
+}
+
+
+function displayNexgenCategoriesDropDown(id, value){
+
+    let string = '<select class="nexgen-dropdown" id="nexgen-settings-category-'+id+'" name="nexgen-settings-category-'+id+'">';
+
+    let d = 0;
+    let selectedString = "selected";
+
+    for(let i = 0; i < nexgenCategories.length; i++){
+
+        d = nexgenCategories[i];
+
+        selectedString = "";
+        if(d.value == value){
+            selectedString = "selected";
+        }
+
+        string += '<option value="'+d.value+'" '+selectedString+'>'+d.name+'</option>';
+    }
+    
+    return string+"</select>";
+}
+
 function displayNexgenStats(){
 
-    console.table(nexgenSettings);
-    console.table(gametypes);
     %>
     <div class="admin-info">
         <div class="default-header">Nexgen Stats</div>    
@@ -1713,6 +1812,52 @@ function displayNexgenStats(){
   
     </div>
 
+
+    <div class="default">
+        <div class="default-header">Modify Current Nexgen Data</div>
+
+        <div class="nexgen-setting">
+            <div class="yellow">Gametype</div>    
+            <div class="yellow">Display Name</div>    
+            <div class="yellow">Category Type</div>    
+            <div class="yellow text-center">Max Players</div>    
+            <div class="yellow text-center">Action</div>    
+        </div>
+        <%
+
+        //console.table(gametypes);
+
+        (() =>{
+
+            let currentGametype = null;
+
+            let d = 0;
+            
+
+            for(let i = 0; i < nexgenSettings.length; i++){
+
+                d = nexgenSettings[i];
+
+                currentGametype = getGametype(d.gametype_id);
+                %>
+                
+                    <div class="nexgen-setting">
+                        <input type="hidden" id="nexgen-setting-order-<%= i %>" name="nexgen-setting-order-<%- i %>" value="<%- i %>">
+                        <div> <%- displayNexgenGametypesDropDown(i, d.gametype_id) %></div>    
+                        <div> <input type="text" class="nexgen-textbox" id="nexgen-setting-name-<%= i %>" name="nexgen-setting-name-<%= i %>" placeholder="Display Name" value="<%= d.name %>"></div>    
+                        <div> <%- displayNexgenCategoriesDropDown(i, d.type) %></div>    
+                        <div class="text-center"> <input type="number" class="default-number" id="nexgen-setting-players-<%= i %>" name="nexgen-setting-players-<%= i %>" min="1" max="30" value="<%= d.players %>"></div>    
+                        <div class="text-center"><div class="nexgen-button" id="nexgen-setting-update-<%= i %>" style="background-color:rgb(0,150,0)">Updated</div><div class="nexgen-button">Move Up</div><div class="nexgen-button">Move Down</div><div class="nexgen-button red-warning">Delete</div></div>
+                    </div>
+                
+                <%
+            }
+
+        })();
+        
+        %>
+    </div>
+
     <div class="default">
         <div class="default-header">Add Gametype to Nexgen list</div>
         <form method="POST" action="">
@@ -1722,7 +1867,7 @@ function displayNexgenStats(){
                 </div>
                 <div>
                     <select id="add-gametype" class="default-select" name="add-gametype">
-                        <option value="0">Select Gametype</option>
+                        <option value="0">All Gametypes</option>
                         <%
 
                             (() =>{
@@ -1762,14 +1907,22 @@ function displayNexgenStats(){
                 <div>Order Type</div>
                 <div>
                     <select id="add-gametype-type" name="add-gametype-type" class="default-select">
-                        <option value="1">Ranking Points</option>    
-                        <option value="2">Total Kills</option>    
-                        <option value="3">Total Deaths</option>    
-                        <option value="4">Total Flag Captures</option>    
-                        <option value="5">Total Flag Kills</option>    
-                        <option value="6">Total Flag Covers</option>    
-                        <option value="7">Total Flag Grabs</option>    
-                        <option value="8">Total Flag Assists</option>    
+                        <%
+
+                            (() =>{
+
+                                let d = 0;
+
+                                for(let i = 0; i < nexgenCategories.length; i++){
+
+                                    d = nexgenCategories[i];
+
+                                    %>
+                                        <option value="<%= d.value %>"><%= d.name %></option>
+                                    <%
+                                }
+                            })();
+                        %>
                     </select>    
                 </div>    
             </div>

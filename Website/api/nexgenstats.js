@@ -185,11 +185,18 @@ class NexgenStats{
 
             case 2: { category = "kills"; } break;
             case 3: { category = "deaths"; } break;
-            case 4: { category = "flag_caps"; } break;
-            case 5: { category = "flag_kills"; } break;
-            case 6: { category = "flag_covers"; } break;
-            case 7: { category = "flag_grabs"; } break;
-            case 8: { category = "flag_assists"; } break;
+            case 4: { category = "headshots"; } break;
+            case 5: { category = "flag_caps"; } break;
+            case 6: { category = "flag_kills"; } break;
+            case 7: { category = "flag_covers"; } break;
+            case 8: { category = "flag_saves"; } break;
+            case 9: { category = "flag_returns"; } break;
+            case 10: { category = "total_time"; } break;
+            case 11: { category = "total_matches"; } break;
+            case 12: { category = "spawn_kills"; } break;
+            case 13: { category = "dom_caps"; } break;
+            case 14: { category = "assault_caps"; } break;
+            case 15: { category = "monster_kills"; } break;
             default: { category = "kills" } break;
         }
         
