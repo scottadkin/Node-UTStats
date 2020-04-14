@@ -1685,7 +1685,7 @@ function getNexgenCategoryName(id){
 
 function displayNexgenGametypesDropDown(id, value){
 
-    let string = '<select class="nexgen-dropdown" id="nexgen-settings-gametype-'+id+'" name="nexgen-settings-gametype-'+id+'">';
+    let string = '<select class="nexgen-dropdown" id="nexgen-setting-gametype-'+id+'">';
 
     let d = 0;
     let selectedString = "";
@@ -1713,7 +1713,7 @@ function displayNexgenGametypesDropDown(id, value){
 
 function displayNexgenCategoriesDropDown(id, value){
 
-    let string = '<select class="nexgen-dropdown" id="nexgen-settings-category-'+id+'" name="nexgen-settings-category-'+id+'">';
+    let string = '<select class="nexgen-dropdown" id="nexgen-setting-category-'+id+'">';
 
     let d = 0;
     let selectedString = "selected";
@@ -1849,13 +1849,15 @@ function displayNexgenStats(){
                 currentGametype = getGametype(d.gametype_id);
                 %>
                 
-                    <div class="nexgen-setting" data-id="<%- d.id %>">
-                        <input type="hidden" id="nexgen-setting-order-<%= d.id %>"  value="<%- i %>">
+                    <div class="nexgen-setting" data-id="<%- d.id %>" style="order:<%= i %>">
                         <div> <%- displayNexgenGametypesDropDown(d.id, d.gametype_id) %></div>    
                         <div> <input type="text" class="nexgen-textbox" id="nexgen-setting-name-<%= d.id %>" placeholder="Display Name" value="<%= d.name %>"></div>    
                         <div> <%- displayNexgenCategoriesDropDown(d.id, d.type) %></div>    
                         <div class="text-center"> <input type="number" class="default-number" id="nexgen-setting-players-<%= d.id %>" min="1" max="30" value="<%= d.players %>"></div>    
-                        <div class="text-center"><div class="nexgen-button" id="nexgen-setting-update-<%= d.id %>" style="background-color:rgb(0,150,0)">Updated</div><div class="nexgen-button">Move Up</div><div class="nexgen-button">Move Down</div><div id="nexgen-setting-delete-<%- d.id %>" class="nexgen-button red-warning">Delete</div></div>
+                        <div class="text-center">
+                            <div class="nexgen-button" id="nexgen-setting-update-<%= d.id %>" style="background-color:rgb(0,150,0)">Updated</div>
+                            <div id="nexgen-setting-delete-<%- d.id %>" class="nexgen-button red-warning">Delete</div>
+                        </div>
                     </div>
                 
                 <%
@@ -1886,15 +1888,33 @@ function displayNexgenStats(){
                             x.send("action=delete&id="+id);
                         }
 
+                        function updateSetting(gametype, name, type, players, id){
+
+                            const x = new XMLHttpRequest();
+
+                            x.onreadystatechange = () =>{
+
+                                if(x.status == 200 && x.readyState == 4){
+
+                                    console.log("test");
+
+                                }
+                            }
+
+                            x.open("post", "/admin/nexgen/");
+                            x.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                            x.send("action=update&id="+id+"&gametype="+gametype+"&name="+name+"&type="+type+"&players="+players);
+
+                        }
+
                         const elems = document.getElementsByClassName("nexgen-setting");
 
                         console.log(elems);
 
                         let deleteButton = null;
                         let updateButton = null;
-                        let moveUpButton = null;
-                        let moveDownButton = null;
                         let currentId = null;
+
 
                         for(let i = 0; i < elems.length; i++){
 
@@ -1905,17 +1925,36 @@ function displayNexgenStats(){
                             deleteButton = document.getElementById("nexgen-setting-delete-"+currentId);
                             updateButton = document.getElementById("nexgen-setting-update-"+currentId);
 
+
+                            ((id) =>{
+
+                                if(deleteButton != undefined){
+                                    deleteButton.addEventListener("mousedown", () =>{
+                                        deleteSetting(elems[i], id);
+                                    });
+                                }
+
+                                if(updateButton != undefined){
+                                    updateButton.addEventListener("mousedown", () =>{
+
+                                        const gametypeElem = document.getElementById("nexgen-setting-gametype-"+id);
+                                        const nameElem = document.getElementById("nexgen-setting-name-"+id);
+                                        const typeElem = document.getElementById("nexgen-setting-category-"+id);
+                                        const playersElem = document.getElementById("nexgen-setting-players-"+id);
+
+                                        console.log(gametypeElem);
+                                        console.log(nameElem);
+                                        console.log(typeElem);
+                                        console.log(playersElem);
+
+                                        updateSetting(gametypeElem.value, nameElem.value, typeElem.value, playersElem.value, id);
+                                    });
+                                }
+
+
                             
 
-                                ((id) =>{
-
-                                    if(deleteButton != undefined){
-                                        deleteButton.addEventListener("mousedown", () =>{
-                                            deleteSetting(elems[i], id);
-                                        });
-                                    }
-
-                                })(currentId);
+                            })(currentId);
                                 
                             
 

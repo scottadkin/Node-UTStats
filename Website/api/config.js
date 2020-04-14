@@ -83,13 +83,6 @@ const Config = {
     "minUsernameLength": 2,
     "minPasswordLength": 6,
 
-
-    "nexgenStatsGametypes": [
-        "Capture The Flag",
-        "Capture The Flag (Instagib)"
-    ],
-
-
     "maxAceLogs": 20
 };
 

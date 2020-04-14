@@ -131,8 +131,7 @@ const queries = [
         gametype_id int(11) NOT NULL,
         name varchar(50) NOT NULL,
         type int(11) NOT NULL,
-        players int(11) NOT NULL,
-        order_position int(11) NOT NULL
+        players int(11) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`,
 
       `ALTER TABLE nutstats_nexgen_stats

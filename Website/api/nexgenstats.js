@@ -358,7 +358,7 @@ class NexgenStats{
         
             this.settings = [];
 
-            const query = "SELECT * FROM nutstats_nexgen_stats ORDER BY order_position";
+            const query = "SELECT * FROM nutstats_nexgen_stats ORDER BY id ASC";
 
             mysql.query(query, (err, result) =>{
 
@@ -400,7 +400,7 @@ class NexgenStats{
     addSetting(req, res){
 
 
-        const query = "INSERT INTO nutstats_nexgen_stats VALUES(NULL,?, ?, ?, ?, 9999)";
+        const query = "INSERT INTO nutstats_nexgen_stats VALUES(NULL,?, ?, ?, ?)";
 
         let gametype = 0;
         let name = "Name not set";
@@ -461,14 +461,9 @@ class NexgenStats{
 
         let id = -1;
         let gametype = 0;
-        let name = "";
-        let type = "";
+        let name = "Not set";
+        let category = 1;
         let players = 0;
-        let position = 0;
-
-
-        const query = "UPDATE nutstats_nexgen_stats SET gametype=?, name=?, type=?, players=?, order_position=? WHERE id=?";
-
         let r = 0;
         
         if(req.body != undefined){
@@ -487,9 +482,45 @@ class NexgenStats{
             }
         }
 
-        mysql.query(query, [], (err) =>{
+        if(r.name != undefined){
+            name = r.name;
+        }
+
+        if(r.type != undefined){
+            category = parseInt(r.type);
+
+            if(category != category){
+                console.log("Type was NaN setting it to 1");
+                category = 1;
+            }
+        }
+
+        if(r.players != undefined){
+
+            players = parseInt(r.players);
+
+            if(players != players){
+                console.log("Players was NaN setting it to 5");
+                players = 5;
+            }
+        }
+
+        if(r.id != undefined){
+
+            id = parseInt(r.id);
+
+            if(id != id){
+                id = -1;
+                console.log("id was NaN setting it to -1");
+            }
+        }
+
+        const query = "UPDATE nutstats_nexgen_stats SET gametype_id=?, name=?, type=?, players=? WHERE id=?";
+
+        mysql.query(query, [gametype, name, category, players, id], (err) =>{
 
             if(err){
+                console.log(err);
                 res.render("error", {"req": req, "message": err, "config": config});
             }
 

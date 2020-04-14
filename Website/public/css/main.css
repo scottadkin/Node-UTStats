@@ -2599,6 +2599,7 @@ caption{
     margin-top:25px;
 }
 
+
 .nexgen-setting{
 
     background-color:rgb(12,12,12);
@@ -2610,7 +2611,7 @@ caption{
     color:white;
     margin-top:-1px;
     display:grid;
-    grid-template-columns: 20% 20% 15% 15% 30%;
+    grid-template-columns: 25% 20% 20% 15% 20%;
     font-weight:300;
     font-size:14px;
     line-height:32px;
@@ -2626,6 +2627,9 @@ caption{
     margin-right:5px;
     transition:background-color 0.5s;
     line-height:14px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }
 
 .nexgen-button:hover{
