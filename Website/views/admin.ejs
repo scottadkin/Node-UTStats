@@ -1841,17 +1841,81 @@ function displayNexgenStats(){
                 currentGametype = getGametype(d.gametype_id);
                 %>
                 
-                    <div class="nexgen-setting">
-                        <input type="hidden" id="nexgen-setting-order-<%= i %>" name="nexgen-setting-order-<%- i %>" value="<%- i %>">
-                        <div> <%- displayNexgenGametypesDropDown(i, d.gametype_id) %></div>    
-                        <div> <input type="text" class="nexgen-textbox" id="nexgen-setting-name-<%= i %>" name="nexgen-setting-name-<%= i %>" placeholder="Display Name" value="<%= d.name %>"></div>    
-                        <div> <%- displayNexgenCategoriesDropDown(i, d.type) %></div>    
-                        <div class="text-center"> <input type="number" class="default-number" id="nexgen-setting-players-<%= i %>" name="nexgen-setting-players-<%= i %>" min="1" max="30" value="<%= d.players %>"></div>    
-                        <div class="text-center"><div class="nexgen-button" id="nexgen-setting-update-<%= i %>" style="background-color:rgb(0,150,0)">Updated</div><div class="nexgen-button">Move Up</div><div class="nexgen-button">Move Down</div><div class="nexgen-button red-warning">Delete</div></div>
+                    <div class="nexgen-setting" data-id="<%- d.id %>">
+                        <input type="hidden" id="nexgen-setting-order-<%= d.id %>"  value="<%- i %>">
+                        <div> <%- displayNexgenGametypesDropDown(d.id, d.gametype_id) %></div>    
+                        <div> <input type="text" class="nexgen-textbox" id="nexgen-setting-name-<%= d.id %>" placeholder="Display Name" value="<%= d.name %>"></div>    
+                        <div> <%- displayNexgenCategoriesDropDown(d.id, d.type) %></div>    
+                        <div class="text-center"> <input type="number" class="default-number" id="nexgen-setting-players-<%= d.id %>" min="1" max="30" value="<%= d.players %>"></div>    
+                        <div class="text-center"><div class="nexgen-button" id="nexgen-setting-update-<%= d.id %>" style="background-color:rgb(0,150,0)">Updated</div><div class="nexgen-button">Move Up</div><div class="nexgen-button">Move Down</div><div id="nexgen-setting-delete-<%- d.id %>" class="nexgen-button red-warning">Delete</div></div>
                     </div>
                 
                 <%
             }
+
+            %>
+            
+
+                <script>
+                    (() =>{
+
+
+                        function deleteSetting(parent, id){
+                            
+                            const x = new XMLHttpRequest();
+
+                            x.onreadystatechange = () =>{
+
+                                if(x.status == 200 && x.readyState == 4){
+
+                                    parent.style.cssText = "display:none;";
+
+                                }
+                            }
+
+                            x.open("post", "/admin/nexgen/");
+                            x.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                            x.send("action=delete&id="+id);
+                        }
+
+                        const elems = document.getElementsByClassName("nexgen-setting");
+
+                        console.log(elems);
+
+                        let deleteButton = null;
+                        let updateButton = null;
+                        let moveUpButton = null;
+                        let moveDownButton = null;
+                        let currentId = null;
+
+                        for(let i = 0; i < elems.length; i++){
+
+                            console.log(elems[i].dataset.id);
+
+                            currentId = elems[i].dataset.id;
+
+                            deleteButton = document.getElementById("nexgen-setting-delete-"+currentId);
+                            updateButton = document.getElementById("nexgen-setting-update-"+currentId);
+
+                            
+
+                                ((id) =>{
+
+                                    if(deleteButton != undefined){
+                                        deleteButton.addEventListener("mousedown", () =>{
+                                            deleteSetting(elems[i], id);
+                                        });
+                                    }
+
+                                })(currentId);
+                                
+                            
+
+                        }
+                    })();
+                </script>
+            
+            <%
 
         })();
         

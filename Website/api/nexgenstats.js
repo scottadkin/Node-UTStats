@@ -103,9 +103,9 @@ class NexgenStats{
             }
         }
 
-        console.log("this.playerIds");
-        console.log(this.playerIds);
-        console.log("this.playerIds");
+        //console.log("this.playerIds");
+       // console.log(this.playerIds);
+        //console.log("this.playerIds");
     }
 
     
@@ -367,6 +367,28 @@ class NexgenStats{
                 if(result != undefined){
                     this.settings = result;
                 }
+
+                resolve();
+            });
+        });
+    }
+
+
+    deleteSetting(id){
+
+        return new Promise((resolve, reject) =>{
+
+            const query = "DELETE FROM nutstats_nexgen_stats WHERE id=? LIMIT 1";
+
+            id = parseInt(id);
+
+            if(id != id){
+                reject("deleteSetting() id must be an integer.");
+            }
+            mysql.query(query, [id], (err) =>{
+
+                if(err) reject(err);
+
 
                 resolve();
             });

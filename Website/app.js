@@ -2523,112 +2523,184 @@ function defaultServer(){
 
     });
 
-    app.post('/admin/nexgen/', (req, res) =>{
-
-        res.send("meow");
-    });
-
-    app.post('/admin/json/', (req, res) =>{
+    function bAdmin(req){
 
         if(req.session.bAdmin != undefined && req.session.bLoggedIn != undefined){
 
             if(req.session.bAdmin == true && req.session.bLoggedIn == true){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    async function deleteNexgenSetting(req, res, n){
+
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+            console.log("deleteNexgenSettings");
+      
+
+            if(req.body.id != undefined){
+
+                let id = req.body.id;
+    
+                id = parseInt(id);
+    
+                if(id != id){
+                    console.log("Nexgen setting id must be a valid integer.");
+                    return;
+                }
+
+                try{
+                    await n.deleteSetting(id);
+                    console.log("Deleted nexgen setting with the id of "+id);
+                    res.redirect("/admin?mode=nexgen-stats");
+
+                }catch(err){
+                    console.trace(err);
+                    res.render("error", {"req": req, "message": err, "config": config});
+                }
+            }
+
+        
+    }
+
+    app.post('/admin/nexgen/', (req, res) =>{
+
+        console.log("test");
+
+        console.log(req.body);
+
+        if(bAdmin(req)){
+            
+            console.log("check 2");
+
+            if(req.body.action != undefined){
+
+                console.log("check 3");
+                const n = new NexgenStats();
+
+                const action = req.body.action;
+
+                if(action == "delete"){
+                    console.log("check 4");
+                    deleteNexgenSetting(req, res, n);
+
+                }
+                
+
+            }
+            //res.send("meow");
+        }else{
+            res.send("");
+        }
+    });
 
 
-                if(req.body.mode != undefined){
-
-                    const mode = req.body.mode;
-
-                    if(mode == "playerips"){
+    app.post('/admin/json/', (req, res) =>{
 
 
-                        console.log(req.body);
-                        const p = new Players();
+        if(bAdmin(req)){
 
-                        if(req.body.name != undefined){
+            if(req.body.mode != undefined){
 
-                            p.getPlayerAdminName(req.body.name).then(() =>{
+                const mode = req.body.mode;
 
-                                console.log(p.usedIps);  
-
-                            }).then(() =>{
-
-                                return p.getPlayerAdminCountry(req.body.country);
-
-                            }).then(() =>{
-
-                                return p.getPlayerAdminIp(req.body.ip);
+                if(mode == "playerips"){
 
 
-                            }).then(() =>{
+                    console.log(req.body);
+                    const p = new Players();
 
-                                res.send(p.usedIps);
-                            }).catch((err) =>{
+                    if(req.body.name != undefined){
+
+                        p.getPlayerAdminName(req.body.name).then(() =>{
+
+                            console.log(p.usedIps);  
+
+                        }).then(() =>{
+
+                            return p.getPlayerAdminCountry(req.body.country);
+
+                        }).then(() =>{
+
+                            return p.getPlayerAdminIp(req.body.ip);
+
+
+                        }).then(() =>{
+
+                            res.send(p.usedIps);
+                        }).catch((err) =>{
+                            
+                            console.trace(err);
+
+                            res.send("[]");
+                        });
+
+                    }
+
+                }else if(mode == "ace"){
+
+
+                    const p = new Players();
+
+                    console.log(req.body);
+
+                    if(req.body.name != ''){
+
+                        if(req.body.ip == ''){
+
+                            p.getPlayerAceDetails(0, req.body.name).then(() =>{
+
+                                res.send(p.aceDetails);
                                 
-                                console.trace(err);
-
-                                res.send("[]");
+                            }).catch((err) =>{
+                                console.trace(err)
                             });
-
-                        }
-
-                    }else if(mode == "ace"){
-
-
-                        const p = new Players();
-
-                        console.log(req.body);
-
-                        if(req.body.name != ''){
-
-                            if(req.body.ip == ''){
-
-                                p.getPlayerAceDetails(0, req.body.name).then(() =>{
-
-                                    res.send(p.aceDetails);
-                                    
-                                }).catch((err) =>{
-                                    console.trace(err)
-                                });
-
-                            }else{
-
-                                p.getPlayerAceDetails(2, req.body.name, req.body.ip).then(() =>{
-
-                                    res.send(p.aceDetails);
-                                    
-                                }).catch((err) =>{
-                                    console.trace(err)
-                                });
-                            }
 
                         }else{
 
-                            if(req.body.ip != undefined || req.body.ip != ''){
+                            p.getPlayerAceDetails(2, req.body.name, req.body.ip).then(() =>{
 
-                                p.getPlayerAceDetails(1,req.body.ip).then(() =>{
+                                res.send(p.aceDetails);
+                                
+                            }).catch((err) =>{
+                                console.trace(err)
+                            });
+                        }
 
-                                    res.send(p.aceDetails);
-                                    
-                                }).catch((err) =>{
-                                    console.trace(err)
-                                });
-                            }else{
+                    }else{
 
-                                res.send("[]");
-                            }
+                        if(req.body.ip != undefined || req.body.ip != ''){
+
+                            p.getPlayerAceDetails(1,req.body.ip).then(() =>{
+
+                                res.send(p.aceDetails);
+                                
+                            }).catch((err) =>{
+                                console.trace(err)
+                            });
+                        }else{
+
+                            res.send("[]");
                         }
                     }
-                    console.log(req.body);
                 }
-                
-            }else{
-                console.log("Access Denied");
+                console.log(req.body);
             }
-
-        }else{
-            console.log("Access Denied2");
         }
+                
         
     });
 }
