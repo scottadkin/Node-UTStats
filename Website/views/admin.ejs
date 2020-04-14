@@ -1796,11 +1796,19 @@ function displayNexgenStats(){
                         }else{
 
                             subResult = headerReg.exec(result[1]);
-                            %>
-                            <div class="nexgen-header">
-                                <%= subResult[1] %>    
-                            </div>
-                            <%
+                            if(subResult != undefined){
+                                %>
+                                <div class="nexgen-header">
+                                    <%= subResult[1] %>    
+                                </div>
+                                <%
+                            }else{
+                                %>
+                                <div class="nexgen-header">
+                                    Name Not Set   
+                                </div>
+                                <%
+                            }
                         }
                     }
 
@@ -1924,13 +1932,22 @@ function displayNexgenStats(){
 
     <div class="default">
         <div class="default-header">Add Gametype to Nexgen list</div>
-        <form method="POST" action="">
+        <form method="POST" action="/admin/nexgen/">
+            <div class="form-row-admin">
+                <div>
+                    Display Name
+                </div>
+                <div>
+                    <input type="hidden" name="action" value="add">
+                    <input type="text" name="name" class="default-textbox" style="float:right;" placeholder="Display Name...">
+                </div>
+            </div>
             <div class="form-row-admin">
                 <div>
                     Select Gametype
                 </div>
                 <div>
-                    <select id="add-gametype" class="default-select" name="add-gametype">
+                    <select id="add-gametype" class="default-select" name="gametype">
                         <option value="0">All Gametypes</option>
                         <%
 
@@ -1954,7 +1971,7 @@ function displayNexgenStats(){
             <div class="form-row-admin">
                 <div>Max Players</div>
                 <div>
-                    <select id="add-gametype-players" name="add-gametype-players" class="default-select">
+                    <select id="add-gametype-players" name="players" class="default-select">
                         <%
                             (() =>{
                                 for(let i = 1; i <= 30; i++){
@@ -1970,7 +1987,7 @@ function displayNexgenStats(){
             <div class="form-row-admin">
                 <div>Order Type</div>
                 <div>
-                    <select id="add-gametype-type" name="add-gametype-type" class="default-select">
+                    <select id="add-gametype-type" name="category" class="default-select">
                         <%
 
                             (() =>{

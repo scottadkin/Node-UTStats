@@ -220,7 +220,7 @@ class NexgenStats{
                             "data": result
                         }
                     );
-                    console.log(this.topPlayers);
+                   // console.log(this.topPlayers);
                 }
 
                 resolve();
@@ -374,24 +374,126 @@ class NexgenStats{
     }
 
 
-    deleteSetting(id){
 
-        return new Promise((resolve, reject) =>{
+    deleteSetting(req, res, id){
 
-            const query = "DELETE FROM nutstats_nexgen_stats WHERE id=? LIMIT 1";
+        const query = "DELETE FROM nutstats_nexgen_stats WHERE id=? LIMIT 1";
 
-            id = parseInt(id);
+        id = parseInt(id);
 
-            if(id != id){
-                reject("deleteSetting() id must be an integer.");
+        if(id != id){
+            res.render("error", {"req": req, "message": "Nexgen.deleteSettings() id was NaN, it must be a valid integer.", "config": config});
+        }
+
+        mysql.query(query, [id], (err) =>{
+
+            if(err){
+                res.render("error", {"req": req, "message": err, "config": config});          
             }
-            mysql.query(query, [id], (err) =>{
 
-                if(err) reject(err);
+            console.log("Deleted nexgen setting with the id of "+id);
+            res.redirect("/admin?mode=nexgen-stats");
+
+        });
+    }
+
+    addSetting(req, res){
 
 
-                resolve();
-            });
+        const query = "INSERT INTO nutstats_nexgen_stats VALUES(NULL,?, ?, ?, ?, 9999)";
+
+        let gametype = 0;
+        let name = "Name not set";
+        let category = 1;
+        let players = 5;
+
+        const r = req.body;
+
+        console.log(r);
+
+        if(r.gametype != undefined){
+
+            gametype = parseInt(r.gametype);
+
+            if(gametype != gametype){
+                console.log("Gametype was NaN setting it to 1")
+                gametype = 1;
+            }
+        }
+
+        if(r.name != undefined){
+            name = r.name;
+        }
+
+        if(r.category != undefined){
+            category = parseInt(r.category);
+
+            if(category != category){
+                category = 1;
+                console.log("Category was NaN setting it to 1");
+            }
+        }
+
+        if(r.players != undefined){
+
+            players = parseInt(r.players);
+
+            if(r.players != r.players){
+                players = 5;
+                console.log("Players was NaN setting it to 5");
+            }
+        }
+
+        mysql.query(query, [gametype, name, category, players], (err) =>{
+
+            if(err){
+                res.render("error", {"req": req, "message": err, "config": config});
+            }
+
+            res.redirect("/admin?mode=nexgen-stats");
+        });
+    }
+
+    updateSetting(req, res){
+
+
+        
+
+        let id = -1;
+        let gametype = 0;
+        let name = "";
+        let type = "";
+        let players = 0;
+        let position = 0;
+
+
+        const query = "UPDATE nutstats_nexgen_stats SET gametype=?, name=?, type=?, players=?, order_position=? WHERE id=?";
+
+        let r = 0;
+        
+        if(req.body != undefined){
+
+            r = req.body;
+        }else{
+            res.render("error", {"req": req, "message": "NexgenSettings() req.body is undefined", "config": config});
+        }
+
+        if(r.gametype != undefined){
+            gametype = parseInt(r.gametype);
+
+            if(gametype != gametype){
+                console.log("gametype was NaN setting it to 1");
+                gametype = 1;
+            }
+        }
+
+        mysql.query(query, [], (err) =>{
+
+            if(err){
+                res.render("error", {"req": req, "message": err, "config": config});
+            }
+
+            res.redirect("/admin?mode=nexgen-stats");
         });
     }
 }

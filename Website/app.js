@@ -2535,71 +2535,45 @@ function defaultServer(){
         return false;
     }
 
-    async function deleteNexgenSetting(req, res, n){
-
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-            console.log("deleteNexgenSettings");
-      
-
-            if(req.body.id != undefined){
-
-                let id = req.body.id;
     
-                id = parseInt(id);
-    
-                if(id != id){
-                    console.log("Nexgen setting id must be a valid integer.");
-                    return;
-                }
-
-                try{
-                    await n.deleteSetting(id);
-                    console.log("Deleted nexgen setting with the id of "+id);
-                    res.redirect("/admin?mode=nexgen-stats");
-
-                }catch(err){
-                    console.trace(err);
-                    res.render("error", {"req": req, "message": err, "config": config});
-                }
-            }
-
-        
-    }
 
     app.post('/admin/nexgen/', (req, res) =>{
 
-        console.log("test");
 
         console.log(req.body);
 
         if(bAdmin(req)){
             
-            console.log("check 2");
-
             if(req.body.action != undefined){
 
-                console.log("check 3");
                 const n = new NexgenStats();
 
                 const action = req.body.action;
 
                 if(action == "delete"){
-                    console.log("check 4");
-                    deleteNexgenSetting(req, res, n);
 
+                    if(req.body.id != undefined){
+
+                        id = parseInt(req.body.id);
+
+                        if(id != id){
+                            console.log("/admin/nexgen/?action=delete id was NaN changing to 1");
+                            id = 1;
+                        }
+                        n.deleteSetting(req, res, id);
+                    }
+
+                    
+
+                }else if(action == "add"){
+
+
+                    n.addSetting(req, res);
+
+
+                }else if(action == "update"){
+                    n.updateSetting(req, res);
                 }
-                
-
             }
             //res.send("meow");
         }else{
