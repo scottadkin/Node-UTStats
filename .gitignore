@@ -1,1 +1,9 @@
 .idea/
+Importer/Logs/
+Importer/BT/
+Importer/Shots/
+Importer/node_modules/
+Importer/npm-debug.log
+Website/node_modules/
+Website/npm-debug.log
+Importer/tmp/
