@@ -140,19 +140,20 @@ function fixMapName(name){
     return name;
 }
 
-function getMapImage(name){
+function getMapImage(name, altName){
 
     const dir = "files/maps/";
     const thumbDirs = "files/maps/thumbs/";
     const ext = ".jpg";
 
     name = name+".jpg";
+    altName = altName+".jpg";
 
 
     //first look for thumbnails
     for(let i = 0; i < mapThumbs.length; i++){
 
-        if(mapThumbs[i] == name)
+        if(mapThumbs[i] == name || mapThumbs[i] == altName)
             return thumbDirs+mapThumbs[i];        
         
     }
@@ -161,7 +162,7 @@ function getMapImage(name){
 
     for(let i = 0; i < mapImages.length; i++){
 
-        if(mapImages[i] == name)
+        if(mapImages[i] == name || mapImages[i] == altName)
             return dir+mapImages[i];
         
     }
@@ -172,6 +173,7 @@ function getMapImage(name){
 
 function displayRecentMatches(){
 
+  
     if(typeof data.matches == undefined){
         return;
     }   
@@ -184,12 +186,21 @@ function displayRecentMatches(){
 
     <div class="default">
         <div class="default-header">Recent Matches</div>    
+
+        <div id="recent-match-test-potato">
+            
+        </div>
+
+        <script>
+            new RecentMatchDisplay('recent-match-test-potato');    
+        </script>
+
         <%
 
       
         let mapImage = null;
 
-        for(let i = 0; i < data.matches.length; i++){
+        for(let i = 99999999; i < data.matches.length; i++){
 
             d = data.matches[i];
 

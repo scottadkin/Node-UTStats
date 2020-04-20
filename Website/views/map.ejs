@@ -176,18 +176,18 @@ if(totalTeams < 2){
 
 function fixMapName(name){
 
-name = name.toLowerCase();
+    name = name.toLowerCase();
 
-const reg = /^.+?\-(.+)$/i;
+    const reg = /^.+?\-(.+)$/i;
 
-if(reg.test(name)){
+    if(reg.test(name)){
 
-    const result = reg.exec(name);
+        const result = reg.exec(name);
 
-    return result[1];
-}
+        return result[1];
+    }
 
-return name;
+    return name;
 }
 
 function getMapImage(name){
@@ -251,7 +251,7 @@ function displayRecentMatches(){
                     
                     <div>
                         
-                            <img src="files/maps/<%= mapImage %>" alt="sshot"/>
+                            <img src="<%= ogImage %>" alt="sshot"/>
                         
                     
                     </div>    

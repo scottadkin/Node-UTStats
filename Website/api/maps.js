@@ -12,6 +12,8 @@ class Maps{
   
         this.loadedMaps = [];
 
+        this.databaseImages = [];
+
     }
 
     getMostPlayedMaps(){
@@ -286,98 +288,171 @@ class Maps{
         });
     }
 
-    setMapImages(){
 
-        const dir = config.mapsDir;
-        const ext = config.mapsExt;
+    setImage(defaultName, altName, index){
+
+        defaultName = defaultName.toLowerCase();
+        altName = altName.toLowerCase();
+
+        console.log("DEFAULTNAME = "+defaultName);
+        console.log("altName = "+altName);
+
+        return new Promise((resolve, reject) =>{
+
+
+            this.mapList[index].sshot = config.defaultMap + config.mapsExt;
+
+            fs.access(config.mapsDir + defaultName + config.mapsExt, fs.constants.R_OK, (err) =>{
+
+                if(err){
+                    //console.log("SetImage with DefaultName doesn't exist. "+config.mapsDir +defaultName);
+                    fs.access(config.mapsDir + altName + config.mapsExt, fs.constants.R_OK, (err) =>{
+
+                        if(err){
+                            //console.log("Set Image with altName doesn't exist. "+config.mapsDir+altName);
+                        }else{
+        
+                            console.log("FOUND ALT NAME "+config.mapsDir+altName);
+                            this.mapList[index].sshot = altName + config.mapsExt;
+                        }
+        
+                        //resolve even if map Image not found because we set it to the default image.
+                        resolve();
+                    });
+                }else{
+                    
+                    console.log("FOUND DEFAULT NAME "+config.mapsDir +defaultName);
+                    this.mapList[index].sshot = defaultName + config.mapsExt;
+                    resolve();
+                }
+
+            });
+
+            
+
+           // console.table(this.mapList);
+
+        });
+    }
+
+    async setMapImages(){
 
         let d = 0;
-
-        const promises = [];
 
         const reg = /^(.+)\.unr$/i;
 
         let currentName = "";
+        let altName = "";
 
         let result = 0;
 
-       // console.log(this.mapList);
+        try{
 
-        for(let i = 0; i < this.mapList.length; i++){
+            for(let i = 0; i < this.mapList.length; i++){
 
-            d = this.mapList[i];
+                d = this.mapList[i];
 
-  
+                currentName = d.name;
 
-            currentName = d.name;
+                if(reg.test(currentName)){
 
-            if(reg.test(currentName)){
+                    result = reg.exec(d.name);
 
-                result = reg.exec(d.name);
+                    currentName = result[1];
+                }
 
-                currentName = result[1];
+                altName = this.removePrefix(currentName);
+
+                await this.setImage(currentName, altName, i);
+
             }
 
-            currentName = this.removePrefix(currentName);
+        }catch(err){
 
-            promises.push(new Promise((resolve, reject) =>{
-
-                const index = i;
-
-                const mn = currentName;
-
-                fs.access(dir+mn+ext, fs.constants.R_OK, (err) =>{
-
-                  
-                    if(err){
-                        this.mapList[index].sshot = config.defaultMap+ext
-                    }else{
-                        this.mapList[index].sshot =mn+ext
-                    }
-
-                    resolve();
-                });
-
-            }));
-
+            console.trace(err);
         }
 
-        
-
-        return Promise.all(promises);
     }
 
 
-    loadImages(maps){
+    loadImage(defaultName, altName){
 
-        //console.log(maps);
-        //console.log("loadImages");
-        const promises = [];
+        defaultName = defaultName.toLowerCase();
+        altName = altName.toLowerCase();
+        
+        console.log("DEFAULTNAME = "+defaultName);
+        console.log("ALTNAMe = "+altName);
+
+        return new Promise((resolve, reject) =>{
+
+            fs.access(config.mapsDir + defaultName + config.mapsExt, fs.constants.R_OK, (err) =>{
+
+                if(err){
+                    console.log("LoadImage with default name doesn't exist");
+
+
+                    //if we dont find the defaultName for the map look for the old style with no gametype prefix
+
+                    fs.access(config.mapsDir + altName + config.mapsExt, fs.constants.R_OK, (err) =>{
+
+                        if(err){
+
+                            console.log("LoadImage with altname doesn;t exist");
+
+                            this.loadedMaps.push({
+                                "name": defaultName,
+                                "file": "default.jpg"
+                            });
+
+                            resolve();
+
+                        }else{
+
+                            this.loadedMaps.push({
+                                "name": defaultName,
+                                "file": altName+".jpg"
+                            });
+                            resolve();
+                        }
+
+                    });
+
+                }else{
+                    this.loadedMaps.push({
+                        "name": defaultName,
+                        "file": defaultName+".jpg"
+                    });
+                    resolve();
+                }
+            });
+
+            
+        });
+    }
+
+    async loadImages(maps){
 
         const reg = /(.+)\.unr/i;
         const stripPrefix = /^.+?\-(.+)$/i;
 
-     
 
         let result = "";
 
-
-        
-
         if(maps == undefined){
-            return Promise.resolve(1);
+            return;
         }
 
-        for(let i = 0; i < maps.length; i++){
+        let currentMap = "";
+        let altName = "";
 
-            //console.log(i);
+        try{
 
-       
-            promises.push(new Promise((resolve, reject) =>{
+            for(let i = 0; i < maps.length; i++){
+
+                currentMap = "";
+                altName = "";
 
                 const m = maps[i].name;
-
-                let currentMap = "";
 
                 if(reg.test(m)){
 
@@ -392,38 +467,21 @@ class Maps{
 
                     result = stripPrefix.exec(currentMap);
 
-                    currentMap = result[1];
+                    altName = result[1];
                 }
 
-                //console.log("currentMap = "+currentMap);
+                await this.loadImage(currentMap, altName);         
 
-                currentMap = currentMap.toLowerCase();
+            }
 
-                fs.access(config.mapsDir+currentMap+config.mapsExt, fs.constants.R_OK, (err) =>{
+        }catch(err){
 
-                    if(err){
-                        this.loadedMaps.push({
-                            "name": currentMap,
-                            "file": "default.jpg"
-                        });
-                    }else{
-                        this.loadedMaps.push({
-                            "name": currentMap,
-                            "file": currentMap+".jpg"
-                        });
-                    }
-
-                   // console.log(this.loadedMaps);
-                    resolve();
-                });
-
-            }));
-                
-            
+            console.trace(err);
 
         }
-        
-        return Promise.all(promises);
+
+        console.table(this.loadedMaps);
+
     }
 
 
@@ -438,6 +496,7 @@ class Maps{
             newName = this.removeUnr(newName, true);
 
             this.realMapName = newName;
+            const altName = newName.toLowerCase();
             
             newName = this.removePrefix(newName);
             newName = newName.toLowerCase(newName);
@@ -448,12 +507,23 @@ class Maps{
 
             //console.log(config.mapsDir + newName + config.mapsExt);
 
-            fs.access(config.mapsDir + newName + config.mapsExt, fs.constants.R_OK, (err) =>{
+            fs.access(config.mapsDir + altName + config.mapsExt, fs.constants.R_OK, (err) =>{
 
                 if(err){
-                    this.mapImage = "files/maps/default" + config.mapsExt;
+                    //this.mapImage = "files/maps/default" + config.mapsExt;
+                    fs.access(config.mapsDir + newName + config.mapsExt, fs.constants.R_OK, (err) =>{
+
+                        if(err){
+                            this.mapImage = "files/maps/default" + config.mapsExt;
+                        }else{
+                            this.mapImage = "files/maps/"+ newName + config.mapsExt;
+                        }
+        
+                        resolve();
+                    });
+
                 }else{
-                    this.mapImage = "files/maps/"+ newName + config.mapsExt;
+                    this.mapImage = "files/maps/"+ altName + config.mapsExt;
                 }
 
                 resolve();

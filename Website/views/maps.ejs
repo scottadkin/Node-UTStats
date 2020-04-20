@@ -24,6 +24,25 @@ function stripUnr(name){
 }
 
 
+function findImage(name, bThumb){
+
+    let m = mapImages;
+
+    if(bThumb){
+        m = mapThumbs;
+    }
+
+    for(let i = 0; i < m.length; i++){
+
+        if(m[i] == name){
+            return m[i];
+        }
+    }
+
+    return null;
+}
+
+
 function getMapImage(name){
 
     name = name.toLowerCase(name);
@@ -31,6 +50,7 @@ function getMapImage(name){
 
     const reg = /^.+\-(.+)$/i;
 
+    const altName = name+".jpg";
     const result = reg.exec(name);
 
     if(result != null){
@@ -46,21 +66,47 @@ function getMapImage(name){
 
 
     //first look for thumbnails
-    for(let i = 0; i < mapThumbs.length; i++){
+    /*for(let i = 0; i < mapThumbs.length; i++){
 
-        if(mapThumbs[i] == name)
+        if(mapThumbs[i] == name || mapThumbs[i] == altName)
             return thumbDirs+mapThumbs[i];        
         
+    }*/
+
+    //look for thumb first with prefix
+
+    let bThumb = true;
+    
+    let currentImage = findImage(altName, true);
+
+    if(currentImage == null){
+        //look for fullsize with prefix
+
+        bThumb = false;
+        currentImage = findImage(altName, false);
+
+        if(currentImage == null){
+
+            //look for thumb without prefix
+            currentImage = findImage(name, true);
+
+            bThumb = true;
+
+            if(currentImage == null){
+                //look for fullsize without thumb
+                bThumb = false;
+                currentImage = findImage(name, false);
+            }
+        }
     }
 
-    //if there isn't a thumbnail get a fullsize image if it exists
+    if(currentImage != null){
 
-    for(let i = 0; i < mapImages.length; i++){
-
-        if(mapImages[i] == name)
-            return dir+mapImages[i];
-        
-    }
+        if(!bThumb){
+            return dir+currentImage;
+        }
+        return thumbDirs + currentImage;
+    }   
 
     return 'files/maps/default.jpg';
 }

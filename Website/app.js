@@ -1697,7 +1697,8 @@ function defaultServer(){
 
             await hits.updateHits();
 
-
+            console.table(maps.images);
+            console.table(maps.mapList);
             if(maps.totalMaps > 0){
                 pages = Math.ceil(maps.totalMaps / config.mapsPerPage);
             }
