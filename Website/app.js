@@ -1232,6 +1232,8 @@ function defaultServer(){
 
         }).then(() =>{
 
+            //console.log(data.mapNames);
+
             res.render("recent", {
                 "data":rm,
                 "page":page,
@@ -1697,12 +1699,16 @@ function defaultServer(){
 
             await hits.updateHits();
 
-            console.table(maps.images);
-            console.table(maps.mapList);
+           // console.table(maps.images);
+           // console.table(maps.mapList);
             if(maps.totalMaps > 0){
                 pages = Math.ceil(maps.totalMaps / config.mapsPerPage);
             }
+            //console.log("----------");
+           // console.table(maps.mapList);
             //console.log(maps.mapList);
+
+            
             res.render("maps",{
                 "req":req, 
                 "maps": maps.mapList, 
@@ -1832,6 +1838,7 @@ function defaultServer(){
 
             pages = Math.ceil(matches.mapMatchCount / config.mapsResultsPerPage);
 
+
             res.render("map.ejs", 
             {"req": req, 
                 "title": m.mapName, 
@@ -1847,6 +1854,7 @@ function defaultServer(){
                 "results": matches.mapMatchCount,
                 "longestMatch": m.longestMatchData,
                 "mapImages":maps.loadedMaps, 
+                "mapThumbs": [], 
                 "config": config,
                 "btRecords": bt.mapPlayerRecords,
                 "btPlayers": p.players

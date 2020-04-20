@@ -11,7 +11,7 @@ class RecentMatchDisplay{
         this.mapImages = mapImages;
         
        // console.table(maps);
-        console.table(this.mapThumbs);
+        console.table(mapImages);
 
 
     }
@@ -39,8 +39,14 @@ class RecentMatchDisplay{
 
             d = this.mapThumbs[i];
 
-            if(d == name+".jpg"){
-                return d;
+            if(d.name == undefined){
+                if(d == name+".jpg"){
+                    return d;
+                }
+            }else{
+                if(d.name == name){
+                    return d.file;
+                }
             }
         }
 
@@ -54,10 +60,20 @@ class RecentMatchDisplay{
 
         for(let i = 0; i < this.mapImages.length; i++){
 
+            
             d = this.mapImages[i];
 
-            if(d == name+".jpg"){
-                return d;
+            console.log("looking for "+name+" found"+d);
+            console.log(d);
+
+            if(d.name == undefined){
+                if(d == name+".jpg"){
+                    return d;
+                }
+            }else{
+                if(d.name == name){
+                    return d.file;
+                }
             }
         }
 
@@ -67,6 +83,7 @@ class RecentMatchDisplay{
 
     getMapImage(mapName){
 
+        console.log("mapName = "+mapName);
         mapName = mapName.toLowerCase();
         const altName = this.stripPrefix(mapName);
         console.log("Looking for image for "+mapName+ " or "+altName+"");
@@ -83,11 +100,30 @@ class RecentMatchDisplay{
         const fullsize = this.getMapFullsize(altName);
 
 
-        console.log("PrefixThumb = "+prefixThumb);
+       console.log("PrefixThumb = "+prefixThumb);
         console.log("PrefixFullSize = "+prefixFullsize);
 
         console.log("thumb = "+thumb);
         console.log("fullSize = "+fullsize);
+
+        if(prefixThumb != null){
+            return thumbsDir+prefixThumb;
+        }
+
+        if(prefixFullsize != null){
+            return dir+prefixFullsize;
+        }
+
+        if(thumb != null){
+            return thumbsDir+thumb;
+        }
+
+        if(fullsize != null){
+            return thumbsDir+fullsize;
+        }
+
+
+        return thumbsDir+"default.jpg";
 
         
     }
@@ -202,8 +238,8 @@ class RecentMatchDisplay{
         
         const mapImage = document.createElement("img");
 
-        this.getMapImage(this.getMapName(map));
-        mapImage.src = mapImageUrl;
+        const mapImageSource = this.getMapImage(this.getMapName(map));
+        mapImage.src = mapImageSource;
         mapImage.alt = "image";
 
         innerElem.appendChild(imageElem);

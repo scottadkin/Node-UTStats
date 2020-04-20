@@ -445,6 +445,7 @@ class Match{
            // console.log(this.matchData);
 
             let mapName = this.matchData.mapName;
+            const altName = this.matchData.mapName;
 
 
 
@@ -465,14 +466,22 @@ class Match{
             }
 
 
-            fs.access("public/"+dir+mapName+ext, fs.constants.F_OK, (err) =>{
+            fs.access("public/"+dir+altName+ext, fs.constants.R_OK, (err) =>{
 
                 if(err){
                     //new Message("warning","Map image doesnt exist using default instead ("+err+")");
-                    this.matchData.mapImage = "default";
+                    fs.access("public/"+dir+mapName+ext, fs.constants.R_OK, (err) =>{
+
+                        if(err){
+                            this.matchData.mapImage = "default";
+                        }else{
+                            this.matchData.mapImage = mapName;
+                        }
+                    });
+                    
                     resolve();
                 }else{
-                    this.matchData.mapImage = mapName;
+                    this.matchData.mapImage = altName;
                     resolve();
                 }
 

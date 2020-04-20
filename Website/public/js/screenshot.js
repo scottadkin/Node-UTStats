@@ -7,6 +7,8 @@ class MatchScreenShot{
 
     constructor(parent, mapUrl, data){
 
+
+        console.log("mapURL = "+mapUrl);
         this.parent = document.getElementById(parent);
 
         this.data = data;
