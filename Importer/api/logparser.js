@@ -166,6 +166,10 @@ class LogParser{
 
                 if(this.currentLog < this.logs.length){
 
+                    if(config.daemonize === false) {
+                        throw new Error('ouch! Something was wrong on log lenght');
+                    }
+
                     this.main();
 
                 }else{
@@ -199,13 +203,20 @@ class LogParser{
                 new Message("pass","No logs found to import.");
             }
 
+            if(config.daemonize === false) {
+                process.exit();
+            }
+
         }catch(error){
 
             console.trace(error);
             new Message("error", error);
             //new Message("error", "Failed to recover from previous error.");
            // throw new Error("FART");
-           //process.exit(1);
+
+           if(config.daemonize === false) {
+               process.exit(1);
+           }
         }
         
     }

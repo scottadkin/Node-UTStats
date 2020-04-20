@@ -42,7 +42,8 @@ const Config = {
     btIniImportDir: "BT/Imported/",
     mapsDir: "Maps/",
     mapsImportJSON: "imported.json",
-    tmpDir: "Tmp/"
+    tmpDir: "Tmp/",
+    daemonize: true //Set this to false if you want to run satandalone (for example, run as a cronjob)
 };
 
 
