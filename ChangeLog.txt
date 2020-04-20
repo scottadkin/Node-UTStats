@@ -1,3 +1,15 @@
+- Build 12B release notes (20/04/20)
+- Changed how map images are displayed, instead of just looking for an image name without a gametype prefix the system will now look for a file with the gametype prefix, if that is not found it will look for an image with the gametype prefix, and if that also fails it will display the default image.
+- Changed how the recent matches display is rendered
+
+- Build 12 release notes(14/04/20):
+- Added player name to page description and open graph data, for individual player match report.
+- Moved player profile link on individual player match report to the top.
+- Fixed empty pickup data being displayed if there were no pickup events during match.
+- Added server hostname to server query page. (Thanks to fbraz3)
+- Added files to a perfect webserver setup(Linux). (Thanks to fbraz3)
+- Added Nexgen stats viewer tool to admin area.
+
 - Build 11 release notes(09/04/20)
 - The Website, Importer and Mutator are now combined into one package, you no longer need to install the server/importer module to each ut server now just add the server ftp details to the ftpServers array in Importer/api/config.js.
 - Added FTP support, you can now have an array of servers for the importer to download the logs from the utservers.
