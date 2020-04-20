@@ -182,6 +182,8 @@ function displayRecentMatches(){
         return;
     }
 
+    console.table(data.matches);
+
     %>  
 
     <div class="default">
@@ -192,7 +194,51 @@ function displayRecentMatches(){
         </div>
 
         <script>
-            new RecentMatchDisplay('recent-match-test-potato');    
+            const rmd = new RecentMatchDisplay('recent-match-test-potato',<%- JSON.stringify(data.mapNames) %>, <%- JSON.stringify(data.gametypeNames) %>, <%- JSON.stringify(mapThumbs) %>, <%- JSON.stringify(mapImages) %>);
+            
+            //displayBox(serverName, matchId, mapImageUrl, mapName, gametypeName, date, matchLength, players, totalTeams){
+
+            <%
+                (() =>{
+
+                    let d = 0;
+
+                    let mapFile = "files/maps/default.jpg";
+
+                    let winnerStuff = "";
+
+
+                    for(let i = 0; i < data.matches.length; i++){
+
+                        d = data.matches[i];
+
+                        winnerStuff = {
+                                    "dmWinner":  d.dm_winner,
+                                    "red": d.teamscore_0,
+                                    "blue": d.teamscore_1,
+                                    "green": d.teamscore_2,
+                                    "yellow": d.teamscore_3
+                                };
+                        %>
+                            rmd.displayBox(
+                                <%- "'"+d.name+"'" %>,
+                                <%= d.id %>,
+                                <%- "'"+mapFile+"'" %>,
+                                <%= d.map %>,
+                                <%= d.gametype %>,
+                                <%= d.date %>,
+                                <%= d.match_playtime %>,
+                                <%= d.total_players %>,
+                                <%= d.total_teams %>,
+                                <%- JSON.stringify(winnerStuff) %>
+
+                            );
+                        <%
+                    }
+
+                })();
+                
+            %>
         </script>
 
         <%
