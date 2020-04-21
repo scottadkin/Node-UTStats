@@ -1027,6 +1027,12 @@ class MatchScreenShot{
 
         this.setMaxCTFValues();
 
+        let maxPlayers = 6;
+
+        if(this.data.total_teams > 2){
+            maxPlayers = 3;
+        }
+
         const c = this.c;
 
 
@@ -1039,24 +1045,24 @@ class MatchScreenShot{
 
         const teamWidth = this.x(40);
 
-        const playerHeight = this.y(9.25);
+        const playerHeight = this.y(8);
 
         const headerStartY = this.y(12);
 
-        const headerHeight = this.y(5);
+        const headerHeight = this.y(4);
 
-        const iconSize = this.y(4);
+        const iconSize = this.y(3);
         const iconOffsetY = this.y(0.5);
         const iconOffsetX = this.x(1);
 
         const teamScoreOffset = this.x(4);
-        const teamScoreOffsetY = this.y(0.7);
+        const teamScoreOffsetY = this.y(0.5);
        
 
         const nameOffset = this.x(4);
         const scoreOffset = this.x(39.2);
         const nameOffsetY = this.y(0.9);
-        const nameFont = this.y(1.9)+"px arial";
+        const nameFont = this.y(1.7)+"px arial";
 
         const pingFont = this.y(0.8)+"px Arial";
 
@@ -1070,32 +1076,29 @@ class MatchScreenShot{
 
         c.fillStyle = "rgba(0,0,0,0.75)";
 
-        const headerFont = this.y(4)+"px arial";
-        const headerFont2 = this.y(2.25)+"px arial";
+        const headerFont = this.y(3)+"px arial";
+        const headerFont2 = this.y(2.05)+"px arial";
 
         c.font = headerFont;
 
-        const fragsPointsHeaderX = this.x(33); 
-        const fragsPointsHeaderY = this.y(1.5); 
+        const fragsPointsHeaderX = this.x(34); 
+        const fragsPointsHeaderY = this.y(1); 
         
         const pingAverageOffsetX = this.x(8);
-        const pingAverageOffsetY = this.y(1.25);
+        const pingAverageOffsetY = this.y(1);
 
-        const pingRowHeight = this.y(1.5);
+        const pingRowHeight = this.y(1.25);
 
 
         const pingOffset = {"x": this.x(1), "y": this.y(1)};
         const tmOffset = {"x": this.x(2), "y": 0};
 
-        if(this.data.total_teams == 2){
+       // if(this.data.total_teams == 2){
 
 
             c.font = headerFont;
 
-            c.drawImage(this.smartCTFBG, teamX, headerStartY, teamWidth, headerHeight);
-            c.drawImage(this.smartCTFBG, teamX, headerStartY, teamWidth, headerHeight);
-            c.drawImage(this.smartCTFBG, teamX, headerStartY, teamWidth, headerHeight);
-            c.drawImage(this.smartCTFBG, teamX, headerStartY, teamWidth, headerHeight);
+            c.drawImage(this.smartCTFBG, team2X, headerStartY, teamWidth, headerHeight);
             c.fillStyle = "rgba(255,0,0,0.3)";
             c.fillRect(teamX, headerStartY, teamWidth, headerHeight);
 
@@ -1114,6 +1117,7 @@ class MatchScreenShot{
             c.fillText("TM:"+(Math.ceil(this.data.match_playtime / 60)), teamX + pingAverageOffsetX, headerStartY + pingAverageOffsetY + pingRowHeight);
 
 
+            //blue
             c.font = headerFont;
             c.drawImage(this.smartCTFBG, team2X, headerStartY, teamWidth, headerHeight);
             c.fillStyle = "rgba(0,32,255,0.3)";
@@ -1133,7 +1137,57 @@ class MatchScreenShot{
 
             c.fillText("PING: "+this.getTeamPingAverage(1)+"  PL:0%", team2X + pingAverageOffsetX, headerStartY + pingAverageOffsetY);
             c.fillText("TM:"+(Math.ceil(this.data.match_playtime / 60)), team2X + pingAverageOffsetX, headerStartY + pingAverageOffsetY + pingRowHeight);
-        }
+
+            //green
+
+            if(this.data.total_teams >= 3){
+
+                c.font = headerFont;
+
+                c.drawImage(this.smartCTFBG, team2X, team2Y, teamWidth, headerHeight);
+                c.fillStyle = "rgba(0,255,0,0.3)";
+                c.fillRect(teamX, team2Y, teamWidth, headerHeight);
+
+                c.drawImage(this.greenTeamIcon, teamX + iconOffsetX, team2Y + iconOffsetY, iconSize, iconSize);
+                c.fillStyle = green;
+                c.fillText(this.data.teamscore_2, teamX + teamScoreOffset, team2Y + teamScoreOffsetY);
+
+                c.font = headerFont2;
+
+                c.fillText("Frags / Pts", teamX + fragsPointsHeaderX, team2Y+ fragsPointsHeaderY);
+
+                c.font = pingFont;
+                c.fillStyle = "rgb(160,160,160)";
+
+                c.fillText("PING: "+this.getTeamPingAverage(2)+"  PL:0%", teamX + pingAverageOffsetX, team2Y + pingAverageOffsetY);
+                c.fillText("TM:"+(Math.ceil(this.data.match_playtime / 60)), teamX + pingAverageOffsetX, team2Y + pingAverageOffsetY + pingRowHeight);
+
+            }
+
+
+            //yellow
+            if(this.data.total_teams >= 4){
+                c.font = headerFont;
+                c.drawImage(this.smartCTFBG, team2X, team2Y, teamWidth, headerHeight);
+                c.fillStyle = "rgba(255,255,60,0.3)";
+                c.fillRect( team2X, team2Y, teamWidth, headerHeight);
+
+                c.drawImage(this.yellowTeamIcon, team2X + iconOffsetX, iconOffsetY + team2Y, iconSize, iconSize);
+                c.fillStyle = yellow;
+                c.fillText(this.data.teamscore_3, team2X + teamScoreOffset, team2Y + teamScoreOffsetY);
+
+
+                c.font = headerFont2;
+
+                c.fillText("Frags / Pts", team2X + fragsPointsHeaderX, team2Y + fragsPointsHeaderY);
+
+                c.font = pingFont;
+                c.fillStyle = "rgb(160,160,160)";
+
+                c.fillText("PING: "+this.getTeamPingAverage(3)+"  PL:0%", team2X + pingAverageOffsetX, team2Y + pingAverageOffsetY);
+                c.fillText("TM:"+(Math.ceil(this.data.match_playtime / 60)), team2X + pingAverageOffsetX, team2Y + pingAverageOffsetY + pingRowHeight);
+            }
+        //}
 
 
         let totalRedPlayers = 0;
@@ -1158,14 +1212,14 @@ class MatchScreenShot{
 
         let teamColor = 0;
 
-        const flagSizeX = this.x(1.3);
-        const flagSizeY = this.y(1.3);
-        const flagOffsetX = this.x(1.4);
-        const flagOffsetY = this.y(5);
+        const flagSizeX = this.x(1.1);
+        const flagSizeY = this.y(1.1);
+        const flagOffsetX = this.x(1.3);
+        const flagOffsetY = this.y(4.1);
 
         const pingOffsetX = this.x(1);
-        const pingOffsetY = this.y(7);
-        const pingOffsetY2 = this.y(8.1);
+        const pingOffsetY = this.y(5.75);
+        const pingOffsetY2 = this.y(6.75);
             
         let nameSize = 0;
 
@@ -1190,7 +1244,7 @@ class MatchScreenShot{
             }
 
 
-            if(currentTeamIndex > 6){
+            if(currentTeamIndex > maxPlayers){
                 continue;
             }
             //red or green
@@ -1263,7 +1317,7 @@ class MatchScreenShot{
             c.fillStyle = "rgb(160,160,160)";
             c.fillText("TM: "+Math.ceil((d.play_time / 60))+" EFF: "+Math.floor(d.eff)+"%", x + nameOffset + nameSize, y + nameOffsetY + this.y(0.8));
 
-            y = y + this.y(4);
+            y = y + this.y(3);
 
             this.drawSmartCTFBar(0,0,x + pingOffsetX, y, "Caps", d.flag_caps, this.maxCaps);
             this.drawSmartCTFBar(1,0,x + pingOffsetX, y, "Grabs", d.flag_grabs, this.maxGrabs);
