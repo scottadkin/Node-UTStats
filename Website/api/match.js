@@ -444,6 +444,8 @@ class Match{
 
            // console.log(this.matchData);
 
+           this.matchData.mapName = this.matchData.mapName.toLowerCase();
+
             let mapName = this.matchData.mapName;
             const altName = this.matchData.mapName;
 
