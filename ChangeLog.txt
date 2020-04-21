@@ -1,3 +1,7 @@
+- Build 12C release notes(21/04/20):
+- Added support for 4CTF screenshots.
+- Fixed map screenshot on matches page to always use the non prefix over gametype prefix names.
+
 - Build 12B release notes (20/04/20)
 - Changed how map images are displayed, instead of just looking for an image name without a gametype prefix the system will now look for a file with the gametype prefix, if that is not found it will look for an image with the gametype prefix, and if that also fails it will display the default image.
 - Changed how the recent matches display is rendered
