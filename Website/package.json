@@ -6,7 +6,7 @@
   "dependencies": {
     "ejs": "^2.6.2",
     "express": "^4.17.1",
-    "express-fileupload": "^1.1.6-alpha.6",
+    "express-fileupload": "^1.1.9",
     "express-mysql-session": "^2.1.0",
     "express-session": "^1.16.2",
     "jimp": "^0.8.5",
