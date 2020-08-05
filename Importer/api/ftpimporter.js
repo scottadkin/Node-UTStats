@@ -429,7 +429,7 @@ class FTPImporter{
                 }else if(!bNeverDelete){
 
 
-                    this.client.rename(dir+ file.name, config.backupFolder + file.name, (err) =>{
+                    this.client.rename(dir + file.name, config.backupFolder + file.name, (err) =>{
 
                         if(err) {
                             new Message("error",err);

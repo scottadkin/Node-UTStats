@@ -17,6 +17,8 @@ class LogParser{
 
     constructor(){
 
+        console.log("New LogParser");
+
         this.files = [];
         this.logs = [];
         this.tmps = [];
@@ -113,23 +115,60 @@ class LogParser{
 
     }
 
+    getImportLogFiles(){
+
+        const files = fs.readdirSync(config.logDir);
+
+        console.table(files);
+
+        const logs = [];
+
+        const logReg = /^.+\.log$/;
+
+        for(let i = 0; i < files.length; i++){
+
+            if(logReg.test(files[i])){
+                logs.push(
+                    {
+                        "name": files[i]
+                    });
+            }
+        }
+
+        console.table(logs);
+
+        return logs;
+
+    }
+
     async getFiles(){
 
-        let d = 0;
+        try{
 
-        for(let i = 0; i < config.ftpServers.length; i++){
+            let d = 0;
 
-            d = config.ftpServers[i];
+            
 
-            this.ftpConnections.push(new Importer(d.host, d.port, d.user, d.password));
+            this.logs = this.logs.concat(this.getImportLogFiles());
 
-            await this.ftpConnections[i].import();
+            for(let i = 0; i < config.ftpServers.length; i++){
 
-            this.logs = this.logs.concat(this.ftpConnections[i].logs);
-            this.tmps = this.tmps.concat(this.ftpConnections[i].tmpFiles);
-            this.maps = this.maps.concat(this.ftpConnections[i].maps);
-           // console.log("check");
-            //new Message("note", "Connecting to ftp "+config.ftpServers[i].host+":"+config.ftpServers[i].port);
+                d = config.ftpServers[i];
+
+                this.ftpConnections.push(new Importer(d.host, d.port, d.user, d.password));
+
+                await this.ftpConnections[i].import();
+
+                this.logs = this.logs.concat(this.ftpConnections[i].logs);
+                this.tmps = this.tmps.concat(this.ftpConnections[i].tmpFiles);
+                this.maps = this.maps.concat(this.ftpConnections[i].maps);
+            // console.log("check");
+                //new Message("note", "Connecting to ftp "+config.ftpServers[i].host+":"+config.ftpServers[i].port);
+            }
+
+        }catch(err){
+            new Message("error");
+            console.trace(err);
         }
 
     }

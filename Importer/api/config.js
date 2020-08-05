@@ -1,10 +1,9 @@
 
-
 const Config = {
     host:"localhost", //database host
     user:"root",    //database user
     password:"", // database password
-    database:"1337node_utstats", // database name
+    database:"node_utstats", // database name
     port: "3306",   //database port
 
     ftpServers: [
